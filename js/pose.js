@@ -194,13 +194,15 @@ function largestFace(detections) {
   return best;
 }
 
-// Calls `fn(now)` once per new camera frame (falls back to rAF polling).
+// Calls `fn(now, metadata)` once per new camera frame (falls back to rAF polling).
+// `metadata` is the requestVideoFrameCallback metadata (captureTime etc.) or null:
+// the field test uses it to time frames for the body-latency measurement.
 export function onEveryVideoFrame(video, fn) {
   let stopped = false;
   if ('requestVideoFrameCallback' in HTMLVideoElement.prototype) {
-    const tick = (now) => {
+    const tick = (now, metadata) => {
       if (stopped) return;
-      fn(now);
+      fn(now, metadata);
       video.requestVideoFrameCallback(tick);
     };
     video.requestVideoFrameCallback(tick);
@@ -210,7 +212,7 @@ export function onEveryVideoFrame(video, fn) {
       if (stopped) return;
       if (video.currentTime !== lastTime) {
         lastTime = video.currentTime;
-        fn(now);
+        fn(now, null);
       }
       requestAnimationFrame(tick);
     };

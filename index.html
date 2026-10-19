@@ -9,6 +9,8 @@
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body data-screen="home">
+  <!-- ?protocol: show the field test right away instead of flashing the home screen. -->
+  <script>if (/[?&]protocol(?:[=&]|$)/.test(location.search)) document.body.dataset.screen = 'protocol';</script>
 
   <!-- ============ HOME ============ -->
   <main id="home" class="screen">
@@ -254,6 +256,173 @@
         <button id="to-home" class="btn ghost">Настройки</button>
       </div>
     </div>
+  </main>
+
+  <!-- ============ PROTOCOL (?protocol): Stage 0 field test, plan §12.1 ============ -->
+  <main id="protocol" class="screen">
+    <!-- One camera box for every step: moving a playing <video> in the DOM would pause it. -->
+    <div class="p-cam" id="p-cam" data-size="off">
+      <video id="p-video" playsinline muted></video>
+      <canvas id="p-overlay"></canvas>
+    </div>
+
+    <section class="card p-step" id="p-consent" hidden>
+      <p class="eyebrow">Plank Run · живая проверка</p>
+      <h2 class="p-h">Проверка игры на тебе и твоём телефоне</h2>
+      <p>6–8 минут: короткие отрезки планки, каждый не дольше 20 секунд, между ними отдых. Телефон сам подсказывает голосом, что делать. В конце — 5 вопросов и файл с числами для владельца проекта.</p>
+      <p class="p-safety"><b>Безопасность.</b> Держи только до сигнала. Любой отрезок можно сделать на коленях или пропустить. Боль, головокружение, одышка — сразу остановись. Болит поясница — пропусти провис и „домик“.</p>
+      <h3>Согласие на запись</h3>
+      <ul class="p-list">
+        <li><b>Что записывается — только числа:</b> где лицо в кадре относительно стартовой позиции (в «ширинах лица») или углы корпуса при съёмке сбоку, держишь ли ты планку, паузы, скорость работы телефона, модель телефона и браузер, твои ответы на вопросы.</li>
+        <li><b>Не записывается:</b> видео, фото, точки тела. Камера работает только внутри телефона.</li>
+        <li><b>Кто получит:</b> только владелец проекта — и только если ты сам(а) отправишь ему файл в конце. Сам телефон ничего никуда не загружает.</li>
+        <li><b>Когда удалим:</b> через 90 дней после того, как по этим данным настроим пороги распознавания.</li>
+        <li>Ответы о шее и боли лежат в файле отдельно и без псевдонима.</li>
+      </ul>
+      <div class="field">
+        <label class="label" for="p-pseudonym">Псевдоним — не настоящее имя</label>
+        <input id="p-pseudonym" class="p-input" type="text" maxlength="24" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="например, лиса-7">
+      </div>
+      <label class="toggle p-agree"><input type="checkbox" id="p-agree"><span>Согласен(на) на запись этих чисел и отправлю файл владельцу сам(а)</span></label>
+      <div class="actions">
+        <button id="p-consent-next" class="btn primary" disabled>Дальше</button>
+        <a class="btn ghost" href="./">Обычная игра</a>
+      </div>
+    </section>
+
+    <section class="card p-step" id="p-setup" hidden>
+      <h2 class="p-h">Где будет камера?</h2>
+      <div class="choice-grid" role="radiogroup" aria-label="Расположение камеры">
+        <label class="choice">
+          <input type="radio" name="p-camera" value="front" checked>
+          <svg viewBox="0 0 200 110" aria-hidden="true">
+            <line x1="5" y1="96" x2="195" y2="96" class="floor"/>
+            <path d="M14 96 L 22 70 L 26 71 L 19 96 Z" class="device"/>
+            <circle cx="22" cy="75" r="2.2" class="lens"/>
+            <path d="M24 74 L 52 62" class="ray"/>
+            <text x="36" y="50" class="hint">50–80 см</text>
+            <circle cx="62" cy="60" r="8" class="body"/>
+            <path d="M70 64 L 172 78" class="body-line"/>
+            <path d="M76 66 L 76 96 L 62 96" class="body-line"/>
+            <path d="M172 78 L 180 96" class="body-line"/>
+          </svg>
+          <strong>Спереди</strong>
+          <span>Основной вариант. Телефон на полу в 50–80 см перед руками, экраном к тебе, с наклоном (обопри на книгу).</span>
+          <em class="badge">Основной</em>
+        </label>
+        <label class="choice">
+          <input type="radio" name="p-camera" value="side">
+          <svg viewBox="0 0 200 110" aria-hidden="true">
+            <line x1="5" y1="96" x2="195" y2="96" class="floor"/>
+            <circle cx="40" cy="62" r="8" class="body"/>
+            <path d="M48 66 L 150 78" class="body-line"/>
+            <path d="M52 68 L 52 96 L 70 96" class="body-line"/>
+            <path d="M150 78 L 156 96" class="body-line"/>
+            <rect x="88" y="14" width="34" height="22" rx="3" class="device"/>
+            <circle cx="105" cy="25" r="2.5" class="lens"/>
+            <text x="105" y="50" class="hint">2–3 м сбоку</text>
+          </svg>
+          <strong>Сбоку</strong>
+          <span>Дополнительно, если есть ноутбук или второй телефон: 2–3 м сбоку, всё тело в кадре.</span>
+        </label>
+      </div>
+      <div class="field p-back" id="p-back-field" hidden>
+        <span class="label">Болит ли сейчас поясница?</span>
+        <div class="seg" role="radiogroup" aria-label="Поясница">
+          <label><input type="radio" name="p-back" value="yes"><span>Да — пропущу провис и «домик»</span></label>
+          <label><input type="radio" name="p-back" value="no"><span>Нет</span></label>
+        </div>
+      </div>
+      <p class="note-inline">Включи звук: подсказки идут голосом. На iPhone выключи беззвучный режим.</p>
+      <div class="actions">
+        <button id="p-setup-next" class="btn primary">Проверить телефон</button>
+      </div>
+    </section>
+
+    <section class="card p-step" id="p-check" hidden>
+      <h2 class="p-h">Проверка телефона</h2>
+      <ul class="p-checks" id="p-checks"></ul>
+      <p class="note-inline" id="p-check-hint">Поставь телефон как для игры. Рамка вокруг лица — значит, камера тебя видит.</p>
+      <p class="error" id="p-check-error" role="alert" hidden></p>
+      <div class="actions">
+        <button id="p-check-start" class="btn primary" disabled>Начать проверку</button>
+        <button id="p-check-retry" class="btn ghost" hidden>Повторить</button>
+      </div>
+    </section>
+
+    <section class="p-step p-run" id="p-run" hidden aria-live="polite">
+      <header class="p-top">
+        <span class="p-count" id="pr-count"></span>
+        <span class="form" id="pr-form"><i></i><span id="pr-form-text"></span></span>
+      </header>
+      <div class="p-main">
+        <div class="ring p-ring" id="pr-ring"><svg viewBox="0 0 120 120"><circle cx="60" cy="60" r="52" class="ring-bg"/><circle cx="60" cy="60" r="52" class="ring-fg" id="pr-ring-fg"/></svg><span id="pr-big"></span></div>
+        <div class="p-text">
+          <p class="p-phase" id="pr-phase"></p>
+          <h2 class="p-title" id="pr-title"></h2>
+          <p class="p-hint" id="pr-hint"></p>
+          <div class="p-meter" id="pr-meter" hidden>
+            <span id="pr-meter-a">влево</span>
+            <div class="p-meter-track"><i class="p-mark" data-side="-1"></i><i class="p-mark" data-side="1"></i><b id="pr-dot"></b></div>
+            <span id="pr-meter-b">вправо</span>
+          </div>
+        </div>
+      </div>
+      <footer class="p-buttons">
+        <button class="btn p-big" id="pr-knees">На коленях</button>
+        <button class="btn p-big" id="pr-skip">Пропустить</button>
+        <button class="btn small ghost" id="pr-stop">Закончить</button>
+      </footer>
+    </section>
+
+    <section class="card p-step" id="p-feedback" hidden>
+      <h2 class="p-h">Паузы</h2>
+      <p class="p-stopped" id="p-stopped" hidden>Ты закончил(а) раньше — это нормально. Если что-то болит, сегодня больше не тренируйся.</p>
+      <p>Игра сама ставила паузу, когда ей казалось, что ты вышел(а) из планки. Отметь паузы, которые были <b>зря</b> — когда ты на самом деле держал(а) позицию.</p>
+      <ol class="p-pauses" id="p-pauses"></ol>
+      <h2 class="p-h">5 вопросов</h2>
+      <ol class="questions p-questions" id="p-questions">
+        <li>
+          <span>Насколько удобно было шее? <small>1 — больно или неудобно, 5 — совсем удобно</small></span>
+          <div class="seg"><label><input type="radio" name="pq-neck" value="1"><span>1</span></label><label><input type="radio" name="pq-neck" value="2"><span>2</span></label><label><input type="radio" name="pq-neck" value="3"><span>3</span></label><label><input type="radio" name="pq-neck" value="4"><span>4</span></label><label><input type="radio" name="pq-neck" value="5"><span>5</span></label></div>
+        </li>
+        <li>
+          <span>Размах движений, чтобы рулить <small>1 — приходилось сильно тянуться, 5 — в самый раз</small></span>
+          <div class="seg"><label><input type="radio" name="pq-amplitude" value="1"><span>1</span></label><label><input type="radio" name="pq-amplitude" value="2"><span>2</span></label><label><input type="radio" name="pq-amplitude" value="3"><span>3</span></label><label><input type="radio" name="pq-amplitude" value="4"><span>4</span></label><label><input type="radio" name="pq-amplitude" value="5"><span>5</span></label></div>
+        </li>
+        <li>
+          <span>Игра вставала на паузу зря?</span>
+          <div class="seg"><label><input type="radio" name="pq-falsePauses" value="often"><span>Часто</span></label><label><input type="radio" name="pq-falsePauses" value="sometimes"><span>Иногда</span></label><label><input type="radio" name="pq-falsePauses" value="never"><span>Никогда</span></label></div>
+        </li>
+        <li>
+          <span>Было весело? Хочется ещё? <small>1 — нет, 5 — очень</small></span>
+          <div class="seg"><label><input type="radio" name="pq-fun" value="1"><span>1</span></label><label><input type="radio" name="pq-fun" value="2"><span>2</span></label><label><input type="radio" name="pq-fun" value="3"><span>3</span></label><label><input type="radio" name="pq-fun" value="4"><span>4</span></label><label><input type="radio" name="pq-fun" value="5"><span>5</span></label></div>
+        </li>
+        <li>
+          <span>Как быстро всё загрузилось?</span>
+          <div class="seg"><label><input type="radio" name="pq-loadSpeed" value="fast"><span>Быстро</span></label><label><input type="radio" name="pq-loadSpeed" value="ok"><span>Нормально</span></label><label><input type="radio" name="pq-loadSpeed" value="slow"><span>Медленно</span></label></div>
+        </li>
+      </ol>
+      <div class="actions">
+        <button id="p-feedback-next" class="btn primary" disabled>Готово</button>
+      </div>
+    </section>
+
+    <section class="card p-step" id="p-done" hidden>
+      <h2 class="p-h">Спасибо!</h2>
+      <div class="res-grid" id="p-summary"></div>
+      <p>Отправь файл владельцу проекта — в мессенджере или почтой. Сам телефон ничего никуда не загружает.</p>
+      <p class="p-file" id="p-filename"></p>
+      <div class="actions">
+        <button id="p-share" class="btn primary" hidden>Отправить файл</button>
+        <button id="p-download" class="btn ghost">Скачать файл</button>
+      </div>
+      <p class="note-inline" id="p-send-status" role="status"></p>
+      <div class="actions">
+        <a class="btn small ghost" href="?protocol">Пройти ещё раз</a>
+        <a class="btn small ghost" href="./">К игре</a>
+      </div>
+    </section>
   </main>
 
   <script type="module" src="js/main.js"></script>

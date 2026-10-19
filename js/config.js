@@ -35,7 +35,9 @@ export const SOURCES = [
 ].filter((s) => !(params.has('cdn') && s.name === 'local'));
 
 // Debug flags, all optional: ?debug shows the metrics panel, ?cpu forces the CPU delegate.
+// ?protocol opens the Stage 0 field test instead of the home screen (js/protocol/).
 export const FLAGS = {
   debug: params.has('debug'),
   forceCpu: params.has('cpu'),
+  protocol: params.has('protocol'),
 };

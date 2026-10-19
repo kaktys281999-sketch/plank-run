@@ -625,6 +625,13 @@ function safetyOk() {
 
 const SAFETY_QUESTIONS = ['q1', 'q2', 'q3', 'q4'];
 
+// Where the safety gate leads. ?protocol reroutes "pass" and "back" into the field test,
+// so the test reuses exactly the same questions and the same stored outcome.
+const safetyRoute = {
+  pass: () => start(false),
+  back: () => showScreen('home'),
+};
+
 function showSafety() {
   const form = $('#safety-form');
   form.querySelectorAll('input').forEach((i) => { i.checked = false; });
@@ -648,10 +655,10 @@ function bindSafety() {
       $('#safety-stop').hidden = false;
       window.scrollTo(0, 0);
     } else {
-      start(false);
+      safetyRoute.pass();
     }
   });
-  $('#safety-back').addEventListener('click', () => showScreen('home'));
+  $('#safety-back').addEventListener('click', () => safetyRoute.back());
   $('#safety-demo').addEventListener('click', () => start(true));
   $('#safety-redo').addEventListener('click', showSafety);
 }
@@ -688,3 +695,15 @@ bindSettings();
 bindInput();
 bindSafety();
 renderHistory();
+
+// ?protocol: the Stage 0 field test (plan §12.1). Loaded only on demand, so the
+// normal app neither downloads nor runs any of it.
+if (FLAGS.protocol) {
+  import('./protocol/protocol.js')
+    .then((m) => m.initProtocol({ safetyOk, showSafety, safetyRoute, showScreen }))
+    .catch((err) => {
+      console.error(err);
+      showScreen('home');
+      showError(`Не удалось открыть проверку: ${err.message}`);
+    });
+}

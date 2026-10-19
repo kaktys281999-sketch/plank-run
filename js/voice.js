@@ -83,7 +83,11 @@ export class VoicePlayer {
       this.stats.loadMs = Math.round(performance.now() - t0);
       return this.stats;
     }
-    const ids = Object.keys(VOICE_LINES).filter((id) => this.entries[id]?.file);
+    // Browsers without AAC (some Linux Chromium/Firefox builds) can't decode .m4a:
+    // don't download 21 clips just to fail on each.
+    const probe = document.createElement('audio');
+    this.stats.codec = !!(probe.canPlayType?.('audio/mp4; codecs="mp4a.40.2"') || probe.canPlayType?.('audio/mp4') || probe.canPlayType?.('audio/aac'));
+    const ids = this.stats.codec ? Object.keys(VOICE_LINES).filter((id) => this.entries[id]?.file) : [];
     this.stats.failed = Object.keys(VOICE_LINES).length - ids.length;
     const queue = [...ids];
     const worker = async () => {
@@ -188,10 +192,20 @@ export class VoicePlayer {
         resolve({ id, via: 'speech', interrupted });
       };
       this.current = entry;
-      u.onend = () => finish(false);
-      u.onerror = () => finish(false);
+      const started = performance.now();
+      const expected = estimateMs(text);
+      // An engine that fails (no voice, not primed) must not shorten the script:
+      // the text stays on screen for as long as saying it would take.
+      const fallback = () => {
+        if (finished) return;
+        this.stats.speechErrors = (this.stats.speechErrors ?? 0) + 1;
+        clearTimeout(timer);
+        timer = setTimeout(() => finish(false), Math.max(0, expected - (performance.now() - started)));
+      };
+      u.onend = () => (performance.now() - started < expected * 0.3 ? fallback() : finish(false));
+      u.onerror = fallback;
       // Some engines (iOS, headless) never fire onend: don't let the script hang.
-      timer = setTimeout(() => finish(false), estimateMs(text) * 1.6 + 1500);
+      timer = setTimeout(() => finish(false), expected * 1.6 + 1500);
       speechSynthesis.speak(u);
     });
   }
