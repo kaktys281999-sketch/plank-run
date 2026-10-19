@@ -95,16 +95,16 @@
 | Таблица | Ключевые колонки | Индексы и заметки |
 |---|---|---|
 | `profiles` | id → `auth.users` (каскадное удаление), handle citext, display_name, avatar_key, locale, tz, age_band, home_region, lb_visibility (`hidden` по умолчанию, `friends`, `public`), level 1–30, xp, gems, stars_total, deleted_at | unique(handle). xp и gems меняет только сервер (через гранты на колонки) |
-| `consents` | user_id, doc (`privacy`, `tos`, `lb_public`, `ru_pd`), version, accepted_at | только добавление |
+| `consents` | user_id, doc (`privacy`, `tos`, `health_disclaimer`, `lb_public`, `ru_pd`), version, accepted_at | только добавление. Принятие дисклеймера — единственный след анкеты на сервере |
 | `plan_state` | user_id PK, level, days_per_week, plan_version, week_template jsonb, version int, updated_at | оптимистичная конкуренция по `version` |
-| `assessments` | id, user_id, questionnaire_version, test_hold_sec, start_level | **без ответов анкеты и без флага «осторожного маршрута»** |
+| `assessments` | id, user_id, questionnaire_version, start_level (вычисленный уровень), created_at | **и больше ничего**: ни ответов анкеты (даже да/нет), ни флага «осторожного маршрута», ни исключений |
 | `devices` | id (выдаёт клиент), user_id, platform, app_version, last_seen_at | (user_id) |
 | `games`, `levels` | slug, version, physical_level, config jsonb, score_rules jsonb, status (`draft`, `published`, `retired`) | unique(game_id, slug, version). Триггер запрещает UPDATE опубликованной версии |
 | `tracks` | source (`curated`, `cc`, `audius`), title, artist, license_code, license_url, attribution, proof_key, proof_date, regions_allowed text[], status, takedown, audio_key, duration_ms, bpm, energy, tags | только треки, которые раздаём мы |
 | `analyses` | PK(fp_key, algo_version), pcm_sha256, chroma_simhash bigint, duration_ms, source (`server`/`client`), trust, payload_key, bpm, confidence, submitted_by | индексы (pcm_sha256) и (корзина длительности, simhash). Аудио пользователей на сервере нет |
 | `charts` | track_id, difficulty, generator_version, seed, payload_key, hash | только ручные карты каталога. Авто-карты клиент генерирует детерминированно |
 | `private.attempts` | id, user_id, board_key, level_version, seed, issued_at, expires_at, consumed_at, offline_pack | (user_id, issued_at) |
-| `workout_sessions` | **id выдаёт клиент**, user_id, device_id, attempt_id, game_id, board_key, mode (`plan`, `free`, `daily`, `challenge`), started_at, ended_at, active_ms, good_form_ms, score, accuracy, max_combo, stars, rpe, client_version, status (`pending`, `unranked`, `verified`, `flagged`, `rejected`), reason, replay_key, server_seq | (user_id, started_at desc); (board_key, status). Только добавление |
+| `workout_sessions` | **id выдаёт клиент**, user_id, device_id, attempt_id, game_id, board_key, mode (`plan`, `free`, `daily`, `challenge`, `test`), started_at, ended_at, active_ms, good_form_ms, score, accuracy, max_combo, stars, rpe, client_version, status (`pending`, `unranked`, `verified`, `flagged`, `rejected`), reason, replay_key, server_seq | (user_id, started_at desc); (board_key, status). Только добавление |
 | `leaderboard_entries` | board_key, period (`all`, `2026-W43`, `d:2026-10-19`), user_id, best_score, session_id, achieved_at | PK(board_key, period, user_id); индекс (board_key, period, best_score desc, achieved_at) |
 | `friendships`, `invites` | user_id, friend_id, status, requested_by / code, inviter_id, expires_at, uses | по строке на каждое направление; индекс (friend_id) |
 | `challenges`, `challenge_participants` | board_key, seed, ghost_session_id, target_score, expires_at / user_id, session_id, best_score | (user_id, status) |
@@ -117,8 +117,9 @@
 | `analytics.events` | ts, pseudo_id, name, props jsonb | партиции по месяцам. Сырые события живут 90 дней, дальше только агрегаты |
 
 **Что хранится только на устройстве:**
-- ответы PAR-Q, травмы, боль, давление, беременность;
-- «осторожный маршрут» и исключённые вариации (запястья, плечи);
+- **все** ответы анкеты, в том числе ответы «да/нет»: PAR-Q, травмы, боль, давление, беременность;
+- отметки о боли после сессии;
+- «осторожный маршрут» и исключённые вариации (запястья, плечи). План генерирует клиент из этих данных, а сервер видит только уровень. Уровни 1–5 бывают и у обычных новичков, поэтому по уровню здоровье не вычислить (косвенный вывод суд ЕС тоже считает данными о здоровье);
 - вес и рост;
 - кадры камеры и landmarks;
 - аудио пользователя и названия его треков;
