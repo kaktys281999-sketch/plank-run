@@ -1,0 +1,4 @@
+vendor/
+test/node_modules/
+test/out/
+test/assets/

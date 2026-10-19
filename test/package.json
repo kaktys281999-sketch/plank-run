@@ -1,0 +1,13 @@
+{
+  "name": "plank-run-tests",
+  "private": true,
+  "type": "module",
+  "description": "Synthetic end-to-end test: renders a 3D character in a plank and feeds it to the app as a fake camera.",
+  "scripts": {
+    "render": "node render-videos.mjs",
+    "e2e": "node e2e.mjs"
+  },
+  "dependencies": {
+    "three": "0.170.0"
+  }
+}

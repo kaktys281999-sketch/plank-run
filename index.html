@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0b0d17">
+  <title>Plank Run</title>
+  <meta name="description" content="Держи планку и управляй игрой движением тела. Распознавание позы прямо в браузере.">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body data-screen="home">
+
+  <!-- ============ HOME ============ -->
+  <main id="home" class="screen">
+    <header class="hero">
+      <div class="logo">PLANK<span>RUN</span></div>
+      <p class="tagline">Держи планку и управляй игрой корпусом. Камера следит за техникой, видео не покидает устройство.</p>
+    </header>
+
+    <section class="card">
+      <h2>1. Куда поставить камеру</h2>
+      <div class="choice-grid" role="radiogroup" aria-label="Расположение камеры">
+        <label class="choice">
+          <input type="radio" name="camera" value="front">
+          <svg viewBox="0 0 200 110" aria-hidden="true">
+            <line x1="5" y1="96" x2="195" y2="96" class="floor"/>
+            <path d="M14 96 L 22 70 L 26 71 L 19 96 Z" class="device"/>
+            <circle cx="22" cy="75" r="2.2" class="lens"/>
+            <path d="M24 74 L 52 62" class="ray"/>
+            <text x="36" y="50" class="hint">50–80 см</text>
+            <circle cx="62" cy="60" r="8" class="body"/>
+            <path d="M70 64 L 172 78" class="body-line"/>
+            <path d="M76 66 L 76 96 L 62 96" class="body-line"/>
+            <path d="M172 78 L 180 96" class="body-line"/>
+          </svg>
+          <strong>Спереди</strong>
+          <span>Телефон на полу в 50–80 см перед руками, экраном к тебе (обопри на книгу). Камера следит за лицом: экран видно, рулишь сдвигом корпуса. Провисание таза с этого ракурса не видно.</span>
+          <em class="badge">Рекомендуется</em>
+        </label>
+        <label class="choice">
+          <input type="radio" name="camera" value="side">
+          <svg viewBox="0 0 200 110" aria-hidden="true">
+            <line x1="5" y1="96" x2="195" y2="96" class="floor"/>
+            <circle cx="40" cy="62" r="8" class="body"/>
+            <path d="M48 66 L 150 78" class="body-line"/>
+            <path d="M52 68 L 52 96 L 70 96" class="body-line"/>
+            <path d="M150 78 L 156 96" class="body-line"/>
+            <rect x="88" y="14" width="34" height="22" rx="3" class="device"/>
+            <circle cx="105" cy="25" r="2.5" class="lens"/>
+            <text x="105" y="50" class="hint">2–3 м сбоку</text>
+          </svg>
+          <strong>Сбоку</strong>
+          <span>Ноутбук или телефон в 2–3 м сбоку, всё тело в кадре. Полная модель позы: строго проверяет провисание и подъём таза. Рулишь качанием вперёд-назад.</span>
+        </label>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>2. Настройки</h2>
+      <div class="settings">
+        <div class="field" id="field-control">
+          <span class="label">Управление</span>
+          <div class="seg" role="radiogroup" aria-label="Управление">
+            <label><input type="radio" name="control" value="x"><span>Влево ↔ вправо</span></label>
+            <label><input type="radio" name="control" value="y"><span>Вверх ↕ вниз</span></label>
+          </div>
+        </div>
+        <div class="field">
+          <span class="label">Цель</span>
+          <div class="seg" role="radiogroup" aria-label="Цель">
+            <label><input type="radio" name="target" value="30"><span>30 с</span></label>
+            <label><input type="radio" name="target" value="45"><span>45 с</span></label>
+            <label><input type="radio" name="target" value="60"><span>1 мин</span></label>
+            <label><input type="radio" name="target" value="90"><span>1,5 мин</span></label>
+            <label><input type="radio" name="target" value="120"><span>2 мин</span></label>
+          </div>
+        </div>
+        <div class="field">
+          <label class="label" for="sensitivity">Чувствительность <output id="sens-out">1.0×</output></label>
+          <input id="sensitivity" name="sensitivity" type="range" min="0.5" max="2" step="0.1">
+        </div>
+        <div class="field" id="field-model">
+          <span class="label">Модель позы</span>
+          <div class="seg" role="radiogroup" aria-label="Модель">
+            <label><input type="radio" name="model" value="lite"><span>Быстрая</span></label>
+            <label><input type="radio" name="model" value="full"><span>Точная</span></label>
+          </div>
+        </div>
+        <div class="toggles">
+          <label class="toggle" id="field-knee"><input type="checkbox" name="kneePlank"><span>Планка с колен (облегчённая)</span></label>
+          <label class="toggle"><input type="checkbox" name="sound"><span>Звуки</span></label>
+          <label class="toggle"><input type="checkbox" name="voice"><span>Голосовые подсказки</span></label>
+          <label class="toggle"><input type="checkbox" name="showCamera"><span>Показывать камеру в игре</span></label>
+        </div>
+      </div>
+    </section>
+
+    <div class="actions">
+      <button id="start" class="btn primary">Начать</button>
+      <button id="demo" class="btn ghost">Демо без камеры</button>
+    </div>
+    <p id="start-error" class="error" role="alert" hidden></p>
+
+    <section class="card" id="history-card" hidden>
+      <h2>Твои результаты</h2>
+      <div class="bests" id="bests"></div>
+      <ol class="history" id="history"></ol>
+    </section>
+
+    <section class="card note">
+      <h2>Перед стартом</h2>
+      <ul>
+        <li>Разомнись 2–3 минуты: плечи, запястья, корпус.</li>
+        <li>Дыши ровно, не задерживай дыхание. Шея — продолжение спины: смотри на экран глазами, не задирай голову.</li>
+        <li>Боль в пояснице, плечах или запястьях — сразу остановись. Таймер считает только время с правильной техникой.</li>
+        <li>Свет спереди, однотонный фон и облегающая одежда заметно улучшают распознавание.</li>
+      </ul>
+    </section>
+  </main>
+
+  <!-- ============ PLAY ============ -->
+  <section id="play" class="screen" aria-live="polite">
+    <canvas id="game"></canvas>
+
+    <div class="hud">
+      <div class="hud-left">
+        <div class="stat"><span class="k">Очки</span><span class="v" id="hud-score">0</span></div>
+        <div class="stat"><span class="k">Монеты</span><span class="v" id="hud-coins">0</span></div>
+        <div class="combo" id="hud-combo" hidden></div>
+      </div>
+      <div class="hud-center">
+        <div class="timer" id="hud-timer">0:00</div>
+        <div class="target-bar"><div id="hud-progress"></div></div>
+        <div class="target-label" id="hud-target">цель 1:00</div>
+      </div>
+      <div class="hud-right">
+        <div class="form" id="hud-form"><i></i><span>Техника</span></div>
+      </div>
+    </div>
+
+    <div class="cam" id="cam">
+      <video id="video" playsinline muted></video>
+      <canvas id="overlay"></canvas>
+    </div>
+
+    <div class="center-msg" id="msg" hidden>
+      <div class="ring" id="msg-ring"><svg viewBox="0 0 120 120"><circle cx="60" cy="60" r="52" class="ring-bg"/><circle cx="60" cy="60" r="52" class="ring-fg" id="msg-ring-fg"/></svg><span id="msg-big"></span></div>
+      <h3 id="msg-title"></h3>
+      <p id="msg-text"></p>
+      <ul class="checklist" id="checklist" hidden>
+        <li data-check="face" data-mode="front">Лицо в кадре</li>
+        <li data-check="distance" data-mode="front">Расстояние</li>
+        <li data-check="visible" data-mode="side">Тело в кадре</li>
+        <li data-check="horizontal" data-mode="side">Тело горизонтально</li>
+        <li data-check="support" data-mode="side">Упор на руки</li>
+        <li data-check="knees" data-mode="side">Ноги прямые</li>
+        <li data-check="straight" data-mode="side">Ровная линия</li>
+        <li data-check="still">Замри на секунду</li>
+      </ul>
+    </div>
+
+    <div class="loading" id="loading" hidden><div class="spinner"></div><p id="loading-text">Загрузка…</p></div>
+
+    <pre class="debug" id="debug" hidden></pre>
+
+    <div class="play-controls">
+      <button class="btn small ghost" id="recalibrate" title="R">Перекалибровать</button>
+      <button class="btn small ghost" id="finish" title="Esc">Закончить</button>
+    </div>
+  </section>
+
+  <!-- ============ RESULTS ============ -->
+  <main id="results" class="screen">
+    <div class="result-card">
+      <p class="eyebrow" id="res-reason"></p>
+      <div class="big-time" id="res-time">0:00</div>
+      <p class="res-sub" id="res-sub"></p>
+      <div class="res-grid">
+        <div><span class="v" id="res-score">0</span><span class="k">очков</span></div>
+        <div><span class="v" id="res-coins">0</span><span class="k">монет</span></div>
+        <div><span class="v" id="res-gates">0</span><span class="k">ворот пройдено</span></div>
+        <div><span class="v" id="res-combo">0</span><span class="k">лучшая серия</span></div>
+        <div><span class="v" id="res-form">0%</span><span class="k">времени с хорошей техникой</span></div>
+        <div><span class="v" id="res-breaks">0</span><span class="k">срывов техники</span></div>
+      </div>
+      <p class="tip" id="res-tip"></p>
+      <div class="actions">
+        <button id="again" class="btn primary">Ещё раз</button>
+        <button id="to-home" class="btn ghost">Настройки</button>
+      </div>
+    </div>
+  </main>
+
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>

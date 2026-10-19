@@ -1,0 +1,206 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Plank renderer (test harness)</title>
+<style>html,body{margin:0;background:#222}canvas{display:block}</style>
+<script type="importmap">
+{ "imports": {
+  "three": "./node_modules/three/build/three.module.js",
+  "three/addons/": "./node_modules/three/examples/jsm/"
+} }
+</script>
+</head>
+<body>
+<script type="module">
+// Poses a rigged Mixamo character into a plank (with controllable faults)
+// and renders it from a "front" or "side" camera. Used to produce fake
+// webcam videos with known ground truth for the end-to-end test.
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+
+const W = 640, H = 480;
+const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+renderer.setSize(W, H);
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+document.body.append(renderer.domElement);
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color('#c9c4bb');
+scene.add(new THREE.HemisphereLight('#ffffff', '#776655', 2.2));
+const sun = new THREE.DirectionalLight('#ffffff', 2.0);
+sun.position.set(1.5, 3, 2);
+scene.add(sun);
+const floor = new THREE.Mesh(new THREE.PlaneGeometry(20, 20), new THREE.MeshStandardMaterial({ color: '#8d7f6c', roughness: 0.9 }));
+floor.rotation.x = -Math.PI / 2;
+scene.add(floor);
+
+const camera = new THREE.PerspectiveCamera(52, W / H, 0.05, 50);
+
+const params = new URLSearchParams(location.search);
+const gltf = await new GLTFLoader().loadAsync(`./assets/${params.get('model') ?? 'Michelle.glb'}`);
+const model = gltf.scene;
+const rig = new THREE.Group();   // yaw pivot (lateral shift)
+const body = new THREE.Group();  // pitch (plank inclination)
+body.add(model);
+rig.add(body);
+scene.add(rig);
+
+const bones = {};
+model.traverse((o) => {
+  if (o.isBone) bones[o.name.replace(/^mixamorig:?/, '')] = o;
+  if (o.isMesh) o.frustumCulled = false;
+});
+const skinned = [];
+model.traverse((o) => { if (o.isSkinnedMesh) skinned.push(o); });
+const bind = Object.fromEntries(Object.entries(bones).map(([k, b]) => [k, b.quaternion.clone()]));
+
+const V = (x, y, z) => new THREE.Vector3(x, y, z);
+const wpos = (o) => { o.updateWorldMatrix(true, false); return o.getWorldPosition(new THREE.Vector3()); };
+
+// Rotate `bone` so the direction bone→child points along `dir` (world space).
+function aim(name, childName, dir) {
+  const bone = bones[name], child = bones[childName];
+  scene.updateMatrixWorld(true);
+  const cur = wpos(child).sub(wpos(bone)).normalize();
+  const q = new THREE.Quaternion().setFromUnitVectors(cur, dir.clone().normalize());
+  const boneWQ = bone.getWorldQuaternion(new THREE.Quaternion());
+  const parentWQ = bone.parent.getWorldQuaternion(new THREE.Quaternion());
+  bone.quaternion.copy(parentWQ.invert().multiply(q.multiply(boneWQ)));
+  scene.updateMatrixWorld(true);
+}
+
+function rotateWorld(name, axis, angle) {
+  const bone = bones[name];
+  scene.updateMatrixWorld(true);
+  const q = new THREE.Quaternion().setFromAxisAngle(axis, angle);
+  const boneWQ = bone.getWorldQuaternion(new THREE.Quaternion());
+  const parentWQ = bone.parent.getWorldQuaternion(new THREE.Quaternion());
+  bone.quaternion.copy(parentWQ.invert().multiply(q.multiply(boneWQ)));
+  scene.updateMatrixWorld(true);
+}
+
+function resetPose() {
+  for (const [k, q] of Object.entries(bind)) bones[k].quaternion.copy(q);
+  rig.position.set(0, 0, 0); rig.rotation.set(0, 0, 0);
+  body.position.set(0, 0, 0); body.rotation.set(0, 0, 0);
+  model.position.set(0, 0, 0);
+  scene.updateMatrixWorld(true);
+}
+
+const DEG = Math.PI / 180;
+const SIDES = ['Left', 'Right'];
+
+// p: {stand, sag (deg, + = hips drop), shift (deg yaw), rock (m), forearm (bool)}
+function pose(p) {
+  resetPose();
+  if (p.stand) {
+    for (const s of SIDES) {
+      aim(`${s}Arm`, `${s}ForeArm`, V(s === 'Left' ? 0.15 : -0.15, -1, 0));
+      aim(`${s}ForeArm`, `${s}Hand`, V(s === 'Left' ? 0.1 : -0.1, -1, 0.1));
+    }
+    const minY = Math.min(...['LeftToeBase', 'RightToeBase', 'LeftFoot', 'RightFoot'].map((n) => wpos(bones[n]).y));
+    model.position.y -= minY - 0.03;
+    scene.updateMatrixWorld(true);
+    return;
+  }
+  // Solve inclination so hands (or elbows) and toes both touch the floor.
+  const solve = (alpha) => {
+    resetPose();
+    body.rotation.x = (90 - alpha) * DEG;
+    scene.updateMatrixWorld(true);
+    // Sag = lumbar extension + a bit of hip extension; pike = hip flexion.
+    if (p.sag) {
+      rotateWorld('Spine', V(1, 0, 0), -p.sag * 0.6 * DEG);
+      for (const s of SIDES) rotateWorld(`${s}UpLeg`, V(1, 0, 0), p.sag * 0.4 * DEG);
+    }
+    if (p.pike) for (const s of SIDES) rotateWorld(`${s}UpLeg`, V(1, 0, 0), -p.pike * DEG);
+    // Looking at a screen in front of you = neck extension.
+    if (p.look) {
+      rotateWorld('Neck', V(1, 0, 0), -p.look * 0.5 * DEG);
+      rotateWorld('Head', V(1, 0, 0), -p.look * 0.5 * DEG);
+    }
+    for (const s of SIDES) {
+      aim(`${s}Foot`, `${s}ToeBase`, V(0, -1, 0.35));
+      aim(`${s}Arm`, `${s}ForeArm`, V(0, -1, 0));
+      if (p.forearm) {
+        aim(`${s}ForeArm`, `${s}Hand`, V(0, 0, 1));
+      } else {
+        aim(`${s}ForeArm`, `${s}Hand`, V(0, -1, 0));
+        aim(`${s}Hand`, `${s}HandMiddle1` in bones ? `${s}HandMiddle1` : `${s}HandIndex1`, V(0, -0.2, 1));
+      }
+    }
+    const support = p.forearm ? wpos(bones.LeftForeArm).y : wpos(bones.LeftHand).y;
+    const toe = Math.min(wpos(bones.LeftToeBase).y, wpos(bones.LeftFoot).y);
+    return support - toe;
+  };
+  let lo = -10, hi = 40;
+  for (let i = 0; i < 30; i++) {
+    const mid = (lo + hi) / 2;
+    if (solve(mid) > 0) hi = mid; else lo = mid;
+  }
+  solve((lo + hi) / 2);
+  const support = p.forearm ? wpos(bones.LeftForeArm).y - 0.04 : wpos(bones.LeftHand).y - 0.03;
+  body.position.y -= support;
+  scene.updateMatrixWorld(true);
+  // Rocking forward/back: body slides along its axis, hands stay planted.
+  if (p.rock) {
+    const hands = SIDES.map((s) => wpos(bones[p.forearm ? `${s}ForeArm` : `${s}Hand`]));
+    body.position.z += p.rock;
+    scene.updateMatrixWorld(true);
+    SIDES.forEach((s, i) => {
+      const dir = hands[i].clone().sub(wpos(bones[`${s}Arm`]));
+      aim(`${s}Arm`, `${s}ForeArm`, dir);
+      if (!p.forearm) aim(`${s}ForeArm`, `${s}Hand`, dir);
+    });
+  }
+  // Collapsing toward the floor.
+  if (p.drop) {
+    body.position.y -= p.drop;
+    scene.updateMatrixWorld(true);
+  }
+  // Lateral weight shift: yaw the whole body around the feet.
+  if (p.shift) {
+    const toes = wpos(bones.LeftToeBase).add(wpos(bones.RightToeBase)).multiplyScalar(0.5);
+    rig.position.copy(toes);
+    body.position.sub(toes);
+    rig.rotation.y = p.shift * DEG;
+    scene.updateMatrixWorld(true);
+  }
+}
+
+function placeCamera(view) {
+  const head = wpos(bones.Head);
+  const hips = wpos(bones.Hips);
+  if (view === 'front') {
+    camera.fov = 58;
+    camera.position.set(0, 0.32, Math.max(head.z, 0.6) + 1.15);
+    camera.lookAt(0, 0.22, hips.z + 0.2);
+  } else {
+    camera.fov = 45;
+    const midZ = hips.z;
+    camera.position.set(2.9, 0.5, midZ);
+    camera.lookAt(0, 0.3, midZ);
+  }
+  camera.updateProjectionMatrix();
+}
+
+let baseHeadZ = null;
+window.renderFrame = (p, view) => {
+  pose({ forearm: false, ...p });
+  // Camera stays fixed relative to the neutral plank, like a real phone on the floor.
+  if (baseHeadZ === null || p.resetCamera) {
+    const saved = { ...p };
+    pose({ forearm: saved.forearm ?? false });
+    placeCamera(view);
+    baseHeadZ = true;
+    pose({ forearm: false, ...p });
+  }
+  renderer.render(scene, camera);
+  return renderer.domElement.toDataURL('image/png');
+};
+window.boneNames = Object.keys(bones);
+window.ready = true;
+</script>
+</body>
+</html>

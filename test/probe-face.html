@@ -1,0 +1,19 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Face probe (test harness)</title>
+<script type="module">
+const vision = await import('../vendor/tasks-vision/vision_bundle.mjs');
+const fileset = await vision.FilesetResolver.forVisionTasks(new URL('../vendor/tasks-vision/wasm', location.href).href);
+const det = await vision.FaceDetector.createFromOptions(fileset, {
+  baseOptions: { modelAssetPath: new URL('../vendor/models/blaze_face_short_range.tflite', location.href).href, delegate: 'CPU' },
+  runningMode: 'IMAGE', minDetectionConfidence: 0.5,
+});
+window.probe = async (src) => {
+  const img = new Image();
+  img.src = src;
+  await img.decode();
+  const r = det.detect(img);
+  return r.detections.map((d) => ({ score: +d.categories[0].score.toFixed(2), box: d.boundingBox, kp: d.keypoints.map((k) => [+(k.x * img.width).toFixed(0), +(k.y * img.height).toFixed(0)]) }));
+};
+window.ready = true;
+</script>

@@ -1,0 +1,28 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Pose probe (test harness)</title>
+<script type="module">
+// Runs the pose model on still images and prints the plank features for each.
+import { frontFeatures, sideFeatures } from '../js/plank.js';
+const vision = await import('../vendor/tasks-vision/vision_bundle.mjs');
+const fileset = await vision.FilesetResolver.forVisionTasks(new URL('../vendor/tasks-vision/wasm', location.href).href);
+const landmarker = await vision.PoseLandmarker.createFromOptions(fileset, {
+  baseOptions: { modelAssetPath: new URL(`../vendor/models/pose_landmarker_${new URLSearchParams(location.search).get('model') ?? 'lite'}.task`, location.href).href, delegate: 'CPU' },
+  runningMode: 'IMAGE', numPoses: 1,
+});
+window.probe = async (src) => {
+  const img = new Image();
+  img.src = src;
+  await img.decode();
+  const r = landmarker.detect(img);
+  if (!r.landmarks.length) return null;
+  const lms = r.landmarks[0];
+  const round = (o) => Object.fromEntries(Object.entries(o).map(([k, v]) => [k, typeof v === 'number' ? +v.toFixed(3) : v]));
+  return {
+    front: round(frontFeatures(lms, img.width, img.height)),
+    side: round(sideFeatures(lms, img.width, img.height, false)),
+    vis: lms.map((l) => +(l.visibility ?? 0).toFixed(2)).filter((_, i) => [0, 11, 12, 13, 14, 15, 16, 23, 24, 25, 26, 27, 28].includes(i)).join(' '),
+  };
+};
+window.ready = true;
+</script>
