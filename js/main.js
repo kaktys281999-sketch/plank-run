@@ -3,6 +3,8 @@ import { PlankAnalyzer, ISSUE_TEXT } from './plank.js';
 import { TunnelGame } from './games/tunnel.js';
 import { FirefliesGame } from './games/fireflies.js';
 import { Sound } from './audio.js';
+import { VoicePlayer } from './voice.js';
+import { GAME_LINE_IDS } from './voice-lines.js';
 import { drawSkeleton, drawFace, clearCanvas } from './draw.js';
 import { loadSettings, saveSettings, loadHistory, addSession, loadSafety, saveSafety } from './storage.js';
 import { FLAGS } from './config.js';
@@ -13,18 +15,19 @@ const END_AFTER = 4;  // seconds of broken form before the set ends
 const COUNTDOWN = 3;
 const SAFETY_VERSION = 1;
 
+// Form issue -> voice line id (texts and clips: js/voice-lines.js, assets/voice/).
 const VOICE = {
-  sag: 'Подними таз',
-  noFace: 'Смотри на экран',
-  pike: 'Опусти таз',
-  knees: 'Выпрями ноги',
-  lost: 'Не вижу тебя',
-  notVisible: 'Не вижу тебя',
-  standing: 'Вернись в планку',
-  lying: 'Вернись в планку',
-  moved: 'Вернись на место',
-  noSupport: 'Упрись в пол',
-  tooFar: 'Подойди ближе к камере',
+  sag: 'lift_hips',
+  noFace: 'look_screen',
+  pike: 'lower_hips',
+  knees: 'straighten_legs',
+  lost: 'cant_see',
+  notVisible: 'cant_see',
+  standing: 'back_to_plank',
+  lying: 'back_to_plank',
+  moved: 'back_to_place',
+  noSupport: 'press_floor',
+  tooFar: 'come_closer',
 };
 
 const COLORS = {
@@ -47,6 +50,7 @@ const GAMES = {
 
 const settings = loadSettings();
 const sound = new Sound();
+const voice = new VoicePlayer(sound, { lines: GAME_LINE_IDS });
 const tracker = new VisionTracker();
 const video = $('#video');
 const overlay = $('#overlay');
@@ -65,6 +69,20 @@ const perf = { frames: 0, since: 0, fps: 0, ms: 0 };
 function fmtTime(sec) {
   const s = Math.max(0, Math.floor(sec));
   return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
+}
+
+// ---------------- voice ----------------
+
+// Pre-rendered clip, speechSynthesis when the clip is missing (js/voice.js).
+// The same line is not repeated more often than `minGap` seconds.
+const lastSaid = new Map();
+
+function say(id, { minGap = 4, interrupt = false } = {}) {
+  if (!sound.voice) return;
+  const now = performance.now() / 1000;
+  if (now - (lastSaid.get(id) ?? -Infinity) < minGap) return;
+  lastSaid.set(id, now);
+  voice.play(id, { interrupt });
 }
 
 // ---------------- home screen ----------------
@@ -190,6 +208,8 @@ async function start(demo) {
   sound.enabled = settings.sound;
   sound.voice = settings.voice;
   sound.prime();
+  // Starts decoding clips inside the gesture; prompts before they are ready fall back to speech.
+  if (settings.voice) voice.load();
   document.documentElement.requestFullscreen?.().catch(() => {});
   showError('');
 
@@ -224,7 +244,7 @@ async function start(demo) {
     hideLoading();
     stopFrames = onEveryVideoFrame(video, onPoseFrame);
     setPhase('calibrate');
-    sound.say(settings.camera === 'side' ? 'Займи планку боком к камере' : 'Займи планку лицом к экрану', { interrupt: true });
+    say(settings.camera === 'side' ? 'get_in_plank_side' : 'get_in_plank_front', { interrupt: true });
   } else {
     setPhase('countdown');
   }
@@ -273,7 +293,7 @@ function onGameEvent(type, data) {
   else if (type === 'catch') sound.chime(data.combo, data.type);
   else if (type === 'jar') {
     sound.win();
-    sound.say('Банка полная! Плюс десять', { minGap: 2 });
+    say('jar_full', { minGap: 2 });
   }
 }
 
@@ -310,7 +330,7 @@ function loop(now, owner) {
       game.update(dt, false);
       showCalibration();
       if (analyzer.calibrated) {
-        sound.say('Отлично. Держи!', { interrupt: true });
+        say('great_hold', { interrupt: true });
         setPhase('countdown');
       }
       break;
@@ -364,7 +384,7 @@ function loop(now, owner) {
       }
       if (t - s.lastVoice > 3) {
         s.lastVoice = t;
-        sound.say(VOICE[issue] ?? 'Вернись в планку', { minGap: 2.5 });
+        say(VOICE[issue] ?? 'back_to_plank', { minGap: 2.5 });
       }
       showMessage({ big: String(Math.ceil(left)), title: ISSUE_TEXT[issue] ?? 'Вернись в планку', text: 'Игра на паузе — исправь положение, и она продолжится', progress: left / END_AFTER, bad: true });
       break;
@@ -382,7 +402,7 @@ function pauseFor(issue) {
   s.breaks += 1;
   s.lastVoice = performance.now() / 1000;
   sound.warn();
-  sound.say(VOICE[issue] ?? 'Вернись в планку', { minGap: 2, interrupt: true });
+  say(VOICE[issue] ?? 'back_to_plank', { minGap: 2, interrupt: true });
   setPhase('paused');
 }
 
@@ -393,7 +413,7 @@ function milestones() {
   const T = settings.target;
   if (s.held >= T) {
     sound.win();
-    sound.say('Цель достигнута! Отдыхай и дыши', { interrupt: true });
+    say('goal', { interrupt: true });
     finish('target');
     return true;
   }
@@ -402,8 +422,9 @@ function milestones() {
   if (m > s.lastMilestone) {
     s.lastMilestone = m;
     sound.tick();
+    // Targets are 20 / 30 / 45 s, so near the end exactly 10 or 5 s are left.
     const left = Math.round(T - s.held);
-    sound.say(left <= 10 ? `Ещё ${left} секунд, дыши` : 'Дыши ровно', { minGap: 5, interrupt: true });
+    say(left <= 5 ? 'five_left' : left <= 10 ? 'ten_left' : 'breathe', { minGap: 5, interrupt: true });
   }
   return false;
 }

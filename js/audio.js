@@ -1,20 +1,11 @@
-// Sound effects (WebAudio, no files) and short voice cues (speechSynthesis).
-// Voice matters here: in a plank you can't always look at the screen.
+// Sound effects (WebAudio, no files). Voice prompts live in js/voice.js and
+// play on this AudioContext.
 
 export class Sound {
   constructor() {
     this.ctx = null;
     this.enabled = true;
     this.voice = true;
-    this.lastSpoken = new Map();
-    this.ruVoice = null;
-    if ('speechSynthesis' in window) {
-      const pick = () => {
-        this.ruVoice = speechSynthesis.getVoices().find((v) => v.lang?.toLowerCase().startsWith('ru')) ?? null;
-      };
-      pick();
-      speechSynthesis.addEventListener?.('voiceschanged', pick);
-    }
   }
 
   // Must be called from a user gesture (browsers block audio otherwise).
@@ -66,18 +57,4 @@ export class Sound {
   tick() { this.tone(880, 0.08, { type: 'sine', gain: 0.12 }); }
   go() { this.tone(1046, 0.25, { type: 'triangle', gain: 0.15 }); }
   win() { [523, 659, 784, 1046].forEach((f, i) => this.tone(f, 0.22, { type: 'triangle', gain: 0.12, delay: i * 0.12 })); }
-
-  // Same phrase is not repeated more often than `minGap` seconds.
-  say(text, { minGap = 4, interrupt = false } = {}) {
-    if (!this.voice || !('speechSynthesis' in window)) return;
-    const now = performance.now() / 1000;
-    if (now - (this.lastSpoken.get(text) ?? -Infinity) < minGap) return;
-    this.lastSpoken.set(text, now);
-    if (interrupt) speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance(text);
-    u.lang = 'ru-RU';
-    if (this.ruVoice) u.voice = this.ruVoice;
-    u.rate = 1.1;
-    speechSynthesis.speak(u);
-  }
 }

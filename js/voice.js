@@ -22,10 +22,12 @@ const estimateMs = (text) => Math.round(600 + (text?.length ?? 0) * 75);
 export class VoicePlayer {
   // sound: a Sound instance (owns the AudioContext). Options:
   //  voice — voice name from the manifest (default: manifest.default)
-  //  manifestUrl, base — where to look for the manifest and clips.
-  constructor(sound, { voice = null, manifestUrl = MANIFEST, base = document.baseURI } = {}) {
+  //  manifestUrl, base — where to look for the manifest and clips;
+  //  lines — ids to load clips for (default: every line in the table).
+  constructor(sound, { voice = null, manifestUrl = MANIFEST, base = document.baseURI, lines = null } = {}) {
     this.sound = sound;
     this.voiceName = voice;
+    this.lineIds = lines ?? Object.keys(VOICE_LINES);
     this.manifestUrl = new URL(manifestUrl, base).href;
     this.base = base;
     this.entries = {};          // lineId -> manifest entry
@@ -33,7 +35,7 @@ export class VoicePlayer {
     this.current = null;        // { id, priority, stop }
     this.loading = null;
     this.ruVoice = null;
-    this.stats = { manifest: false, voice: null, lines: Object.keys(VOICE_LINES).length, loaded: 0, failed: 0, loadMs: 0, via: { clip: 0, speech: 0, silent: 0 } };
+    this.stats = { manifest: false, voice: null, lines: this.lineIds.length, loaded: 0, failed: 0, loadMs: 0, via: { clip: 0, speech: 0, silent: 0 } };
     if ('speechSynthesis' in window) {
       const pick = () => {
         this.ruVoice = speechSynthesis.getVoices().find((v) => v.lang?.toLowerCase().startsWith('ru')) ?? null;
@@ -84,12 +86,12 @@ export class VoicePlayer {
       return this.stats;
     }
     // Browsers without AAC (some Linux Chromium/Firefox builds) can't decode .m4a:
-    // don't download 21 clips just to fail on each.
+    // don't download every clip just to fail on each.
     const probe = document.createElement('audio');
     // Ask for the exact codec: plain 'audio/mp4' answers "maybe" even without AAC.
     this.stats.codec = !!(probe.canPlayType?.('audio/mp4; codecs="mp4a.40.2"') || probe.canPlayType?.('audio/aac'));
-    const ids = this.stats.codec ? Object.keys(VOICE_LINES).filter((id) => this.entries[id]?.file) : [];
-    this.stats.failed = Object.keys(VOICE_LINES).length - ids.length;
+    const ids = this.stats.codec ? this.lineIds.filter((id) => this.entries[id]?.file) : [];
+    this.stats.failed = this.lineIds.length - ids.length;
     const queue = [...ids];
     const worker = async () => {
       while (queue.length) {
