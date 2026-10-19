@@ -2,25 +2,25 @@
 
 *Версия 1, 19.10.2026. Статус: к реализации.*
 
-*Основа: код прототипа (`index.html`, `js/*`, `test/*`), `docs/research/*.md` и поправки из `verify-backend-compliance.md` и `verify-progression-games.md`. Файла `verify-frontend-design.md` пока нет; когда он появится, его поправки важнее этого текста. Версии пакетов сверены с реестром npm на 19.10.2026.*
+*Основа: код прототипа (`index.html`, `js/*`, `test/*`), `docs/research/*.md` и поправки из `verify-frontend-design.md`, `verify-backend-compliance.md` и `verify-progression-games.md`; при расхождении поправки важнее исследований. Версии пакетов сверены с реестром npm на 19.10.2026.*
 
 ## 0. Ключевые решения
 
-1. **Оболочка.** SPA на React 19, Vite 8 и TanStack Router, без SSR. Игры и ML работают вне React: React монтирует `<canvas>` и рисует меню и HUD.
-2. **ML в воркерах.** Каждая модель работает в своём module worker (`tasks-vision` 1.1.1, вызов `forVisionTasks(path, true)`). Кадры передаются как `ImageBitmap` через transfer, в полёте не больше одного кадра. В главный поток приходит `BodyFrame` размером около 100 байт.
-3. **Анализ планки.** Логика `js/plank.js` переносится в TS без изменения чисел. Совпадение с прототипом проверяют golden-тесты.
-4. **Игры как плагины.** Детерминированная `sim` (60 Гц, seed, `dmath`, без DOM) отделена от `view` (Canvas2D или PixiJS). На квантованной записи ввода работают реплеи, призраки и пересимуляция на сервере.
-5. **Дизайн «Неон + Искра».** Игра всегда в тёмной теме, шрифты Onest и Unbounded. Состояние передаётся четырьмя каналами: цвет, форма, слово, звук. Размер HUD под дистанцию задаёт токен `--view-scale`.
-6. **Offline-first.** Workbox `injectManifest`; в precache только оболочка. WASM и модели лежат в версионированном Cache и скачиваются явно, с прогрессом. Данные в Dexie и OPFS. Все файлы с собственного origin, сторонние CDN не используются.
-7. **Миграция по схеме «душитель».** Живой прототип продолжает работать. Новые пакеты сначала проверяются внутри него, потом рядом поднимается новая оболочка, затем происходит переключение.
+1. **Оболочка.** SPA на React 19, Vite 8 и TanStack Router, без SSR. Игры и ML живут вне React.
+2. **ML в воркерах.** Одна модель — один module worker (`tasks-vision` 1.1.1). Кадр уходит как `ImageBitmap` через transfer, в полёте не больше одного. Обратно приходит `BodyFrame` около 100 байт.
+3. **Анализ планки.** `js/plank.js` переносится в TS без изменения чисел, совпадение проверяют golden-тесты.
+4. **Игры как плагины.** Детерминированная `sim` (60 Гц, seed, `dmath`) отделена от `view` (Canvas2D или PixiJS). На квантованной записи ввода работают реплеи, призраки и пересимуляция на сервере.
+5. **Дизайн «Неон + Искра».** Шрифты Onest и Unbounded. Состояние передаётся цветом, формой, словом и звуком. Размер HUD под дистанцию задаёт `--view-scale`.
+6. **Offline-first.** В precache только оболочка. WASM и модели скачиваются явно, с прогрессом, в версионированный Cache. Все файлы с собственного origin.
+7. **Миграция «душителем».** Прототип работает до конца. Новые пакеты сначала обкатываются внутри него, затем рядом поднимается новая оболочка.
 
 ## 1. Стек
 
 | Слой | Выбор (версия) | Почему |
 |---|---|---|
 | Монорепо | pnpm 12.14 workspaces (turbo 2.11 позже) | Одному разработчику хватит `pnpm -r` |
-| Язык | TypeScript **6.0.3**, `strict`, `noUncheckedIndexedAccess` | TS 7.0.2 (`tsgo`) берём только как быстрый typecheck в CI: часть инструментов ещё обращается к JS API компилятора |
-| Линт и формат | Biome 2.5.15 + dependency-cruiser 18.6 | `noRestrictedGlobals` и `noRestrictedImports` охраняют детерминизм, cruiser проверяет граф пакетов из §2 |
+| Язык | TypeScript **7.0.2** (нативный `tsgo`), `strict`, `noUncheckedIndexedAccess` | Явный выбор «TS 7 + Biome», как в официальном примере MediaPipe. typescript-eslint не нужен (он требует TS < 6.1). Если инструменту понадобится JS API компилятора, `typescript@6.0.3` ставится только ему |
+| Линт и формат | Biome 2.5.15 | Правила `noRestrictedGlobals` и `noRestrictedImports` с overrides по пакетам охраняют детерминизм и границы §2. Строгая изоляция `node_modules` в pnpm не даёт импортировать необъявленный пакет |
 | Сборка | Vite 8.3.4, @vitejs/plugin-react 6.1.2, `worker.format: 'es'` | Rolldown, ленивые чанки игр и воркеров |
 | UI | React 19.3.1 | Экосистема, Base UI и Motion; ИИ надёжнее всего пишет код на React |
 | Роутинг | @tanstack/react-router 1.170 + router-plugin 1.168, file-based, `autoCodeSplitting` | Типизированные search-параметры (`?mode=side`), каждый экран в своём чанке |
@@ -34,7 +34,7 @@
 | Иконки | @phosphor-icons/react 2.1.10 | Начертания Bold и Fill читаются издалека |
 | Шрифты | @fontsource-variable/onest 5.3.1 и /unbounded 5.3.0 | OFL, свой хостинг, подмножества latin(-ext) и cyrillic(-ext) |
 | i18n | @inlang/paraglide-js 2.29 + `Intl.*` | Сообщения компилируются в функции, забытый ключ ломает сборку |
-| ML | @mediapipe/tasks-vision **1.1.1** (сейчас 1.0.1) | Module wasm в воркере, делегаты CPU и GPU |
+| ML | @mediapipe/tasks-vision **1.1.1** (в `vendor/` сейчас 1.0.1 без `*_module_internal.*`) | Module wasm в воркере, делегаты CPU и GPU. WASM прибавит около 1,76 МБ (+15%). Путь nosimd не поставляем: module-сборки без SIMD нет, а на iOS 17+ SIMD есть |
 | 2D-рендер | Canvas2D; pixi.js 8.22.0 для «Пульса» и «Титана» | Батчинг и фильтры нужны только тяжёлым играм |
 | PWA | vite-plugin-pwa 2.0.0 (`injectManifest`), Workbox 7.4.1 | Свой SW с явными маршрутами |
 | Тесты | Vitest 5.0.5 (fake-indexeddb 6.2, fast-check 4.10), @playwright/test 1.64.1, @axe-core/playwright 4.14 | См. §9 |
