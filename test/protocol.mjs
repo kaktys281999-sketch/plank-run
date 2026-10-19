@@ -96,7 +96,9 @@ async function run(view) {
 
   await page.goto('http://localhost:8765/?protocol&fast&cpu');
   ok(await page.evaluate(() => document.body.dataset.screen) === 'protocol', `${view}: ?protocol opens the protocol, not home`);
-  ok(await page.isVisible('#p-consent'), `${view}: consent screen first`);
+  // The protocol module loads asynchronously; give it a moment before checking.
+  const consentShown = await page.waitForSelector('#p-consent', { state: 'visible', timeout: 10000 }).then(() => true, () => false);
+  ok(consentShown, `${view}: consent screen first`);
   const consentText = await page.locator('#p-consent').innerText();
   ok(/90 дней/.test(consentText) && /только владелец/i.test(consentText) && /видео, фото, точки тела/.test(consentText), `${view}: consent says what / who / when`);
   ok(consentText.includes('Держи только до сигнала. Любой отрезок можно сделать на коленях или пропустить. Боль, головокружение, одышка — сразу остановись. Болит поясница — пропусти провис и „домик“'), `${view}: safety paragraph verbatim`);
