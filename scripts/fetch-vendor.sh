@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
-# Downloads MediaPipe + pose models into ./vendor so the app works without CDNs.
-# Then open the app with ?local, e.g. http://localhost:8080/?local
+# Refreshes the self-hosted MediaPipe runtime + models in ./vendor (served from the app's own origin).
 set -euo pipefail
 cd "$(dirname "$0")/.."
 VERSION=1.0.1
@@ -16,4 +15,4 @@ for m in lite full; do
 done
 curl -fsSL -o vendor/models/blaze_face_short_range.tflite \
   https://storage.googleapis.com/mediapipe-models/face_detector/blaze_face_short_range/float16/1/blaze_face_short_range.tflite
-echo "Done. Serve the folder and open /?local"
+echo "Done: vendor/ updated"

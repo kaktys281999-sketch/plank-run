@@ -1,7 +1,7 @@
 // Camera access + MediaPipe vision tasks running in the browser.
 // No frame ever leaves the device: inference happens locally (WASM + WebGL).
 
-import { VISION_BUNDLE, WASM_BASE, MODELS, FACE_MODEL, FLAGS } from './config.js';
+import { SOURCES, FLAGS } from './config.js';
 
 export class CameraError extends Error {
   constructor(code, message) {
@@ -70,29 +70,44 @@ export class VisionTracker {
     this.lastTs = 0;
     this.vision = null;
     this.fileset = null;
+    this.source = null;
     this.switching = false;
   }
 
   async init(kind, modelKey = 'lite', onStatus = () => {}) {
     if (this.task && this.kind === kind && (kind === 'face' || this.modelKey === modelKey)) return;
     this.close();
-    onStatus('Загружаю MediaPipe…');
-    this.vision ??= await import(/* @vite-ignore */ VISION_BUNDLE);
-    this.fileset ??= await this.vision.FilesetResolver.forVisionTasks(WASM_BASE);
-    onStatus(kind === 'face' ? 'Загружаю детектор лица…' : 'Загружаю модель позы…');
     const delegates = FLAGS.forceCpu ? ['CPU'] : ['GPU', 'CPU'];
+    // Once a source works, stick to it; otherwise try them in order (local copies, then CDN).
+    const sources = this.source ? [this.source, ...SOURCES.filter((s) => s !== this.source)] : SOURCES;
     let lastErr;
-    for (const delegate of delegates) {
+    for (const source of sources) {
       try {
-        this.task = await this.create(kind, modelKey, delegate);
-        this.kind = kind;
-        this.modelKey = modelKey;
-        this.delegate = delegate;
-        return;
+        onStatus('Загружаю MediaPipe…');
+        if (this.source !== source) {
+          this.vision = await import(/* @vite-ignore */ source.bundle);
+          this.fileset = await this.vision.FilesetResolver.forVisionTasks(source.wasm);
+        }
+        this.source = source;
       } catch (err) {
         lastErr = err;
-        console.warn(`${kind} with ${delegate} failed`, err);
+        console.warn(`MediaPipe from ${source.name} failed`, err);
+        continue;
       }
+      onStatus(kind === 'face' ? 'Загружаю детектор лица…' : 'Загружаю модель позы…');
+      for (const delegate of delegates) {
+        try {
+          this.task = await this.create(kind, modelKey, delegate);
+          this.kind = kind;
+          this.modelKey = modelKey;
+          this.delegate = delegate;
+          return;
+        } catch (err) {
+          lastErr = err;
+          console.warn(`${kind} from ${source.name} with ${delegate} failed`, err);
+        }
+      }
+      this.source = null;
     }
     throw new Error(`Не удалось загрузить модель: ${lastErr?.message ?? lastErr}`);
   }
@@ -100,13 +115,13 @@ export class VisionTracker {
   create(kind, modelKey, delegate) {
     if (kind === 'face') {
       return this.vision.FaceDetector.createFromOptions(this.fileset, {
-        baseOptions: { modelAssetPath: FACE_MODEL, delegate },
+        baseOptions: { modelAssetPath: this.source.face, delegate },
         runningMode: 'VIDEO',
         minDetectionConfidence: 0.5,
       });
     }
     return this.vision.PoseLandmarker.createFromOptions(this.fileset, {
-      baseOptions: { modelAssetPath: MODELS[modelKey], delegate },
+      baseOptions: { modelAssetPath: this.source.pose[modelKey], delegate },
       runningMode: 'VIDEO',
       numPoses: 1,
       minPoseDetectionConfidence: 0.5,
