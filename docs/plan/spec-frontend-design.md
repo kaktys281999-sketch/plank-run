@@ -42,16 +42,15 @@
 
 **Не используем:**
 
-- Next.js, Remix и SSR/RSC в приложении: для камеры и canvas они ничего не дают, но мешают офлайну. Лендинг можно сделать отдельной статикой.
-- Phaser, Babylon, R3F (требует `react <19.4`) и @pixi/react: ввод, звук и цикл у нас свои.
-- Redux, MobX и XState: автомат сессии маленький, это чистая функция.
-- Tone.js и howler.
-- essentia.js (AGPL) и GSAP (лицензия не open source).
-- Rive и dotLottie, пока нет аниматора.
-- Runtime CSS-in-JS, MUI, Chakra.
+- Next.js, Remix и SSR/RSC: камере и canvas они ничего не дают, а офлайну мешают. Лендинг — отдельная статика.
+- Phaser, Babylon, R3F (peer `react <19.4`), @pixi/react: ввод, звук и цикл у нас свои.
+- Redux, MobX, XState: автомат сессии — чистая функция.
+- Tone.js, howler, essentia.js (AGPL).
+- GSAP, Rive, dotLottie — пока нет аниматора.
+- Runtime CSS-in-JS, MUI.
 - Google Fonts, jsDelivr и storage.googleapis.com в рантайме.
-- Firebase и стороннюю аналитику.
-- `localStorage` для данных: в нём хранится только флаг темы.
+- Firebase и сторонняя аналитика.
+- `localStorage` для данных: там только флаг темы.
 
 ## 2. Монорепо
 
@@ -292,7 +291,7 @@ export interface InputRecording {
 - **HUD.** Главную цифру (время в хорошей технике) рисует **оболочка**. Игра отдаёт не больше двух показателей, комбо и метку. HUD собран в DOM поверх canvas: текст чёткий, доступен скринридеру и масштабируется через `--view-scale`. Игра не рисует под HUD (`safeRect`).
 - **Итоги.** `GameSummary` вместе с метриками оболочки (`held`, `formPct`, `breaks`, `reason`) проверяется схемой `SessionResultSchema`.
 - **Сложность.** Осей две (progression §9). Физическую задаёт планировщик: интервалы и `maxShiftsPerMin` 12, 20 или 30. Игровая живёт в `params`: скорость, плотность, ширина ворот, окно. `DdaController` держит успех 65–85% в окне из 20 событий с шагом ±5%. Первые 30 с интервала и при флаге усталости он не вмешивается. Промах во время `warn` или `broken` в окно не попадает.
-- **Звук.** Игры не трогают Web Audio. Событие несёт `sfx` и `at`, а `AudioEngine` проигрывает токен (§6.8) с панорамой по позиции. Ритм-игра получает `GameClock` (время песни из `AudioContext` с учётом `outputLatency` и калибровки) и берёт ввод через `sampleAt(tCapture − задержка)`. В запись попадают уже выровненные отсчёты. Голосом говорит только оболочка.
+- **Звук.** Игры не трогают Web Audio. Событие несёт `sfx` и `at`, а `AudioEngine` проигрывает токен (§6.8) с панорамой по позиции. Ритм-игра получает `GameClock` — время песни по `AudioContext`. Калибровка «кивни в такт» обязательна на всех платформах; `outputLatency` служит только начальным приближением, потому что Apple его поддержку нигде не подтверждала. Ввод ритм-игра берёт через `sampleAt(tCapture − задержка)`, и в запись попадают уже выровненные отсчёты. Голосом говорит только оболочка.
 
 ### 4.6 Перенос Fireflies и Tunnel
 
@@ -456,7 +455,7 @@ export interface InputRecording {
 
 ## 7. PWA и офлайн
 
-**Service worker** (Workbox 7.4):
+**Service worker** (Workbox 7.4). В `injectManifest` нужно явно задать `globPatterns` и `globIgnores: ['**/ml/**']`. Шаблон по умолчанию `**/*.{js,wasm,css,html}` вместе с `throwMaximumFileSizeToCacheInBytes` **роняет сборку** на 13,5-мегабайтном WASM.
 
 | Что | Стратегия |
 |---|---|

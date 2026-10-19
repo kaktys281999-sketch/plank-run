@@ -659,21 +659,16 @@ RU/EN/UZ, ник-фильтр.
 
 ### Источники и допущения
 
-Исследования проекта: `docs/research/progression.md` (уровни, адаптация, скрининг, пределы),
-`games.md` (каталог, мета, Пульс), `design.md` (Искра, читаемость, режим без рук),
-`compliance.md` (local-first, возраст, данные о здоровье), `threads-post.md` (эталон Planki).
-Поправки фактчека (`verify-progression-games.md`): тест — максимум 60 с; при давлении теста нет;
-удержания ≤ 45 с; повторный тест не чаще раза в 14 дней; PAR-Q+ не используем (официального
-русского перевода нет; см. [PMC8350392](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8350392/),
-[APTA](https://www.apta.org/patient-care/evidence-based-practice-resources/test-measures/physical-activity-readiness-questionnaire-par-q-par-q));
-не утверждаем, что планка снижает давление; призраки сравнивают очки и качество, а не время.
-Непроверенные цифры (Duolingo +0,38 % DAU, Bath 16 % / 8 %) и конкуренты Planki и Captain Push-Up
-в спецификации как факты не используются. Planki — ориентир, который назвал владелец.
-Web Push на iOS работает только для установленных PWA с 16.4
-([MagicBell](https://www.magicbell.com/blog/pwa-ios-limitations-safari-support-complete-guide),
-[Progressier](https://progressier.com/pwa-capabilities/declarative-web-push)).
-Собственные решения поверх исследований: ускоренный вход вместо высоких стартовых уровней; опыт
-не зависит от секунд; миры не привязаны к уровню формы; рейтинг друзей считается по звёздам.
+Исследования: `docs/research/progression.md`, `games.md`, `design.md`, `compliance.md`,
+`threads-post.md`. Поправки фактчека (`verify-progression-games.md`) применены: тест ≤ 60 с, при
+давлении теста нет, удержания ≤ 45 с, повторный тест раз в 14 дней, без PAR-Q+ (русской версии нет:
+[PMC8350392](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8350392/),
+[APTA](https://www.apta.org/patient-care/evidence-based-practice-resources/test-measures/physical-activity-readiness-questionnaire-par-q-par-q)),
+без обещаний снизить давление, призраки — по очкам и качеству. Неподтверждённые цифры (Duolingo,
+Bath) и конкуренты не используются как факты; Planki — ориентир владельца. Web Push на iOS — только
+установленные PWA с 16.4 ([MagicBell](https://www.magicbell.com/blog/pwa-ios-limitations-safari-support-complete-guide),
+[Progressier](https://progressier.com/pwa-capabilities/declarative-web-push)). Собственные решения:
+ускоренный вход, опыт не зависит от секунд, миры не привязаны к уровню формы, рейтинг по звёздам.
 
 ### Открытые вопросы
 
