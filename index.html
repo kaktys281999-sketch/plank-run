@@ -100,11 +100,9 @@
         <div class="field">
           <span class="label">Цель</span>
           <div class="seg" role="radiogroup" aria-label="Цель">
+            <label><input type="radio" name="target" value="20"><span>20 с</span></label>
             <label><input type="radio" name="target" value="30"><span>30 с</span></label>
             <label><input type="radio" name="target" value="45"><span>45 с</span></label>
-            <label><input type="radio" name="target" value="60"><span>1 мин</span></label>
-            <label><input type="radio" name="target" value="90"><span>1,5 мин</span></label>
-            <label><input type="radio" name="target" value="120"><span>2 мин</span></label>
           </div>
         </div>
         <div class="field">
@@ -142,11 +140,53 @@
     <section class="card note">
       <h2>Перед стартом</h2>
       <ul>
+        <li>Plank Run — игра, а не медицинский сервис. Планка повышает давление: дыши ровно, не задерживай дыхание.</li>
+        <li>Подход заканчивается сам на цели. Больше 45 секунд за раз не держи — лучше второй подход после отдыха.</li>
         <li>Разомнись 2–3 минуты: плечи, запястья, корпус.</li>
         <li>Дыши ровно, не задерживай дыхание. Шея — продолжение спины: смотри на экран глазами, не задирай голову.</li>
         <li>Боль в пояснице, плечах или запястьях — сразу остановись. Таймер считает только время с правильной техникой.</li>
         <li>Свет спереди, однотонный фон и облегающая одежда заметно улучшают распознавание.</li>
       </ul>
+    </section>
+  </main>
+
+  <!-- ============ SAFETY ============ -->
+  <main id="safety" class="screen">
+    <section class="card" id="safety-form">
+      <h2>Перед первой игрой</h2>
+      <p class="disclaimer">Plank Run — игра, а не медицинский сервис. Планка повышает давление: дыши ровно, не задерживай дыхание. Боль или головокружение — сразу остановись.</p>
+      <p class="label">Ответь честно. Ответы никуда не отправляются, а на устройстве остаётся только итог «можно / нельзя».</p>
+      <ol class="questions">
+        <li>
+          <span>Бывает ли у тебя боль, давление или стеснение в груди?</span>
+          <div class="seg"><label><input type="radio" name="q1" value="yes"><span>Да</span></label><label><input type="radio" name="q1" value="no"><span>Нет</span></label></div>
+        </li>
+        <li>
+          <span>Бывает ли одышка в покое или от небольшой нагрузки, перебои в сердце?</span>
+          <div class="seg"><label><input type="radio" name="q2" value="yes"><span>Да</span></label><label><input type="radio" name="q2" value="no"><span>Нет</span></label></div>
+        </li>
+        <li>
+          <span>Терял(а) ли ты сознание или падал(а) от головокружения за последний год?</span>
+          <div class="seg"><label><input type="radio" name="q3" value="yes"><span>Да</span></label><label><input type="radio" name="q3" value="no"><span>Нет</span></label></div>
+        </li>
+        <li>
+          <span>Давление в покое по последним измерениям 160/90 и выше — или ты его не знаешь?</span>
+          <div class="seg"><label><input type="radio" name="q4" value="yes"><span>Да</span></label><label><input type="radio" name="q4" value="no"><span>Нет</span></label></div>
+        </li>
+      </ol>
+      <label class="toggle"><input type="checkbox" id="safety-accept"><span>Понимаю: при боли или плохом самочувствии остановлюсь сразу</span></label>
+      <div class="actions">
+        <button id="safety-continue" class="btn primary" disabled>Продолжить</button>
+        <button id="safety-back" class="btn ghost">Назад</button>
+      </div>
+    </section>
+    <section class="card" id="safety-stop" hidden>
+      <h2>Сначала к врачу</h2>
+      <p>Ты ответил(а) «да» хотя бы на один вопрос. Планка ненадолго повышает давление и нагружает сердце, поэтому сначала обсуди такую нагрузку с врачом. Пока можно посмотреть игры в демо-режиме — без упражнения.</p>
+      <div class="actions">
+        <button id="safety-demo" class="btn primary">Демо без камеры</button>
+        <button id="safety-redo" class="btn ghost">Изменить ответы</button>
+      </div>
     </section>
   </main>
 

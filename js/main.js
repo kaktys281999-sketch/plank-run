@@ -4,13 +4,14 @@ import { TunnelGame } from './games/tunnel.js';
 import { FirefliesGame } from './games/fireflies.js';
 import { Sound } from './audio.js';
 import { drawSkeleton, drawFace, clearCanvas } from './draw.js';
-import { loadSettings, saveSettings, loadHistory, addSession } from './storage.js';
+import { loadSettings, saveSettings, loadHistory, addSession, loadSafety, saveSafety } from './storage.js';
 import { FLAGS } from './config.js';
 
 const $ = (sel) => document.querySelector(sel);
 
 const END_AFTER = 4;  // seconds of broken form before the set ends
 const COUNTDOWN = 3;
+const SAFETY_VERSION = 1;
 
 const VOICE = {
   sag: 'Подними таз',
@@ -64,15 +65,6 @@ const perf = { frames: 0, since: 0, fps: 0, ms: 0 };
 function fmtTime(sec) {
   const s = Math.max(0, Math.floor(sec));
   return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
-}
-
-function spokenTime(sec) {
-  if (sec < 60) return `${sec} секунд`;
-  const m = Math.floor(sec / 60);
-  const rest = sec % 60;
-  if (m === 1 && rest === 30) return 'Полторы минуты';
-  const mins = m === 1 ? 'Минута' : m < 5 ? `${m} минуты` : `${m} минут`;
-  return rest ? `${mins} ${rest}` : mins;
 }
 
 // ---------------- home screen ----------------
@@ -210,7 +202,7 @@ async function start(demo) {
     demo, axis,
     phase: null, phaseStart: 0,
     held: 0, broken: 0, breaks: 0,
-    targetHit: false, lastMilestone: 0, saidTenLeft: false, lastVoice: 0,
+    lastMilestone: 0, lastVoice: 0,
     calibProgress: 0,
     demoInput: { x: 0, y: 0, vx: 0, vy: 0, broken: false },
   };
@@ -352,7 +344,7 @@ function loop(now, owner) {
       }
       s.held += dt;
       game.update(dt, true);
-      milestones();
+      if (milestones()) return;
       break;
 
     case 'paused': {
@@ -394,26 +386,26 @@ function pauseFor(issue) {
   setPhase('paused');
 }
 
+// The set ends at the target: no holding on to failure (plan §6.5).
+// Returns true when the session has finished.
 function milestones() {
   const s = session;
   const T = settings.target;
-  if (!s.targetHit && s.held >= T) {
-    s.targetHit = true;
+  if (s.held >= T) {
     sound.win();
-    sound.say('Цель достигнута! Можешь продолжать', { interrupt: true });
-    return;
+    sound.say('Цель достигнута! Отдыхай и дыши', { interrupt: true });
+    finish('target');
+    return true;
   }
-  if (!s.saidTenLeft && T >= 30 && T - s.held <= 10) {
-    s.saidTenLeft = true;
-    sound.say('Ещё десять секунд', { interrupt: true });
-    return;
-  }
-  const m = Math.floor(s.held / 15);
+  // A breathing reminder every 10 s; near the end it also counts down.
+  const m = Math.floor(s.held / 10);
   if (m > s.lastMilestone) {
     s.lastMilestone = m;
     sound.tick();
-    if (Math.abs(T - s.held) > 2 && Math.abs(T - 10 - s.held) > 2) sound.say(spokenTime(m * 15));
+    const left = Math.round(T - s.held);
+    sound.say(left <= 10 ? `Ещё ${left} секунд, дыши` : 'Дыши ровно', { minGap: 5, interrupt: true });
   }
+  return false;
 }
 
 // ---------------- HUD / overlays ----------------
@@ -468,8 +460,8 @@ function updateHud(ok, issue) {
   setText('hud-score', String(v1));
   setText('hud-k2', k2);
   setText('hud-coins', String(v2));
-  setText('hud-target', s.targetHit ? 'цель выполнена — продолжай!' : `цель ${fmtTime(settings.target)}`);
-  $('#hud-timer').classList.toggle('done', s.targetHit);
+  setText('hud-target', `цель ${fmtTime(settings.target)}`);
+  $('#hud-timer').classList.toggle('done', s.held >= settings.target);
   $('#hud-progress').style.width = `${Math.min(100, (s.held / settings.target) * 100)}%`;
   const combo = $('#hud-combo');
   combo.hidden = game.combo < 2;
@@ -562,26 +554,30 @@ function showResults(r, previousBest, demo) {
     grid.append(div);
   }
   $('#res-tip').textContent = tipFor(r);
-  if (r.held >= r.target) sound.say(`${spokenTime(Math.floor(r.held))}. Отличная работа!`, { interrupt: true });
 }
 
 function reasonText(reason) {
+  if (reason === 'target') return 'Цель выполнена — отдыхай';
   if (reason === 'form') return `Подход завершён: техника нарушена дольше ${END_AFTER} с`;
   return 'Подход завершён';
 }
 
 function tipFor(r) {
   if (r.breaks >= 3 || r.formPct < 0.8) return 'Техника часто срывалась. Лучше короче, но ровно: поставь цель поменьше и держи идеальную линию.';
-  if (r.held >= r.target) return 'Цель выполнена. В следующий раз добавь 5–10 секунд: так нагрузка растёт постепенно.';
+  if (r.held >= r.target) return 'Цель выполнена. Больше 45 секунд за раз не держи: если хочется ещё, отдохни минуту и сделай второй подход.';
   return 'Регулярность важнее рекорда: 3–4 подхода в неделю дадут прогресс быстрее, чем один подход до отказа.';
 }
 
 // ---------------- input ----------------
 
 function bindInput() {
-  $('#start').addEventListener('click', () => start(false));
+  $('#start').addEventListener('click', () => (safetyOk() ? start(false) : showSafety()));
   $('#demo').addEventListener('click', () => start(true));
-  $('#again').addEventListener('click', () => start(session?.demo ?? false));
+  $('#again').addEventListener('click', () => {
+    const demo = session?.demo ?? false;
+    if (!demo && !safetyOk()) showSafety();
+    else start(demo);
+  });
   $('#to-home').addEventListener('click', () => { showScreen('home'); renderHistory(); });
   $('#finish').addEventListener('click', () => finish('manual'));
   $('#recalibrate').addEventListener('click', recalibrate);
@@ -619,6 +615,47 @@ function bindInput() {
   });
 }
 
+// ---------------- safety check before the first real set ----------------
+// Only the yes/no outcome is kept, on this device; the answers themselves are not stored.
+
+function safetyOk() {
+  const s = loadSafety();
+  return s?.version === SAFETY_VERSION && s.ok === true;
+}
+
+const SAFETY_QUESTIONS = ['q1', 'q2', 'q3', 'q4'];
+
+function showSafety() {
+  const form = $('#safety-form');
+  form.querySelectorAll('input').forEach((i) => { i.checked = false; });
+  $('#safety-continue').disabled = true;
+  form.hidden = false;
+  $('#safety-stop').hidden = true;
+  showScreen('safety');
+}
+
+function bindSafety() {
+  const form = $('#safety-form');
+  const answer = (q) => form.querySelector(`input[name="${q}"]:checked`)?.value;
+  form.addEventListener('change', () => {
+    $('#safety-continue').disabled = !(SAFETY_QUESTIONS.every(answer) && $('#safety-accept').checked);
+  });
+  $('#safety-continue').addEventListener('click', () => {
+    const anyYes = SAFETY_QUESTIONS.some((q) => answer(q) === 'yes');
+    saveSafety({ version: SAFETY_VERSION, ok: !anyYes, date: Date.now() });
+    if (anyYes) {
+      form.hidden = true;
+      $('#safety-stop').hidden = false;
+      window.scrollTo(0, 0);
+    } else {
+      start(false);
+    }
+  });
+  $('#safety-back').addEventListener('click', () => showScreen('home'));
+  $('#safety-demo').addEventListener('click', () => start(true));
+  $('#safety-redo').addEventListener('click', showSafety);
+}
+
 function recalibrate() {
   if (!session || session.demo || session.phase === 'over') return;
   analyzer.resetCalibration();
@@ -649,4 +686,5 @@ window.__plank = {
 
 bindSettings();
 bindInput();
+bindSafety();
 renderHistory();

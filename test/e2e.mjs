@@ -24,7 +24,7 @@ const page = await context.newPage();
 page.on('pageerror', (e) => console.log('[pageerror]', e.message));
 page.on('console', (m) => { if (m.type() === 'error' || m.type() === 'warning') console.log(`[${m.type()}]`, m.text().slice(0, 200)); });
 await page.addInitScript(([camera, GAME]) => {
-  localStorage.setItem('plank-run:v1', JSON.stringify({ settings: { game: GAME, camera, control: camera === 'side' ? 'y' : 'x', target: 30, sound: false, voice: false, showCamera: true, model: 'lite' } }));
+  localStorage.setItem('plank-run:v1', JSON.stringify({ safety: { version: 1, ok: true }, settings: { game: GAME, camera, control: camera === 'side' ? 'y' : 'x', target: 30, sound: false, voice: false, showCamera: true, model: 'lite' } }));
 }, [view, process.env.GAME ?? (view === 'side' ? 'tunnel' : 'fireflies')]);
 await page.goto('http://localhost:8765/?debug&cpu');
 await page.click('#start');

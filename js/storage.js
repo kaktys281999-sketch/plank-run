@@ -8,7 +8,7 @@ export const DEFAULT_SETTINGS = {
   camera: 'front',      // 'front' | 'side'
   control: 'x',         // front camera: 'x' (left/right) | 'y' (up/down)
   kneePlank: false,
-  target: 60,           // seconds
+  target: 30,           // seconds: 20 / 30 / 45, never longer (plan §6.5)
   sensitivity: 1,
   model: 'lite',        // 'lite' | 'full'
   sound: true,
@@ -32,8 +32,21 @@ function write(data) {
   }
 }
 
+export const TARGETS = [20, 30, 45];
+
 export function loadSettings() {
-  return { ...DEFAULT_SETTINGS, ...(read().settings ?? {}) };
+  const settings = { ...DEFAULT_SETTINGS, ...(read().settings ?? {}) };
+  // Older versions allowed up to 2 minutes.
+  if (!TARGETS.includes(settings.target)) settings.target = DEFAULT_SETTINGS.target;
+  return settings;
+}
+
+export function loadSafety() {
+  return read().safety ?? null;
+}
+
+export function saveSafety(safety) {
+  write({ ...read(), safety });
 }
 
 export function saveSettings(settings) {
