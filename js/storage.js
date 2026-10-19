@@ -4,6 +4,7 @@
 const KEY = 'plank-run:v1';
 
 export const DEFAULT_SETTINGS = {
+  game: 'fireflies',    // 'fireflies' | 'tunnel'
   camera: 'front',      // 'front' | 'side'
   control: 'x',         // front camera: 'x' (left/right) | 'y' (up/down)
   kneePlank: false,

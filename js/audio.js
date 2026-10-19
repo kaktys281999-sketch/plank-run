@@ -53,6 +53,15 @@ export class Sound {
   coin() { this.tone(1320, 0.08, { type: 'square', gain: 0.05 }); this.tone(1760, 0.1, { type: 'square', gain: 0.05, delay: 0.06 }); }
   pass(combo = 1) { this.tone(520 + Math.min(combo, 10) * 40, 0.14, { type: 'triangle', gain: 0.12 }); }
   hit() { this.tone(160, 0.3, { type: 'sawtooth', gain: 0.12, slide: 0.5 }); }
+  // Catch sounds climb a pentatonic scale as the streak grows, so a good run sounds like a melody.
+  chime(combo = 1, type = 'normal') {
+    const scale = [523.25, 587.33, 659.25, 783.99, 880, 1046.5, 1174.66, 1318.51, 1567.98];
+    const f = scale[Math.min(combo - 1, scale.length - 1)];
+    this.tone(f, 0.18, { type: 'triangle', gain: 0.1 });
+    if (type === 'gold') this.tone(f * 1.5, 0.2, { type: 'triangle', gain: 0.08, delay: 0.07 });
+    if (type === 'moon') [1, 1.25, 1.5, 2].forEach((m, i) => this.tone(f * m, 0.22, { type: 'sine', gain: 0.09, delay: i * 0.08 }));
+  }
+
   warn() { this.tone(440, 0.15, { type: 'square', gain: 0.07 }); this.tone(330, 0.2, { type: 'square', gain: 0.07, delay: 0.17 }); }
   tick() { this.tone(880, 0.08, { type: 'sine', gain: 0.12 }); }
   go() { this.tone(1046, 0.25, { type: 'triangle', gain: 0.15 }); }

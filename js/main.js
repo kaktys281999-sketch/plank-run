@@ -1,6 +1,7 @@
 import { VisionTracker, startCamera, stopCamera, onEveryVideoFrame } from './pose.js';
 import { PlankAnalyzer, ISSUE_TEXT } from './plank.js';
-import { Game } from './game.js';
+import { TunnelGame } from './games/tunnel.js';
+import { FirefliesGame } from './games/fireflies.js';
 import { Sound } from './audio.js';
 import { drawSkeleton, drawFace, clearCanvas } from './draw.js';
 import { loadSettings, saveSettings, loadHistory, addSession } from './storage.js';
@@ -34,6 +35,13 @@ const COLORS = {
   hit: '#ff5d7a',
   coin: '#ffd25e',
   player: '#5ef2c2',
+};
+
+// Every game implements: setInput({x, y}), update(dt, running), render(colors), resume(),
+// setDifficultyHorizon(s), hint(camera), hudStats(), summary(), plus score / combo.
+const GAMES = {
+  fireflies: { title: 'Светлячки', cameras: ['front'], create: (canvas, opts) => new FirefliesGame(canvas, opts) },
+  tunnel: { title: 'Тоннель', cameras: ['front', 'side'], create: (canvas, opts) => new TunnelGame(canvas, opts) },
 };
 
 const settings = loadSettings();
@@ -76,7 +84,7 @@ function showScreen(name) {
 
 function bindSettings() {
   const home = $('#home');
-  for (const name of ['camera', 'control', 'target', 'model']) {
+  for (const name of ['game', 'camera', 'control', 'target', 'model']) {
     for (const input of home.querySelectorAll(`input[name="${name}"]`)) {
       input.checked = String(settings[name]) === input.value;
       input.addEventListener('change', () => {
@@ -108,8 +116,21 @@ function bindSettings() {
 }
 
 function refreshSettingsUi() {
+  // Some games need both axes, which only the front camera (face tracking) gives.
+  const def = GAMES[settings.game] ?? GAMES.fireflies;
+  for (const input of document.querySelectorAll('input[name="camera"]')) {
+    const allowed = def.cameras.includes(input.value);
+    input.disabled = !allowed;
+    input.closest('.choice').classList.toggle('disabled', !allowed);
+  }
+  if (!def.cameras.includes(settings.camera)) {
+    settings.camera = def.cameras[0];
+    document.querySelector(`input[name="camera"][value="${settings.camera}"]`).checked = true;
+    saveSettings(settings);
+  }
+  $('#camera-note').hidden = def.cameras.includes('side');
   // Side camera always uses forward/back rocking; the model choice only matters for the pose model.
-  $('#field-control').hidden = settings.camera === 'side';
+  $('#field-control').hidden = settings.camera === 'side' || settings.game !== 'tunnel';
   $('#field-model').hidden = settings.camera !== 'side';
   $('#field-knee').hidden = settings.camera !== 'side';
 }
@@ -136,7 +157,8 @@ function renderHistory() {
     const date = new Date(h.date).toLocaleString('ru-RU', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
     li.innerHTML = '<span></span><span></span>';
     li.children[0].textContent = date;
-    li.children[1].textContent = `${fmtTime(h.held)} из ${fmtTime(h.target)} · ${h.score} очков · техника ${Math.round(h.formPct * 100)}%`;
+    const title = GAMES[h.game]?.title ?? GAMES.tunnel.title;
+    li.children[1].textContent = `${title} · ${fmtTime(h.held)} из ${fmtTime(h.target)} · ${h.score} очков · техника ${Math.round(h.formPct * 100)}%`;
     list.append(li);
   }
 }
@@ -180,7 +202,7 @@ async function start(demo) {
   showError('');
 
   const axis = settings.camera === 'side' ? 'y' : settings.control;
-  game = new Game($('#game'), { axis, onEvent: onGameEvent });
+  game = (GAMES[settings.game] ?? GAMES.fireflies).create($('#game'), { axis, onEvent: onGameEvent });
   game.setDifficultyHorizon(settings.target);
   analyzer = new PlankAnalyzer({ ...settings });
   pose = null;
@@ -252,10 +274,15 @@ function onPoseFrame(now) {
   else drawSkeleton(overlay, video, det.landmarks, color);
 }
 
-function onGameEvent(type, combo) {
+function onGameEvent(type, data) {
   if (type === 'coin') sound.coin();
-  else if (type === 'pass') sound.pass(combo);
+  else if (type === 'pass') sound.pass(data);
   else if (type === 'hit') sound.hit();
+  else if (type === 'catch') sound.chime(data.combo, data.type);
+  else if (type === 'jar') {
+    sound.win();
+    sound.say('Банка полная! Плюс десять', { minGap: 2 });
+  }
 }
 
 let lastFrame = 0;
@@ -283,7 +310,7 @@ function loop(now, owner) {
     ok = !!pose?.formOk;
     issue = pose?.issue ?? 'lost';
   }
-  game.setInput(s.axis === 'x' ? input.x : input.y);
+  game.setInput(input);
 
   const inPhase = t - s.phaseStart;
   switch (s.phase) {
@@ -308,7 +335,7 @@ function loop(now, owner) {
         s.lastTick = left;
         sound.tick();
       }
-      showMessage({ big: String(Math.max(1, left)), title: 'Приготовься', text: s.axis === 'x' ? 'Смещай корпус влево и вправо, чтобы попасть в ворота' : settings.camera === 'side' ? 'Качнись вперёд — шар вверх, назад — вниз' : 'Поднимай и опускай корпус, чтобы попасть в ворота', progress: inPhase / COUNTDOWN });
+      showMessage({ big: String(Math.max(1, left)), title: 'Приготовься', text: game.hint(settings.camera), progress: inPhase / COUNTDOWN });
       if (inPhase >= COUNTDOWN) {
         sound.go();
         hideMessage();
@@ -436,8 +463,11 @@ function setText(id, value) {
 function updateHud(ok, issue) {
   const s = session;
   setText('hud-timer', fmtTime(s.held));
-  setText('hud-score', String(game.score));
-  setText('hud-coins', String(game.coins));
+  const [[k1, v1], [k2, v2]] = game.hudStats();
+  setText('hud-k1', k1);
+  setText('hud-score', String(v1));
+  setText('hud-k2', k2);
+  setText('hud-coins', String(v2));
   setText('hud-target', s.targetHit ? 'цель выполнена — продолжай!' : `цель ${fmtTime(settings.target)}`);
   $('#hud-timer').classList.toggle('done', s.targetHit);
   $('#hud-progress').style.width = `${Math.min(100, (s.held / settings.target) * 100)}%`;
@@ -496,11 +526,10 @@ function finish(reason) {
     date: Date.now(),
     held: Math.round(s.held * 10) / 10,
     target: settings.target,
+    game: settings.game,
     score: game.score,
-    coins: game.coins,
-    gates: game.passed,
-    hits: game.hits,
     bestCombo: game.bestCombo,
+    summary: game.summary(),
     breaks: s.breaks,
     formPct: s.held + s.broken > 0 ? s.held / (s.held + s.broken) : 1,
     camera: settings.camera,
@@ -522,12 +551,16 @@ function showResults(r, previousBest, demo) {
   $('#res-sub').textContent = record
     ? 'Новый рекорд!'
     : r.held >= r.target ? `Цель ${fmtTime(r.target)} выполнена!` : `Цель ${fmtTime(r.target)}: не хватило ${Math.ceil(r.target - r.held)} с`;
-  $('#res-score').textContent = r.score;
-  $('#res-coins').textContent = r.coins;
-  $('#res-gates').textContent = `${r.gates} / ${r.gates + r.hits}`;
-  $('#res-combo').textContent = r.bestCombo;
-  $('#res-form').textContent = `${Math.round(r.formPct * 100)}%`;
-  $('#res-breaks').textContent = r.breaks;
+  const grid = $('#res-grid');
+  grid.innerHTML = '';
+  const cells = [...r.summary, [`${Math.round(r.formPct * 100)}%`, 'времени с хорошей техникой'], [r.breaks, 'срывов техники']];
+  for (const [v, k] of cells) {
+    const div = document.createElement('div');
+    div.innerHTML = '<span class="v"></span><span class="k"></span>';
+    div.querySelector('.v').textContent = v;
+    div.querySelector('.k').textContent = k;
+    grid.append(div);
+  }
   $('#res-tip').textContent = tipFor(r);
   if (r.held >= r.target) sound.say(`${spokenTime(Math.floor(r.held))}. Отличная работа!`, { interrupt: true });
 }
@@ -608,6 +641,9 @@ window.__plank = {
       calibrated: analyzer?.calibrated ?? false,
       pose,
     };
+  },
+  get game() {
+    return game;
   },
 };
 

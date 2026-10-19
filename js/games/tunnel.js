@@ -1,4 +1,4 @@
-// The game itself: fly through gates by moving your body.
+// Tunnel: fly through gates by moving your body.
 // Deliberately slow and forgiving: pose input has ~150–250 ms of latency
 // (camera + inference + smoothing), so reflex-heavy gameplay would feel unfair.
 //
@@ -13,7 +13,7 @@ const COIN_HIT = 0.16;
 const rand = (a, b) => a + Math.random() * (b - a);
 const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
 
-export class Game {
+export class TunnelGame {
   constructor(canvas, { axis = 'x', onEvent = () => {} } = {}) {
     this.canvas = canvas;
     this.ctx = canvas.getContext('2d');
@@ -46,8 +46,26 @@ export class Game {
     this.difficultyHorizon = Math.max(30, seconds);
   }
 
-  setInput(u) {
-    this.target = clamp(u, -1, 1);
+  setInput({ x, y }) {
+    this.target = clamp(this.axis === 'x' ? x : y, -1, 1);
+  }
+
+  hint(camera) {
+    if (this.axis === 'x') return 'Смещай корпус влево и вправо, чтобы попасть в ворота';
+    return camera === 'side' ? 'Качнись вперёд — шар вверх, назад — вниз' : 'Поднимай и опускай корпус, чтобы попасть в ворота';
+  }
+
+  hudStats() {
+    return [['Очки', this.score], ['Монеты', this.coins]];
+  }
+
+  summary() {
+    return [
+      [this.score, 'очков'],
+      [this.coins, 'монет'],
+      [`${this.passed} / ${this.passed + this.hits}`, 'ворот пройдено'],
+      [this.bestCombo, 'лучшая серия'],
+    ];
   }
 
   get level() {

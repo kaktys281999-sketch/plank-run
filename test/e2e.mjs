@@ -23,10 +23,10 @@ const context = await browser.newContext({ viewport: { width: 1280, height: 800 
 const page = await context.newPage();
 page.on('pageerror', (e) => console.log('[pageerror]', e.message));
 page.on('console', (m) => { if (m.type() === 'error' || m.type() === 'warning') console.log(`[${m.type()}]`, m.text().slice(0, 200)); });
-await page.addInitScript((camera) => {
-  localStorage.setItem('plank-run:v1', JSON.stringify({ settings: { camera, control: camera === 'side' ? 'y' : 'x', target: 30, sound: false, voice: false, showCamera: true, model: 'lite' } }));
-}, view);
-await page.goto('http://localhost:8765/?local&debug&cpu');
+await page.addInitScript(([camera, GAME]) => {
+  localStorage.setItem('plank-run:v1', JSON.stringify({ settings: { game: GAME, camera, control: camera === 'side' ? 'y' : 'x', target: 30, sound: false, voice: false, showCamera: true, model: 'lite' } }));
+}, [view, process.env.GAME ?? (view === 'side' ? 'tunnel' : 'fireflies')]);
+await page.goto('http://localhost:8765/?debug&cpu');
 await page.click('#start');
 
 const log = [];
@@ -50,6 +50,7 @@ while (Date.now() - t0 < seconds * 1000) {
   await page.waitForTimeout(100);
 }
 writeFileSync(`out/e2e/${view}.json`, JSON.stringify(log, null, 1));
+console.log('game stats:', JSON.stringify(await page.evaluate(() => { const g = window.__plank.game; return { score: g.score, caught: g.caught, coins: g.coins }; })));
 const final = await page.evaluate(() => ({ screen: document.body.dataset.screen, text: document.querySelector('#results')?.innerText }));
 await browser.close();
 

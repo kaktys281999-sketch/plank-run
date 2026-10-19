@@ -18,7 +18,38 @@
     </header>
 
     <section class="card">
-      <h2>1. Куда поставить камеру</h2>
+      <h2>1. Игра</h2>
+      <div class="choice-grid" role="radiogroup" aria-label="Игра">
+        <label class="choice">
+          <input type="radio" name="game" value="fireflies">
+          <svg viewBox="0 0 200 110" aria-hidden="true">
+            <rect width="200" height="110" class="night"/>
+            <circle cx="170" cy="22" r="9" class="moon"/>
+            <circle cx="40" cy="30" r="3" class="fly"/><circle cx="40" cy="30" r="9" class="fly-glow"/>
+            <circle cx="120" cy="45" r="3" class="fly"/><circle cx="120" cy="45" r="9" class="fly-glow"/>
+            <circle cx="150" cy="70" r="3.5" class="fly gold"/><circle cx="150" cy="70" r="10" class="fly-glow gold"/>
+            <rect x="78" y="62" width="26" height="32" rx="8" class="jar"/>
+            <rect x="82" y="56" width="18" height="6" rx="2" class="lid"/>
+          </svg>
+          <strong>Светлячки</strong>
+          <span>Лови светлячков банкой, двигая головой и корпусом в любую сторону. Золотые дают ×5, редкие лунные — самоцвет. Камера спереди.</span>
+          <em class="badge">Новая</em>
+        </label>
+        <label class="choice">
+          <input type="radio" name="game" value="tunnel">
+          <svg viewBox="0 0 200 110" aria-hidden="true">
+            <path d="M80 10 L 120 10 L 190 105 L 10 105 Z" class="tunnel"/>
+            <path d="M72 30 L 128 30" class="gate"/><path d="M60 55 L 98 55 M 124 55 L 140 55" class="gate"/>
+            <circle cx="100" cy="88" r="8" class="ball"/>
+          </svg>
+          <strong>Тоннель</strong>
+          <span>Шар летит по тоннелю: проводи его через проходы в стенах и собирай монеты. Камера спереди или сбоку.</span>
+        </label>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>2. Куда поставить камеру</h2>
       <div class="choice-grid" role="radiogroup" aria-label="Расположение камеры">
         <label class="choice">
           <input type="radio" name="camera" value="front">
@@ -53,10 +84,11 @@
           <span>Ноутбук или телефон в 2–3 м сбоку, всё тело в кадре. Полная модель позы: строго проверяет провисание и подъём таза. Рулишь качанием вперёд-назад.</span>
         </label>
       </div>
+      <p class="note-inline" id="camera-note" hidden>«Светлячкам» нужно движение во все стороны, а его даёт только камера спереди.</p>
     </section>
 
     <section class="card">
-      <h2>2. Настройки</h2>
+      <h2>3. Настройки</h2>
       <div class="settings">
         <div class="field" id="field-control">
           <span class="label">Управление</span>
@@ -124,8 +156,8 @@
 
     <div class="hud">
       <div class="hud-left">
-        <div class="stat"><span class="k">Очки</span><span class="v" id="hud-score">0</span></div>
-        <div class="stat"><span class="k">Монеты</span><span class="v" id="hud-coins">0</span></div>
+        <div class="stat"><span class="k" id="hud-k1">Очки</span><span class="v" id="hud-score">0</span></div>
+        <div class="stat"><span class="k" id="hud-k2">Монеты</span><span class="v" id="hud-coins">0</span></div>
         <div class="combo" id="hud-combo" hidden></div>
       </div>
       <div class="hud-center">
@@ -175,14 +207,7 @@
       <p class="eyebrow" id="res-reason"></p>
       <div class="big-time" id="res-time">0:00</div>
       <p class="res-sub" id="res-sub"></p>
-      <div class="res-grid">
-        <div><span class="v" id="res-score">0</span><span class="k">очков</span></div>
-        <div><span class="v" id="res-coins">0</span><span class="k">монет</span></div>
-        <div><span class="v" id="res-gates">0</span><span class="k">ворот пройдено</span></div>
-        <div><span class="v" id="res-combo">0</span><span class="k">лучшая серия</span></div>
-        <div><span class="v" id="res-form">0%</span><span class="k">времени с хорошей техникой</span></div>
-        <div><span class="v" id="res-breaks">0</span><span class="k">срывов техники</span></div>
-      </div>
+      <div class="res-grid" id="res-grid"></div>
       <p class="tip" id="res-tip"></p>
       <div class="actions">
         <button id="again" class="btn primary">Ещё раз</button>

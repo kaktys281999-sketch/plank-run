@@ -8,7 +8,7 @@ const browser = await chromium.launch();
 for (const [name, viewport] of [['desktop', { width: 1280, height: 800 }], ['phone', { width: 390, height: 844 }], ['phone-land', { width: 844, height: 390 }]]) {
   const page = await browser.newPage({ viewport, deviceScaleFactor: name === 'desktop' ? 1 : 2 });
   page.on('pageerror', (e) => console.log('[pageerror]', e.message));
-  await page.goto('http://localhost:8765/?local');
+  await page.goto('http://localhost:8765/');
   await page.screenshot({ path: `out/ui/${name}-home.png`, fullPage: true });
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
   console.log(name, 'horizontal overflow px:', overflow);
