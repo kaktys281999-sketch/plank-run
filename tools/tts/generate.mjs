@@ -65,7 +65,7 @@ const HELP = `node tools/tts/generate.mjs [options]
   --model <id>             gemini-3.1-flash-tts-preview | gemini-2.5-flash-preview-tts
   --out <dir>              output root (assets/voice; voices/samples with --samples)
   --samples                render the 10 voice-choice phrases → <out>/<voice>/<n>.m4a
-  --lines-file <path>      line table (js/voice-lines.js)
+  --lines-file <p[,p…]>    line table(s), merged in order (js/voice-lines.js)
   --batch <n>              lines per request (12)
   --style <text> | --no-style   English style direction for the model
   --bitrate <b>            AAC bitrate (40k, as in spec-visual-art §8.1)
@@ -163,6 +163,34 @@ async function loadLines(file) {
 // --------------------------------------------------------------- PCM -------
 
 const toInt16 = (buf) => new Int16Array(buf.buffer.slice(buf.byteOffset, buf.byteOffset + (buf.length & ~1)));
+
+// Response audio → raw s16le mono 24 kHz.  Preview models send bare L16
+// ("audio/L16;codec=pcm;rate=24000"); gemini-3.8-flash-tts sends a WAV whose
+// `data` chunk is followed by a C2PA provenance chunk — never treat that as
+// samples.  Anything not 24 kHz mono s16 is converted with ffmpeg.
+function toPcm(buf, mime = '') {
+  let rate = Number(/rate=(\d+)/i.exec(mime)?.[1] ?? RATE);
+  let ch = 1;
+  let bits = 16;
+  let data = buf;
+  if (buf.length > 12 && buf.toString('latin1', 0, 4) === 'RIFF' && buf.toString('latin1', 8, 12) === 'WAVE') {
+    data = null;
+    for (let i = 12; i + 8 <= buf.length; ) {
+      const id = buf.toString('latin1', i, i + 4);
+      const size = buf.readUInt32LE(i + 4);
+      if (id === 'fmt ') { ch = buf.readUInt16LE(i + 10); rate = buf.readUInt32LE(i + 12); bits = buf.readUInt16LE(i + 22); }
+      if (id === 'data') { data = buf.subarray(i + 8, Math.min(buf.length, i + 8 + size)); break; }
+      i += 8 + size + (size & 1);
+    }
+    if (!data) throw new Error('WAV without data chunk');
+  }
+  if (rate === RATE && ch === 1 && bits === 16) return Buffer.from(data);
+  const fmt = bits === 16 ? 's16le' : bits === 24 ? 's24le' : bits === 32 ? 's32le' : 'u8';
+  const r = run('ffmpeg', ['-hide_banner', '-loglevel', 'error', '-f', fmt, '-ar', String(rate), '-ac', String(ch), '-i', 'pipe:0',
+    '-f', 's16le', '-ac', '1', '-ar', String(RATE), 'pipe:1'], data);
+  if (r.code !== 0) throw new Error(`cannot convert ${mime || 'audio'}: ${r.err.slice(-200)}`);
+  return r.out;
+}
 
 function wav(int16, rate = RATE) {
   const data = Buffer.from(int16.buffer, int16.byteOffset, int16.byteLength);
@@ -488,7 +516,8 @@ function makeClient(o) {
         const bufs = parts.filter((p) => p.inlineData?.data).map((p) => Buffer.from(p.inlineData.data, 'base64'));
         if (bufs.length) {
           state.ok++;
-          const pcm = Buffer.concat(bufs);
+          const mime = parts.find((p) => p.inlineData)?.inlineData.mimeType ?? '';
+          const pcm = Buffer.concat(bufs.map((b) => toPcm(b, mime)));
           note({ model, voice, ...meta, status: 200, sec: Number(secs), audioSec: +(pcm.length / 2 / RATE).toFixed(1), tokens: j.usageMetadata?.candidatesTokenCount });
           log(`  200 in ${secs} s → ${(pcm.length / 2 / RATE).toFixed(1)} s audio (${parts[0].inlineData.mimeType})`);
           return pcm;
@@ -568,7 +597,7 @@ async function renderTexts(o, client, voice, texts) {
     const rawFile = path.join(rawDir, `${rkey}.pcm`);
     let pcm;
     if (!o.fresh && fs.existsSync(rawFile)) {
-      pcm = fs.readFileSync(rawFile);
+      pcm = toPcm(fs.readFileSync(rawFile)); // older cache entries may hold the WAV as sent
       log(`  ${voice}: batch of ${batch.length} from raw cache`);
     } else {
       log(`  ${voice}: request — ${batch.length} line(s), ${batch.reduce((s, t) => s + t.length, 0)} chars`);
@@ -611,7 +640,8 @@ async function renderTexts(o, client, voice, texts) {
 function today() { return new Date().toISOString().slice(0, 10); }
 
 async function modeLines(o, client) {
-  const table = await loadLines(o.linesFile);
+  const table = {};
+  for (const f of o.linesFile.split(',').map((s) => s.trim()).filter(Boolean)) Object.assign(table, await loadLines(f));
   const ids = o.lines === 'all' ? Object.keys(table) : o.lines.split(',').map((s) => s.trim()).filter(Boolean);
   const unknown = ids.filter((id) => !(id in table));
   if (unknown.length) die(`unknown line id(s): ${unknown.join(', ')}`);
@@ -637,7 +667,7 @@ async function modeLines(o, client) {
       const enc = encodeClip(r.pcm, file, o, o.cache);
       entries[id] = {
         file: rel(file), text: table[id], ms: enc.ms, onsetMs: r.onsetMs,
-        hash: sha(fs.readFileSync(file), 12),
+        model: o.model, hash: sha(fs.readFileSync(file), 12),
       };
       log(`  ✓ ${rel(file)}  ${enc.ms} ms  gain ${enc.gain.toFixed(1)} dB${enc.limited ? ' +limiter' : ''}`);
     }
@@ -649,9 +679,10 @@ async function modeLines(o, client) {
     if (stopped) break;
   }
   if (o.dryRun) return report;
+  const def = o.default ?? man.default ?? o.voices[0];
   const out = {
-    default: o.default ?? man.default ?? o.voices[0],
-    model: o.model,
+    default: def,
+    model: Object.values(man.voices[def] ?? {})[0]?.model ?? o.model,
     generated: today(),
     format: `AAC-LC .m4a, mono, ${RATE} Hz, ${o.bitrate}bps, ${o.lufs} LUFS, true peak ≤ ${o.tp} dBTP, ${o.padMs} ms pad`,
     style: o.style,

@@ -132,14 +132,15 @@ function arrivals(clicks, t, x, sample) {
   for (let k = 1; k < clicks.length; k++) {
     const c = clicks[k];
     const target = sideOf(k) > 0 ? hi : lo;
-    const from = sample(c);
+    // Start point: well before the click, so people who arrive early still count.
+    const from = sample(c - 0.4 * interval);
     if (from === null) continue;
     const goal = from + 0.8 * (target - from);
     const dir = Math.sign(target - from);
     if (dir === 0 || Math.abs(target - from) < 0.25 * (hi - lo)) continue;
     for (let at = c + LAG_RANGE[0]; at <= c + interval; at += STEP) {
       const v = sample(at);
-      if (v !== null && (v - goal) * dir >= 0 && at >= c - 300) {
+      if (v !== null && (v - goal) * dir >= 0) {
         out.push(at - c);
         break;
       }
@@ -150,31 +151,41 @@ function arrivals(clicks, t, x, sample) {
 
 // clicks: click times (ms) on the same clock as t; t: sample times (ms, ascending);
 // x: control values (sign: + = user's right). Returns null when there is nothing to measure.
-export function estimateLatency({ clicks, t, x }) {
+//
+// People read "sway in time" two ways: MOVE on the click (a square-ish x(t),
+// matched by the square reference: lag = click → middle of the move) or
+// ARRIVE on the click (a sine-ish x(t) with extremes on the clicks: lag =
+// click → extreme). The better-fitting reference gives `lagMs` and `method`;
+// both fits are kept. `method` forces one (to compare clocks on equal terms).
+export function estimateLatency({ clicks, t, x, method = null }) {
   if (!clicks || clicks.length < 4 || !t || t.length < 20) return null;
   const sample = makeSampler(t, x);
   const span = [clicks[0], clicks[clicks.length - 1] + (clicks[1] - clicks[0])];
   const sq = bestLag(clicks, squareRef, sample, span);
   if (!sq) return null;
   const sine = bestLag(clicks, sineRef, sample, [clicks[0], clicks[clicks.length - 1]]);
+  const useSine = method ? method === 'sine' && sine : sine && sine.corr > sq.corr;
+  const main = useSine ? sine : sq;
   const inWindow = x.filter((v, i) => v !== null && t[i] >= span[0] && t[i] <= span[1]);
   const amp = inWindow.length ? quantile(inWindow, 0.95) - quantile(inWindow, 0.05) : 0;
   const arr = arrivals(clicks, t, x, sample);
   const result = {
-    lagMs: sq.lagMs,
-    corr: sq.corr,
+    lagMs: main.lagMs,
+    method: useSine ? 'sine' : 'square',
+    corr: main.corr,
     coverage: sq.coverage,
     amplitude: Math.round(amp * 100) / 100,
     arrivalMs: arr.length ? Math.round(median(arr)) : null,
     arrivalMadMs: arr.length ? Math.round(mad(arr)) : null,
     arrivals: arr.length,
+    square: { lagMs: sq.lagMs, corr: sq.corr },
     sine: sine && { lagMs: sine.lagMs, corr: sine.corr },
   };
   const reasons = [];
-  if (sq.corr < 0.6) reasons.push('weak_correlation');
+  if (main.corr < 0.6) reasons.push('weak_correlation');
   if (sq.coverage < 0.7) reasons.push('gaps');
   if (amp < 0.8) reasons.push('small_sway');
-  if (sq.edge) reasons.push('lag_at_edge');
+  if (main.edge) reasons.push('lag_at_edge');
   if (result.arrivalMadMs !== null && result.arrivalMadMs > 120) reasons.push('spread_over_120ms');
   result.confidence = reasons.length ? 'low' : 'ok';
   result.reasons = reasons;
@@ -208,14 +219,14 @@ export function latencyFromFile(file) {
   // Same estimate on the frame-capture clock: removes camera → app delay.
   const hasCapture = S.cl && S.cl.some((v) => v);
   if (hasCapture) {
-    const cap = estimateLatency({ clicks, t: tCap, x });
+    const cap = estimateLatency({ clicks, t: tCap, x, method: app.method });
     out.captureLagMs = cap?.lagMs ?? null;
     const pipe = S.cl.filter((v, i) => v != null && S.seg[i] === seg.i && S.ph[i] === hold);
     out.pipelineMs = Math.round(median(pipe) ?? 0);
   }
   // On the unfiltered signal: the difference is the smoothing filter's lag.
   if (raw.some((v) => v !== null)) {
-    const r = estimateLatency({ clicks, t, x: raw });
+    const r = estimateLatency({ clicks, t, x: raw, method: app.method });
     out.rawLagMs = r?.lagMs ?? null;
   }
   return out;
