@@ -1,0 +1,1770 @@
+# Plank Run — prompt library (machine-readable). Generated together with docs/plan/spec-visual-art.md §6.
+# Edit prompts here and in the spec together; IDs are stable.
+version: 1
+updated: '2026-10-19'
+spec: docs/plan/spec-visual-art.md
+how_to_use: 'Owner: copy prompt_gemini into the Gemini app (Nano Banana Pro) or prompt_chatgpt into ChatGPT, attach the canon refs listed in refs, generate `variants` images, download originals and send them (see art/README.md). For background: pair, send the follow-up turn in the same chat and download both images. Assistant: fills results[] with file, sha256, tool, model_label, date, chat and selected.'
+schema:
+  id: Pxx / Vxx, stable, never reused
+  asset: asset ID from the master inventory (spec §5)
+  tools: gemini | chatgpt; first = primary
+  aspect: requested aspect; chatgpt_size = what to pick in ChatGPT before cropping
+  background: scene | black (glow, luminance alpha) | white (concept only) | pair (white then black, difference matting)
+  refs: canon refs C1..C6 (art/canon) or an approved prompt result marked Pxx*
+  variants: how many images to generate per tool
+  post: processing steps of scripts/art (spec §7.3)
+  results: '[{file, sha256, tool, model_label, date, chat, selected, notes}] — filled by the assistant'
+canon_refs:
+  C1:
+    file: art/canon/c1-palette-board.png
+    made_by: assistant (from tokens)
+    sha256: null
+  C2:
+    file: art/canon/c2-meadow.png
+    made_by: owner via P01, approved
+    sha256: null
+  C3:
+    file: art/canon/c3-tunnel.png
+    made_by: owner via P02, approved
+    sha256: null
+  C4:
+    file: art/canon/c4-iskra-sheet.png
+    made_by: assistant (SVG render)
+    sha256: null
+  C5:
+    file: art/canon/c5-objects.png
+    made_by: owner via P03, approved
+    sha256: null
+  C6:
+    file: art/canon/c6-illustration.png
+    made_by: owner via P04, approved
+    sha256: null
+blocks:
+  STYLE_CORE: 'Stylized 2D game art for a calm night-time fitness game. Flat, vector-like shapes with soft smooth gradients, no outlines, rounded friendly forms, large clear silhouettes and very little fine detail. Palette: deep navy and indigo night tones (#0B0D17, #12152A, #161A33, #1E2347, #2E3566) with glowing accents only in mint #5EF2C2, violet #7C6CFF, soft lavender #A397FF, warm gold #FFD25E, sky cyan #4CC9FF and firefly lime #D8FF6A. Lighting: cool moonlight from the upper left with a thin lavender rim light on silhouette edges; warm light comes only from glowing objects. Every glow is a bright core with two soft round halos. Mood: cozy, quiet, hopeful, playful, readable from two meters away on a small screen.'
+  AVOID: 'Avoid: any text, letters, numbers or symbols; logos and brand marks; watermarks and signatures; UI elements, frames, borders or card shapes; checkerboard transparency patterns; photorealism; glossy 3D plastic render; lens flares and four-pointed sparkle stars; heavy noise, film grain or paper texture; harsh black outlines; people, human faces and human hands.'
+  BG_BLACK: 'Background: perfectly flat solid pure black (#000000) filling the whole canvas edge to edge; no gradient, vignette, floor, cast shadow or reflection.'
+  BG_WHITE: 'Background: perfectly flat solid pure white (#FFFFFF) filling the whole canvas edge to edge; no gradient, vignette, floor, cast shadow or reflection.'
+  FOLLOWUP_BLACK: 'Repeat exactly the same image: identical composition, size, position and colors of every element. Change only the background to perfectly flat solid pure black (#000000). Do not redraw, move, crop or restyle anything.'
+  CHATGPT_TRANSPARENT: Output a PNG with a real transparent background (alpha channel), not a drawn checkerboard. If real transparency is not possible, use a perfectly flat solid pure magenta (#FF00FF) background instead.
+  SHEET: Lay the items out on an even grid with wide empty gaps; items must not touch or overlap; same scale, front view.
+  CALM_CENTER: 'Composition: keep the central area calm, dark and low-contrast because game objects will be drawn on top; put visual interest near the top edge and the horizon.'
+  TILE_H: The left and right edges must continue seamlessly so the image can repeat horizontally.
+  TILE_V: The top and bottom edges must continue seamlessly so the image can repeat vertically.
+  GEMINI_PREFIX: Generate an image.
+  GEMINI_REFS: Use the attached reference images only for style, palette and lighting; do not copy their content or layout.
+  GEMINI_CHAR_REFS: 'Use the attached mascot drawing as the exact character design: keep its perfectly round body, tall oval eyes and three-lobed flame tuft unchanged.'
+  GEMINI_QUALITY: High resolution, crisp clean edges.
+  CHATGPT_PREFIX: Create one image.
+  CHATGPT_REFS: Match the style, palette, lighting and flatness of the attached reference images; do not copy their content.
+  CHATGPT_CHAR_REFS: 'The attached drawing is the exact mascot design: keep its perfectly round body, tall oval eyes and three-lobed flame tuft; do not add arms or legs (small floating sparks act as hands).'
+  CHATGPT_COLOR: Keep a cool color temperature with true deep navy blacks; no warm yellow or sepia cast.
+  CHATGPT_LITERAL: Do not add any elements that are not described.
+banned_terms:
+- in the style of
+- Ghibli
+- Pixar
+- Disney
+- DreamWorks
+- Studio
+- Nintendo
+- Duolingo
+- Beat Saber
+- artstation
+- trending on
+- Gemini logo
+- Apple
+- Nike
+prompts:
+- id: P01
+  slug: canon-meadow
+  asset: CN-02
+  title_ru: 'Канон: поляна'
+  milestone: M1
+  first_week: true
+  tools:
+  - gemini
+  - chatgpt
+  tool_primary: gemini
+  aspect: '21:9'
+  chatgpt_size: 1536x1024, затем кроп до 21:9
+  background: scene
+  refs:
+  - C1
+  variants: 2
+  subject: 'Calm night meadow from ground level: sky gradient #060818 to #14243A, small pale moon with a soft halo upper left, a few faint stars, two layers of soft navy hills, tall grass silhouettes along the bottom, a dozen tiny lime fireflies near the grass.'
+  vars: {}
+  extras:
+  - CALM_CENTER
+  notes_ru: 'Канон C2: выбрать лучший из трёх.'
+  post:
+  - review
+  - canon_freeze
+  prompt_gemini: |-
+    Generate an image.
+    Use the attached reference images only for style, palette and lighting; do not copy their content or layout.
+    Stylized 2D game art for a calm night-time fitness game. Flat, vector-like shapes with soft smooth gradients, no outlines, rounded friendly forms, large clear silhouettes and very little fine detail. Palette: deep navy and indigo night tones (#0B0D17, #12152A, #161A33, #1E2347, #2E3566) with glowing accents only in mint #5EF2C2, violet #7C6CFF, soft lavender #A397FF, warm gold #FFD25E, sky cyan #4CC9FF and firefly lime #D8FF6A. Lighting: cool moonlight from the upper left with a thin lavender rim light on silhouette edges; warm light comes only from glowing objects. Every glow is a bright core with two soft round halos. Mood: cozy, quiet, hopeful, playful, readable from two meters away on a small screen.
+    Subject: Calm night meadow from ground level: sky gradient #060818 to #14243A, small pale moon with a soft halo upper left, a few faint stars, two layers of soft navy hills, tall grass silhouettes along the bottom, a dozen tiny lime fireflies near the grass.
+    Composition: keep the central area calm, dark and low-contrast because game objects will be drawn on top; put visual interest near the top edge and the horizon.
+    Aspect ratio 21:9 (ultra-wide landscape). High resolution, crisp clean edges.
+    Avoid: any text, letters, numbers or symbols; logos and brand marks; watermarks and signatures; UI elements, frames, borders or card shapes; checkerboard transparency patterns; photorealism; glossy 3D plastic render; lens flares and four-pointed sparkle stars; heavy noise, film grain or paper texture; harsh black outlines; people, human faces and human hands.
+  prompt_chatgpt: |-
+    Create one image. Format: ultra-wide landscape.
+    Match the style, palette, lighting and flatness of the attached reference images; do not copy their content.
+    Stylized 2D game art for a calm night-time fitness game. Flat, vector-like shapes with soft smooth gradients, no outlines, rounded friendly forms, large clear silhouettes and very little fine detail. Palette: deep navy and indigo night tones (#0B0D17, #12152A, #161A33, #1E2347, #2E3566) with glowing accents only in mint #5EF2C2, violet #7C6CFF, soft lavender #A397FF, warm gold #FFD25E, sky cyan #4CC9FF and firefly lime #D8FF6A. Lighting: cool moonlight from the upper left with a thin lavender rim light on silhouette edges; warm light comes only from glowing objects. Every glow is a bright core with two soft round halos. Mood: cozy, quiet, hopeful, playful, readable from two meters away on a small screen.
+    Keep a cool color temperature with true deep navy blacks; no warm yellow or sepia cast.
+    Subject: Calm night meadow from ground level: sky gradient #060818 to #14243A, small pale moon with a soft halo upper left, a few faint stars, two layers of soft navy hills, tall grass silhouettes along the bottom, a dozen tiny lime fireflies near the grass.
+    Composition: keep the central area calm, dark and low-contrast because game objects will be drawn on top; put visual interest near the top edge and the horizon.
+    Do not add any elements that are not described.
+    Avoid: any text, letters, numbers or symbols; logos and brand marks; watermarks and signatures; UI elements, frames, borders or card shapes; checkerboard transparency patterns; photorealism; glossy 3D plastic render; lens flares and four-pointed sparkle stars; heavy noise, film grain or paper texture; harsh black outlines; people, human faces and human hands.
+  status: todo
+  results: []
+- id: P02
+  slug: canon-tunnel
+  asset: CN-03
+  title_ru: 'Канон: тоннель'
+  milestone: M1
+  first_week: true
+  tools:
+  - gemini
+  - chatgpt
+  tool_primary: gemini
+  aspect: '16:9'
+  chatgpt_size: 1536x1024, затем кроп до 16:9
+  background: scene
+  refs:
+  - C1
+  variants: 2
+  subject: 'Neon tunnel in one-point perspective, seen from behind and slightly above, receding to a softly glowing vanishing point in the upper middle; dark violet floor and walls with thin glowing #7C6CFF edge and cross lines; faint city glow at the vanishing point. No sun disk, no palm trees.'
+  vars: {}
+  extras:
+  - CALM_CENTER
+  notes_ru: Канон C3; сетку в игре рисует код.
+  post:
+  - review
+  - canon_freeze
+  prompt_gemini: |-
+    Generate an image.
+    Use the attached reference images only for style, palette and lighting; do not copy their content or layout.
+    Stylized 2D game art for a calm night-time fitness game. Flat, vector-like shapes with soft smooth gradients, no outlines, rounded friendly forms, large clear silhouettes and very little fine detail. Palette: deep navy and indigo night tones (#0B0D17, #12152A, #161A33, #1E2347, #2E3566) with glowing accents only in mint #5EF2C2, violet #7C6CFF, soft lavender #A397FF, warm gold #FFD25E, sky cyan #4CC9FF and firefly lime #D8FF6A. Lighting: cool moonlight from the upper left with a thin lavender rim light on silhouette edges; warm light comes only from glowing objects. Every glow is a bright core with two soft round halos. Mood: cozy, quiet, hopeful, playful, readable from two meters away on a small screen.
+    Subject: Neon tunnel in one-point perspective, seen from behind and slightly above, receding to a softly glowing vanishing point in the upper middle; dark violet floor and walls with thin glowing #7C6CFF edge and cross lines; faint city glow at the vanishing point. No sun disk, no palm trees.
+    Composition: keep the central area calm, dark and low-contrast because game objects will be drawn on top; put visual interest near the top edge and the horizon.
+    Aspect ratio 16:9 (wide landscape). High resolution, crisp clean edges.
+    Avoid: any text, letters, numbers or symbols; logos and brand marks; watermarks and signatures; UI elements, frames, borders or card shapes; checkerboard transparency patterns; photorealism; glossy 3D plastic render; lens flares and four-pointed sparkle stars; heavy noise, film grain or paper texture; harsh black outlines; people, human faces and human hands.
+  prompt_chatgpt: |-
+    Create one image. Format: wide landscape.
+    Match the style, palette, lighting and flatness of the attached reference images; do not copy their content.
+    Stylized 2D game art for a calm night-time fitness game. Flat, vector-like shapes with soft smooth gradients, no outlines, rounded friendly forms, large clear silhouettes and very little fine detail. Palette: deep navy and indigo night tones (#0B0D17, #12152A, #161A33, #1E2347, #2E3566) with glowing accents only in mint #5EF2C2, violet #7C6CFF, soft lavender #A397FF, warm gold #FFD25E, sky cyan #4CC9FF and firefly lime #D8FF6A. Lighting: cool moonlight from the upper left with a thin lavender rim light on silhouette edges; warm light comes only from glowing objects. Every glow is a bright core with two soft round halos. Mood: cozy, quiet, hopeful, playful, readable from two meters away on a small screen.
+    Keep a cool color temperature with true deep navy blacks; no warm yellow or sepia cast.
+    Subject: Neon tunnel in one-point perspective, seen from behind and slightly above, receding to a softly glowing vanishing point in the upper middle; dark violet floor and walls with thin glowing #7C6CFF edge and cross lines; faint city glow at the vanishing point. No sun disk, no palm trees.
+    Composition: keep the central area calm, dark and low-contrast because game objects will be drawn on top; put visual interest near the top edge and the horizon.
+    Do not add any elements that are not described.
+    Avoid: any text, letters, numbers or symbols; logos and brand marks; watermarks and signatures; UI elements, frames, borders or card shapes; checkerboard transparency patterns; photorealism; glossy 3D plastic render; lens flares and four-pointed sparkle stars; heavy noise, film grain or paper texture; harsh black outlines; people, human faces and human hands.
+  status: todo
+  results: []
+- id: P03
+  slug: canon-objects
+  asset: CN-05
+  title_ru: 'Канон: предметы'
+  milestone: M1
+  first_week: true
+  tools:
+  - gemini
+  - chatgpt
+  tool_primary: gemini
+  aspect: '1:1'
+  chatgpt_size: 1024x1024
+  background: black
+  refs:
+  - C1
+  - C2
+  variants: 2
+  subject: 'Sheet of six pickups in a 3x2 grid: lime firefly (glowing dot, two tiny wings), gold firefly, pale-blue moon firefly, faceted lavender-cyan moonstone gem, round gold coin with an embossed ring, gold five-pointed star with rounded tips. Each glows softly.'
+  vars: {}
+  extras:
+  - SHEET
+  notes_ru: Канон C5; альфа по яркости.
+  post:
+  - glow_alpha
+  - slice_grid
+  - palette_snap
+  prompt_gemini: |-
+    Generate an image.
+    Use the attached reference images only for style, palette and lighting; do not copy their content or layout.
+    Stylized 2D game art for a calm night-time fitness game. Flat, vector-like shapes with soft smooth gradients, no outlines, rounded friendly forms, large clear silhouettes and very little fine detail. Palette: deep navy and indigo night tones (#0B0D17, #12152A, #161A33, #1E2347, #2E3566) with glowing accents only in mint #5EF2C2, violet #7C6CFF, soft lavender #A397FF, warm gold #FFD25E, sky cyan #4CC9FF and firefly lime #D8FF6A. Lighting: cool moonlight from the upper left with a thin lavender rim light on silhouette edges; warm light comes only from glowing objects. Every glow is a bright core with two soft round halos. Mood: cozy, quiet, hopeful, playful, readable from two meters away on a small screen.
+    Subject: Sheet of six pickups in a 3x2 grid: lime firefly (glowing dot, two tiny wings), gold firefly, pale-blue moon firefly, faceted lavender-cyan moonstone gem, round gold coin with an embossed ring, gold five-pointed star with rounded tips. Each glows softly.
+    Lay the items out on an even grid with wide empty gaps; items must not touch or overlap; same scale, front view.
+    Background: perfectly flat solid pure black (#000000) filling the whole canvas edge to edge; no gradient, vignette, floor, cast shadow or reflection.
+    Aspect ratio 1:1 (square). High resolution, crisp clean edges.
+    Avoid: any text, letters, numbers or symbols; logos and brand marks; watermarks and signatures; UI elements, frames, borders or card shapes; checkerboard transparency patterns; photorealism; glossy 3D plastic render; lens flares and four-pointed sparkle stars; heavy noise, film grain or paper texture; harsh black outlines; people, human faces and human hands.
+  prompt_chatgpt: |-
+    Create one image. Format: square.
+    Match the style, palette, lighting and flatness of the attached reference images; do not copy their content.
+    Stylized 2D game art for a calm night-time fitness game. Flat, vector-like shapes with soft smooth gradients, no outlines, rounded friendly forms, large clear silhouettes and very little fine detail. Palette: deep navy and indigo night tones (#0B0D17, #12152A, #161A33, #1E2347, #2E3566) with glowing accents only in mint #5EF2C2, violet #7C6CFF, soft lavender #A397FF, warm gold #FFD25E, sky cyan #4CC9FF and firefly lime #D8FF6A. Lighting: cool moonlight from the upper left with a thin lavender rim light on silhouette edges; warm light comes only from glowing objects. Every glow is a bright core with two soft round halos. Mood: cozy, quiet, hopeful, playful, readable from two meters away on a small screen.
+    Keep a cool color temperature with true deep navy blacks; no warm yellow or sepia cast.
+    Subject: Sheet of six pickups in a 3x2 grid: lime firefly (glowing dot, two tiny wings), gold firefly, pale-blue moon firefly, faceted lavender-cyan moonstone gem, round gold coin with an embossed ring, gold five-pointed star with rounded tips. Each glows softly.
+    Lay the items out on an even grid with wide empty gaps; items must not touch or overlap; same scale, front view.
+    Background: perfectly flat solid pure black (#000000) filling the whole canvas edge to edge; no gradient, vignette, floor, cast shadow or reflection.
+    Do not add any elements that are not described.
+    Avoid: any text, letters, numbers or symbols; logos and brand marks; watermarks and signatures; UI elements, frames, borders or card shapes; checkerboard transparency patterns; photorealism; glossy 3D plastic render; lens flares and four-pointed sparkle stars; heavy noise, film grain or paper texture; harsh black outlines; people, human faces and human hands.
+  status: todo
+  results: []
+- id: P04
+  slug: canon-illustration
+  asset: CN-06
+  title_ru: 'Канон: иллюстрация'
+  milestone: M1
+  first_week: true
+  tools:
+  - gemini
+  - chatgpt
+  tool_primary: gemini
+  aspect: '4:3'
+  chatgpt_size: 1536x1024, затем кроп до 4:3
+  background: scene
+  refs:
+  - C1
+  - C2
+  variants: 2
+  subject: 'Cozy flat illustration of a small living room at night, low side angle: an exercise mat, a smartphone standing on the floor propped against a book at the front end of the mat, screen glowing mint and violet, a window with the moon, a houseplant. No person. Dark empty space on the left.'
+  vars: {}
+  extras: []
+  notes_ru: Канон C6; телефон экраном к коврику.
+  post:
+  - review
+  - canon_freeze
+  prompt_gemini: |-
+    Generate an image.
+    Use the attached reference images only for style, palette and lighting; do not copy their content or layout.
+    Stylized 2D game art for a calm night-time fitness game. Flat, vector-like shapes with soft smooth gradients, no outlines, rounded friendly forms, large clear silhouettes and very little fine detail. Palette: deep navy and indigo night tones (#0B0D17, #12152A, #161A33, #1E2347, #2E3566) with glowing accents only in mint #5EF2C2, violet #7C6CFF, soft lavender #A397FF, warm gold #FFD25E, sky cyan #4CC9FF and firefly lime #D8FF6A. Lighting: cool moonlight from the upper left with a thin lavender rim light on silhouette edges; warm light comes only from glowing objects. Every glow is a bright core with two soft round halos. Mood: cozy, quiet, hopeful, playful, readable from two meters away on a small screen.
+    Subject: Cozy flat illustration of a small living room at night, low side angle: an exercise mat, a smartphone standing on the floor propped against a book at the front end of the mat, screen glowing mint and violet, a window with the moon, a houseplant. No person. Dark empty space on the left.
+    Aspect ratio 4:3 (landscape). High resolution, crisp clean edges.
+    Avoid: any text, letters, numbers or symbols; logos and brand marks; watermarks and signatures; UI elements, frames, borders or card shapes; checkerboard transparency patterns; photorealism; glossy 3D plastic render; lens flares and four-pointed sparkle stars; heavy noise, film grain or paper texture; harsh black outlines; people, human faces and human hands.
+  prompt_chatgpt: |-
+    Create one image. Format: landscape.
+    Match the style, palette, lighting and flatness of the attached reference images; do not copy their content.
+    Stylized 2D game art for a calm night-time fitness game. Flat, vector-like shapes with soft smooth gradients, no outlines, rounded friendly forms, large clear silhouettes and very little fine detail. Palette: deep navy and indigo night tones (#0B0D17, #12152A, #161A33, #1E2347, #2E3566) with glowing accents only in mint #5EF2C2, violet #7C6CFF, soft lavender #A397FF, warm gold #FFD25E, sky cyan #4CC9FF and firefly lime #D8FF6A. Lighting: cool moonlight from the upper left with a thin lavender rim light on silhouette edges; warm light comes only from glowing objects. Every glow is a bright core with two soft round halos. Mood: cozy, quiet, hopeful, playful, readable from two meters away on a small screen.
+    Keep a cool color temperature with true deep navy blacks; no warm yellow or sepia cast.
+    Subject: Cozy flat illustration of a small living room at night, low side angle: an exercise mat, a smartphone standing on the floor propped against a book at the front end of the mat, screen glowing mint and violet, a window with the moon, a houseplant. No person. Dark empty space on the left.
+    Do not add any elements that are not described.
+    Avoid: any text, letters, numbers or symbols; logos and brand marks; watermarks and signatures; UI elements, frames, borders or card shapes; checkerboard transparency patterns; photorealism; glossy 3D plastic render; lens flares and four-pointed sparkle stars; heavy noise, film grain or paper texture; harsh black outlines; people, human faces and human hands.
+  status: todo
+  results: []
+- id: P05
+  slug: iskra-moodboard
+  asset: MS-00
+  title_ru: 'Искра: мудборд эмоций'
+  milestone: M1
+  first_week: true
+  tools:
+  - gemini
+  - chatgpt
+  tool_primary: gemini
+  aspect: '1:1'
+  chatgpt_size: 1024x1024
+  background: white
+  refs:
+  - C4
+  variants: 1
+  subject: 'Expression sheet for the attached glowing round spark mascot, 3x3 grid: happy, proud, cheering with two tiny floating sparks as hands, worried, tired but determined, sleeping, celebrating, pointing with a spark, curious. The body stays a perfect circle.'
+  vars: {}
+  extras:
+  - SHEET
+  notes_ru: Только идеи; канон — SVG (MS-01).
+  post:
+  - moodboard_only
+  prompt_gemini: |-
+    Generate an image.
+    Use the attached mascot drawing as the exact character design: keep its perfectly round body, tall oval eyes and three-lobed flame tuft unchanged.
+    Stylized 2D game art for a calm night-time fitness game. Flat, vector-like shapes with soft smooth gradients, no outlines, rounded friendly forms, large clear silhouettes and very little fine detail. Palette: deep navy and indigo night tones (#0B0D17, #12152A, #161A33, #1E2347, #2E3566) with glowing accents only in mint #5EF2C2, violet #7C6CFF, soft lavender #A397FF, warm gold #FFD25E, sky cyan #4CC9FF and firefly lime #D8FF6A. Lighting: cool moonlight from the upper left with a thin lavender rim light on silhouette edges; warm light comes only from glowing objects. Every glow is a bright core with two soft round halos. Mood: cozy, quiet, hopeful, playful, readable from two meters away on a small screen.
+    Subject: Expression sheet for the attached glowing round spark mascot, 3x3 grid: happy, proud, cheering with two tiny floating sparks as hands, worried, tired but determined, sleeping, celebrating, pointing with a spark, curious. The body stays a perfect circle.
+    Lay the items out on an even grid with wide empty gaps; items must not touch or overlap; same scale, front view.
+    Background: perfectly flat solid pure white (#FFFFFF) filling the whole canvas edge to edge; no gradient, vignette, floor, cast shadow or reflection.
+    Aspect ratio 1:1 (square). High resolution, crisp clean edges.
+    Avoid: any text, letters, numbers or symbols; logos and brand marks; watermarks and signatures; UI elements, frames, borders or card shapes; checkerboard transparency patterns; photorealism; glossy 3D plastic render; lens flares and four-pointed sparkle stars; heavy noise, film grain or paper texture; harsh black outlines; people, human faces and human hands.
+  prompt_chatgpt: |-
+    Create one image. Format: square.
+    The attached drawing is the exact mascot design: keep its perfectly round body, tall oval eyes and three-lobed flame tuft; do not add arms or legs (small floating sparks act as hands).
+    Stylized 2D game art for a calm night-time fitness game. Flat, vector-like shapes with soft smooth gradients, no outlines, rounded friendly forms, large clear silhouettes and very little fine detail. Palette: deep navy and indigo night tones (#0B0D17, #12152A, #161A33, #1E2347, #2E3566) with glowing accents only in mint #5EF2C2, violet #7C6CFF, soft lavender #A397FF, warm gold #FFD25E, sky cyan #4CC9FF and firefly lime #D8FF6A. Lighting: cool moonlight from the upper left with a thin lavender rim light on silhouette edges; warm light comes only from glowing objects. Every glow is a bright core with two soft round halos. Mood: cozy, quiet, hopeful, playful, readable from two meters away on a small screen.
+    Keep a cool color temperature with true deep navy blacks; no warm yellow or sepia cast.
+    Subject: Expression sheet for the attached glowing round spark mascot, 3x3 grid: happy, proud, cheering with two tiny floating sparks as hands, worried, tired but determined, sleeping, celebrating, pointing with a spark, curious. The body stays a perfect circle.
+    Lay the items out on an even grid with wide empty gaps; items must not touch or overlap; same scale, front view.
+    Background: perfectly flat solid pure white (#FFFFFF) filling the whole canvas edge to edge; no gradient, vignette, floor, cast shadow or reflection.
+    Do not add any elements that are not described.
+    Avoid: any text, letters, numbers or symbols; logos and brand marks; watermarks and signatures; UI elements, frames, borders or card shapes; checkerboard transparency patterns; photorealism; glossy 3D plastic render; lens flares and four-pointed sparkle stars; heavy noise, film grain or paper texture; harsh black outlines; people, human faces and human hands.
+  status: todo
+  results: []
+- id: P06
+  slug: iskra-accessories
+  asset: MS-00
+  title_ru: 'Искра: идеи аксессуаров'
+  milestone: M1
+  first_week: false
+  tools:
+  - gemini
+  - chatgpt
+  tool_primary: gemini
+  aspect: '1:1'
+  chatgpt_size: 1024x1024
+  background: white
+  refs:
+  - C4
+  variants: 1
+  subject: 'Accessory sheet sized for the attached round mascot, 12 items in a 4x3 grid, no body: knitted beanie, tiny crown, sweatband, headphones, round sunglasses, bandana, flower wreath, bubble space helmet, embroidered skullcap (doppi), chef hat, scarf, small backpack.'
+  vars: {}
+  extras:
+  - SHEET
+  notes_ru: Идеи для SVG; допу показать друзьям из UZ.
+  post:
+  - moodboard_only
+  prompt_gemini: |-
+    Generate an image.
+    Use the attached mascot drawing as the exact character design: keep its perfectly round body, tall oval eyes and three-lobed flame tuft unchanged.
+    Stylized 2D game art for a calm night-time fitness game. Flat, vector-like shapes with soft smooth gradients, no outlines, rounded friendly forms, large clear silhouettes and very little fine detail. Palette: deep navy and indigo night tones (#0B0D17, #12152A, #161A33, #1E2347, #2E3566) with glowing accents only in mint #5EF2C2, violet #7C6CFF, soft lavender #A397FF, warm gold #FFD25E, sky cyan #4CC9FF and firefly lime #D8FF6A. Lighting: cool moonlight from the upper left with a thin lavender rim light on silhouette edges; warm light comes only from glowing objects. Every glow is a bright core with two soft round halos. Mood: cozy, quiet, hopeful, playful, readable from two meters away on a small screen.
+    Subject: Accessory sheet sized for the attached round mascot, 12 items in a 4x3 grid, no body: knitted beanie, tiny crown, sweatband, headphones, round sunglasses, bandana, flower wreath, bubble space helmet, embroidered skullcap (doppi), chef hat, scarf, small backpack.
+    Lay the items out on an even grid with wide empty gaps; items must not touch or overlap; same scale, front view.
+    Background: perfectly flat solid pure white (#FFFFFF) filling the whole canvas edge to edge; no gradient, vignette, floor, cast shadow or reflection.
+    Aspect ratio 1:1 (square). High resolution, crisp clean edges.
+    Avoid: any text, letters, numbers or symbols; logos and brand marks; watermarks and signatures; UI elements, frames, borders or card shapes; checkerboard transparency patterns; photorealism; glossy 3D plastic render; lens flares and four-pointed sparkle stars; heavy noise, film grain or paper texture; harsh black outlines; people, human faces and human hands.
+  prompt_chatgpt: |-
+    Create one image. Format: square.
+    The attached drawing is the exact mascot design: keep its perfectly round body, tall oval eyes and three-lobed flame tuft; do not add arms or legs (small floating sparks act as hands).
+    Stylized 2D game art for a calm night-time fitness game. Flat, vector-like shapes with soft smooth gradients, no outlines, rounded friendly forms, large clear silhouettes and very little fine detail. Palette: deep navy and indigo night tones (#0B0D17, #12152A, #161A33, #1E2347, #2E3566) with glowing accents only in mint #5EF2C2, violet #7C6CFF, soft lavender #A397FF, warm gold #FFD25E, sky cyan #4CC9FF and firefly lime #D8FF6A. Lighting: cool moonlight from the upper left with a thin lavender rim light on silhouette edges; warm light comes only from glowing objects. Every glow is a bright core with two soft round halos. Mood: cozy, quiet, hopeful, playful, readable from two meters away on a small screen.
+    Keep a cool color temperature with true deep navy blacks; no warm yellow or sepia cast.
+    Subject: Accessory sheet sized for the attached round mascot, 12 items in a 4x3 grid, no body: knitted beanie, tiny crown, sweatband, headphones, round sunglasses, bandana, flower wreath, bubble space helmet, embroidered skullcap (doppi), chef hat, scarf, small backpack.
+    Lay the items out on an even grid with wide empty gaps; items must not touch or overlap; same scale, front view.
+    Background: perfectly flat solid pure white (#FFFFFF) filling the whole canvas edge to edge; no gradient, vignette, floor, cast shadow or reflection.
+    Do not add any elements that are not described.
+    Avoid: any text, letters, numbers or symbols; logos and brand marks; watermarks and signatures; UI elements, frames, borders or card shapes; checkerboard transparency patterns; photorealism; glossy 3D plastic render; lens flares and four-pointed sparkle stars; heavy noise, film grain or paper texture; harsh black outlines; people, human faces and human hands.
+  status: todo
+  results: []
+- id: P07
+  slug: bg-w1-far
+  asset: BG-W1
+  title_ru: 'Поляна: дальний слой'
+  milestone: M1
+  first_week: true
+  tools:
+  - gemini
+  - chatgpt
+  tool_primary: gemini
+  aspect: '21:9'
+  chatgpt_size: 1536x1024, затем кроп до 21:9
+  background: scene
+  refs:
+  - C1
+  - C2
+  variants: 2
+  subject: 'Far layer of the ''Firefly Meadow'' world: night sky gradient, low pale moon with a halo upper left, distant soft hills and a faint tree line, a few dim stars, no foreground. Bottom 30% plain dark navy #0B1630 for nearer layers.'
+  vars: {}
+  extras:
+  - CALM_CENTER
+  - TILE_H
+  notes_ru: Параллакс 0,05; шов чинит скрипт.
+  post:
+  - palette_snap
+  - tile_seam_h
+  - dither
+  - encode_bg
+  prompt_gemini: |-
+    Generate an image.
+    Use the attached reference images only for style, palette and lighting; do not copy their content or layout.
+    Stylized 2D game art for a calm night-time fitness game. Flat, vector-like shapes with soft smooth gradients, no outlines, rounded friendly forms, large clear silhouettes and very little fine detail. Palette: deep navy and indigo night tones (#0B0D17, #12152A, #161A33, #1E2347, #2E3566) with glowing accents only in mint #5EF2C2, violet #7C6CFF, soft lavender #A397FF, warm gold #FFD25E, sky cyan #4CC9FF and firefly lime #D8FF6A. Lighting: cool moonlight from the upper left with a thin lavender rim light on silhouette edges; warm light comes only from glowing objects. Every glow is a bright core with two soft round halos. Mood: cozy, quiet, hopeful, playful, readable from two meters away on a small screen.
+    Subject: Far layer of the 'Firefly Meadow' world: night sky gradient, low pale moon with a halo upper left, distant soft hills and a faint tree line, a few dim stars, no foreground. Bottom 30% plain dark navy #0B1630 for nearer layers.
+    Composition: keep the central area calm, dark and low-contrast because game objects will be drawn on top; put visual interest near the top edge and the horizon.
+    The left and right edges must continue seamlessly so the image can repeat horizontally.
+    Aspect ratio 21:9 (ultra-wide landscape). High resolution, crisp clean edges.
+    Avoid: any text, letters, numbers or symbols; logos and brand marks; watermarks and signatures; UI elements, frames, borders or card shapes; checkerboard transparency patterns; photorealism; glossy 3D plastic render; lens flares and four-pointed sparkle stars; heavy noise, film grain or paper texture; harsh black outlines; people, human faces and human hands.
+  prompt_chatgpt: |-
+    Create one image. Format: ultra-wide landscape.
+    Match the style, palette, lighting and flatness of the attached reference images; do not copy their content.
+    Stylized 2D game art for a calm night-time fitness game. Flat, vector-like shapes with soft smooth gradients, no outlines, rounded friendly forms, large clear silhouettes and very little fine detail. Palette: deep navy and indigo night tones (#0B0D17, #12152A, #161A33, #1E2347, #2E3566) with glowing accents only in mint #5EF2C2, violet #7C6CFF, soft lavender #A397FF, warm gold #FFD25E, sky cyan #4CC9FF and firefly lime #D8FF6A. Lighting: cool moonlight from the upper left with a thin lavender rim light on silhouette edges; warm light comes only from glowing objects. Every glow is a bright core with two soft round halos. Mood: cozy, quiet, hopeful, playful, readable from two meters away on a small screen.
+    Keep a cool color temperature with true deep navy blacks; no warm yellow or sepia cast.
+    Subject: Far layer of the 'Firefly Meadow' world: night sky gradient, low pale moon with a halo upper left, distant soft hills and a faint tree line, a few dim stars, no foreground. Bottom 30% plain dark navy #0B1630 for nearer layers.
+    Composition: keep the central area calm, dark and low-contrast because game objects will be drawn on top; put visual interest near the top edge and the horizon.
+    The left and right edges must continue seamlessly so the image can repeat horizontally.
+    Do not add any elements that are not described.
+    Avoid: any text, letters, numbers or symbols; logos and brand marks; watermarks and signatures; UI elements, frames, borders or card shapes; checkerboard transparency patterns; photorealism; glossy 3D plastic render; lens flares and four-pointed sparkle stars; heavy noise, film grain or paper texture; harsh black outlines; people, human faces and human hands.
+  status: todo
+  results: []
+- id: P08
+  slug: bg-w1-mid
+  asset: BG-W1
+  title_ru: 'Поляна: средний слой'
+  milestone: M1
+  first_week: true
+  tools:
+  - gemini
+  - chatgpt
+  tool_primary: gemini
+  aspect: '21:9'
+  chatgpt_size: 1536x1024, затем кроп до 21:9
+  background: pair
+  refs:
+  - C1
+  - C2
+  variants: 2
+  subject: 'Middle layer of the same meadow: a horizontal strip of rolling hill silhouettes with a few round-topped trees and bushes, flat navy #0B1630 with a thin lavender #A397FF rim light on top edges, only in the bottom 40%; the rest is background.'
+  vars: {}
+  extras:
+  - TILE_H
+  notes_ru: 'Пара: белый, затем тот же кадр на чёрном.'
+  post:
+  - matte_pair
+  - palette_snap
+  - tile_seam_h
+  - encode_layer
+  prompt_gemini: |-
+    Generate an image.
+    Use the attached reference images only for style, palette and lighting; do not copy their content or layout.
+    Stylized 2D game art for a calm night-time fitness game. Flat, vector-like shapes with soft smooth gradients, no outlines, rounded friendly forms, large clear silhouettes and very little fine detail. Palette: deep navy and indigo night tones (#0B0D17, #12152A, #161A33, #1E2347, #2E3566) with glowing accents only in mint #5EF2C2, violet #7C6CFF, soft lavender #A397FF, warm gold #FFD25E, sky cyan #4CC9FF and firefly lime #D8FF6A. Lighting: cool moonlight from the upper left with a thin lavender rim light on silhouette edges; warm light comes only from glowing objects. Every glow is a bright core with two soft round halos. Mood: cozy, quiet, hopeful, playful, readable from two meters away on a small screen.
+    Subject: Middle layer of the same meadow: a horizontal strip of rolling hill silhouettes with a few round-topped trees and bushes, flat navy #0B1630 with a thin lavender #A397FF rim light on top edges, only in the bottom 40%; the rest is background.
+    The left and right edges must continue seamlessly so the image can repeat horizontally.
+    Background: perfectly flat solid pure white (#FFFFFF) filling the whole canvas edge to edge; no gradient, vignette, floor, cast shadow or reflection.
+    Aspect ratio 21:9 (ultra-wide landscape). High resolution, crisp clean edges.
+    Avoid: any text, letters, numbers or symbols; logos and brand marks; watermarks and signatures; UI elements, frames, borders or card shapes; checkerboard transparency patterns; photorealism; glossy 3D plastic render; lens flares and four-pointed sparkle stars; heavy noise, film grain or paper texture; harsh black outlines; people, human faces and human hands.
+  followup_gemini: 'Repeat exactly the same image: identical composition, size, position and colors of every element. Change only the background to perfectly flat solid pure black (#000000). Do not redraw, move, crop or restyle anything.'
+  prompt_chatgpt: |-
+    Create one image. Format: ultra-wide landscape.
+    Match the style, palette, lighting and flatness of the attached reference images; do not copy their content.
+    Stylized 2D game art for a calm night-time fitness game. Flat, vector-like shapes with soft smooth gradients, no outlines, rounded friendly forms, large clear silhouettes and very little fine detail. Palette: deep navy and indigo night tones (#0B0D17, #12152A, #161A33, #1E2347, #2E3566) with glowing accents only in mint #5EF2C2, violet #7C6CFF, soft lavender #A397FF, warm gold #FFD25E, sky cyan #4CC9FF and firefly lime #D8FF6A. Lighting: cool moonlight from the upper left with a thin lavender rim light on silhouette edges; warm light comes only from glowing objects. Every glow is a bright core with two soft round halos. Mood: cozy, quiet, hopeful, playful, readable from two meters away on a small screen.
+    Keep a cool color temperature with true deep navy blacks; no warm yellow or sepia cast.
+    Subject: Middle layer of the same meadow: a horizontal strip of rolling hill silhouettes with a few round-topped trees and bushes, flat navy #0B1630 with a thin lavender #A397FF rim light on top edges, only in the bottom 40%; the rest is background.
+    The left and right edges must continue seamlessly so the image can repeat horizontally.
+    Output a PNG with a real transparent background (alpha channel), not a drawn checkerboard. If real transparency is not possible, use a perfectly flat solid pure magenta (#FF00FF) background instead.
+    Do not add any elements that are not described.
+    Avoid: any text, letters, numbers or symbols; logos and brand marks; watermarks and signatures; UI elements, frames, borders or card shapes; checkerboard transparency patterns; photorealism; glossy 3D plastic render; lens flares and four-pointed sparkle stars; heavy noise, film grain or paper texture; harsh black outlines; people, human faces and human hands.
+  status: todo
+  results: []
+- id: P09
+  slug: bg-w2-far
+  asset: BG-W2
+  title_ru: 'Тоннель: дальний план'
+  milestone: M1
+  first_week: true
+  tools:
+  - gemini
+  - chatgpt
+  tool_primary: gemini
+  aspect: '16:9'
+  chatgpt_size: 1536x1024, затем кроп до 16:9
+  background: scene
+  refs:
+  - C1
+  - C3
+  variants: 2
+  subject: 'Far layer of the ''Neon Tunnel'' world: distant night city skyline centered on the horizon, soft violet and mint window glows, a gentle radial glow behind it where the tunnel vanishing point will be, dark navy sky, simple blocky buildings, no signs.'
+  vars: {}
+  extras:
+  - CALM_CENTER
+  notes_ru: Видна верхняя треть, за точкой схода.
+  post:
+  - palette_snap
+  - dither
+  - encode_bg
+  prompt_gemini: |-
+    Generate an image.
+    Use the attached reference images only for style, palette and lighting; do not copy their content or layout.
+    Stylized 2D game art for a calm night-time fitness game. Flat, vector-like shapes with soft smooth gradients, no outlines, rounded friendly forms, large clear silhouettes and very little fine detail. Palette: deep navy and indigo night tones (#0B0D17, #12152A, #161A33, #1E2347, #2E3566) with glowing accents only in mint #5EF2C2, violet #7C6CFF, soft lavender #A397FF, warm gold #FFD25E, sky cyan #4CC9FF and firefly lime #D8FF6A. Lighting: cool moonlight from the upper left with a thin lavender rim light on silhouette edges; warm light comes only from glowing objects. Every glow is a bright core with two soft round halos. Mood: cozy, quiet, hopeful, playful, readable from two meters away on a small screen.
+    Subject: Far layer of the 'Neon Tunnel' world: distant night city skyline centered on the horizon, soft violet and mint window glows, a gentle radial glow behind it where the tunnel vanishing point will be, dark navy sky, simple blocky buildings, no signs.
+    Composition: keep the central area calm, dark and low-contrast because game objects will be drawn on top; put visual interest near the top edge and the horizon.
+    Aspect ratio 16:9 (wide landscape). High resolution, crisp clean edges.
+    Avoid: any text, letters, numbers or symbols; logos and brand marks; watermarks and signatures; UI elements, frames, borders or card shapes; checkerboard transparency patterns; photorealism; glossy 3D plastic render; lens flares and four-pointed sparkle stars; heavy noise, film grain or paper texture; harsh black outlines; people, human faces and human hands.
+  prompt_chatgpt: |-
+    Create one image. Format: wide landscape.
+    Match the style, palette, lighting and flatness of the attached reference images; do not copy their content.
+    Stylized 2D game art for a calm night-time fitness game. Flat, vector-like shapes with soft smooth gradients, no outlines, rounded friendly forms, large clear silhouettes and very little fine detail. Palette: deep navy and indigo night tones (#0B0D17, #12152A, #161A33, #1E2347, #2E3566) with glowing accents only in mint #5EF2C2, violet #7C6CFF, soft lavender #A397FF, warm gold #FFD25E, sky cyan #4CC9FF and firefly lime #D8FF6A. Lighting: cool moonlight from the upper left with a thin lavender rim light on silhouette edges; warm light comes only from glowing objects. Every glow is a bright core with two soft round halos. Mood: cozy, quiet, hopeful, playful, readable from two meters away on a small screen.
+    Keep a cool color temperature with true deep navy blacks; no warm yellow or sepia cast.
+    Subject: Far layer of the 'Neon Tunnel' world: distant night city skyline centered on the horizon, soft violet and mint window glows, a gentle radial glow behind it where the tunnel vanishing point will be, dark navy sky, simple blocky buildings, no signs.
+    Composition: keep the central area calm, dark and low-contrast because game objects will be drawn on top; put visual interest near the top edge and the horizon.
+    Do not add any elements that are not described.
+    Avoid: any text, letters, numbers or symbols; logos and brand marks; watermarks and signatures; UI elements, frames, borders or card shapes; checkerboard transparency patterns; photorealism; glossy 3D plastic render; lens flares and four-pointed sparkle stars; heavy noise, film grain or paper texture; harsh black outlines; people, human faces and human hands.
+  status: todo
+  results: []
+- id: P10
+  slug: bg-w3-far
+  asset: BG-W3
+  title_ru: 'Океан: дальний слой'
+  milestone: M2
+  first_week: false
+  tools:
+  - gemini
+  - chatgpt
+  tool_primary: gemini
+  aspect: '16:9'
+  chatgpt_size: 1536x1024, затем кроп до 16:9
+  background: scene
+  refs:
+  - C1
+  - C2
+  variants: 2
+  subject: 'Far layer of the ''Ocean'' world: deep underwater, soft light shafts from the surface at the top, teal-navy gradient #0B1A2E to #07101C, distant rock and kelp silhouettes, tiny cyan plankton dots.'
+  vars: {}
+  extras:
+  - CALM_CENTER
+  - TILE_H
+  notes_ru: Лучи не через центр.
+  post:
+  - palette_snap
+  - tile_seam_h
+  - dither
+  - encode_bg
+  prompt_gemini: |-
+    Generate an image.
+    Use the attached reference images only for style, palette and lighting; do not copy their content or layout.
+    Stylized 2D game art for a calm night-time fitness game. Flat, vector-like shapes with soft smooth gradients, no outlines, rounded friendly forms, large clear silhouettes and very little fine detail. Palette: deep navy and indigo night tones (#0B0D17, #12152A, #161A33, #1E2347, #2E3566) with glowing accents only in mint #5EF2C2, violet #7C6CFF, soft lavender #A397FF, warm gold #FFD25E, sky cyan #4CC9FF and firefly lime #D8FF6A. Lighting: cool moonlight from the upper left with a thin lavender rim light on silhouette edges; warm light comes only from glowing objects. Every glow is a bright core with two soft round halos. Mood: cozy, quiet, hopeful, playful, readable from two meters away on a small screen.
+    Subject: Far layer of the 'Ocean' world: deep underwater, soft light shafts from the surface at the top, teal-navy gradient #0B1A2E to #07101C, distant rock and kelp silhouettes, tiny cyan plankton dots.
+    Composition: keep the central area calm, dark and low-contrast because game objects will be drawn on top; put visual interest near the top edge and the horizon.
+    The left and right edges must continue seamlessly so the image can repeat horizontally.
+    Aspect ratio 16:9 (wide landscape). High resolution, crisp clean edges.
+    Avoid: any text, letters, numbers or symbols; logos and brand marks; watermarks and signatures; UI elements, frames, borders or card shapes; checkerboard transparency patterns; photorealism; glossy 3D plastic render; lens flares and four-pointed sparkle stars; heavy noise, film grain or paper texture; harsh black outlines; people, human faces and human hands.
+  prompt_chatgpt: |-
+    Create one image. Format: wide landscape.
+    Match the style, palette, lighting and flatness of the attached reference images; do not copy their content.
+    Stylized 2D game art for a calm night-time fitness game. Flat, vector-like shapes with soft smooth gradients, no outlines, rounded friendly forms, large clear silhouettes and very little fine detail. Palette: deep navy and indigo night tones (#0B0D17, #12152A, #161A33, #1E2347, #2E3566) with glowing accents only in mint #5EF2C2, violet #7C6CFF, soft lavender #A397FF, warm gold #FFD25E, sky cyan #4CC9FF and firefly lime #D8FF6A. Lighting: cool moonlight from the upper left with a thin lavender rim light on silhouette edges; warm light comes only from glowing objects. Every glow is a bright core with two soft round halos. Mood: cozy, quiet, hopeful, playful, readable from two meters away on a small screen.
+    Keep a cool color temperature with true deep navy blacks; no warm yellow or sepia cast.
+    Subject: Far layer of the 'Ocean' world: deep underwater, soft light shafts from the surface at the top, teal-navy gradient #0B1A2E to #07101C, distant rock and kelp silhouettes, tiny cyan plankton dots.
+    Composition: keep the central area calm, dark and low-contrast because game objects will be drawn on top; put visual interest near the top edge and the horizon.
+    The left and right edges must continue seamlessly so the image can repeat horizontally.
+    Do not add any elements that are not described.
+    Avoid: any text, letters, numbers or symbols; logos and brand marks; watermarks and signatures; UI elements, frames, borders or card shapes; checkerboard transparency patterns; photorealism; glossy 3D plastic render; lens flares and four-pointed sparkle stars; heavy noise, film grain or paper texture; harsh black outlines; people, human faces and human hands.
+  status: todo
+  results: []
+- id: P11
+  slug: bg-w3-mid
+  asset: BG-W3
+  title_ru: 'Океан: средний слой'
+  milestone: M2
+  first_week: false
+  tools:
+  - gemini
+  - chatgpt
+  tool_primary: gemini
+  aspect: '21:9'
+  chatgpt_size: 1536x1024, затем кроп до 21:9
+  background: pair
+  refs:
+  - C1
+  - C2
+  variants: 2
+  subject: 'Middle strip for the ocean world: rounded coral, kelp and rock silhouettes in the bottom 40%, flat dark teal #0A2233 with a cyan #4CC9FF rim light on top edges.'
+  vars: {}
+  extras:
+  - TILE_H
+  notes_ru: Пара, как P08.
+  post:
+  - matte_pair
+  - palette_snap
+  - tile_seam_h
+  - encode_layer
+  prompt_gemini: |-
+    Generate an image.
+    Use the attached reference images only for style, palette and lighting; do not copy their content or layout.
+    Stylized 2D game art for a calm night-time fitness game. Flat, vector-like shapes with soft smooth gradients, no outlines, rounded friendly forms, large clear silhouettes and very little fine detail. Palette: deep navy and indigo night tones (#0B0D17, #12152A, #161A33, #1E2347, #2E3566) with glowing accents only in mint #5EF2C2, violet #7C6CFF, soft lavender #A397FF, warm gold #FFD25E, sky cyan #4CC9FF and firefly lime #D8FF6A. Lighting: cool moonlight from the upper left with a thin lavender rim light on silhouette edges; warm light comes only from glowing objects. Every glow is a bright core with two soft round halos. Mood: cozy, quiet, hopeful, playful, readable from two meters away on a small screen.
+    Subject: Middle strip for the ocean world: rounded coral, kelp and rock silhouettes in the bottom 40%, flat dark teal #0A2233 with a cyan #4CC9FF rim light on top edges.
+    The left and right edges must continue seamlessly so the image can repeat horizontally.
+    Background: perfectly flat solid pure white (#FFFFFF) filling the whole canvas edge to edge; no gradient, vignette, floor, cast shadow or reflection.
+    Aspect ratio 21:9 (ultra-wide landscape). High resolution, crisp clean edges.
+    Avoid: any text, letters, numbers or symbols; logos and brand marks; watermarks and signatures; UI elements, frames, borders or card shapes; checkerboard transparency patterns; photorealism; glossy 3D plastic render; lens flares and four-pointed sparkle stars; heavy noise, film grain or paper texture; harsh black outlines; people, human faces and human hands.
+  followup_gemini: 'Repeat exactly the same image: identical composition, size, position and colors of every element. Change only the background to perfectly flat solid pure black (#000000). Do not redraw, move, crop or restyle anything.'
+  prompt_chatgpt: |-
+    Create one image. Format: ultra-wide landscape.
+    Match the style, palette, lighting and flatness of the attached reference images; do not copy their content.
+    Stylized 2D game art for a calm night-time fitness game. Flat, vector-like shapes with soft smooth gradients, no outlines, rounded friendly forms, large clear silhouettes and very little fine detail. Palette: deep navy and indigo night tones (#0B0D17, #12152A, #161A33, #1E2347, #2E3566) with glowing accents only in mint #5EF2C2, violet #7C6CFF, soft lavender #A397FF, warm gold #FFD25E, sky cyan #4CC9FF and firefly lime #D8FF6A. Lighting: cool moonlight from the upper left with a thin lavender rim light on silhouette edges; warm light comes only from glowing objects. Every glow is a bright core with two soft round halos. Mood: cozy, quiet, hopeful, playful, readable from two meters away on a small screen.
+    Keep a cool color temperature with true deep navy blacks; no warm yellow or sepia cast.
+    Subject: Middle strip for the ocean world: rounded coral, kelp and rock silhouettes in the bottom 40%, flat dark teal #0A2233 with a cyan #4CC9FF rim light on top edges.
+    The left and right edges must continue seamlessly so the image can repeat horizontally.
+    Output a PNG with a real transparent background (alpha channel), not a drawn checkerboard. If real transparency is not possible, use a perfectly flat solid pure magenta (#FF00FF) background instead.
+    Do not add any elements that are not described.
+    Avoid: any text, letters, numbers or symbols; logos and brand marks; watermarks and signatures; UI elements, frames, borders or card shapes; checkerboard transparency patterns; photorealism; glossy 3D plastic render; lens flares and four-pointed sparkle stars; heavy noise, film grain or paper texture; harsh black outlines; people, human faces and human hands.
+  status: todo
+  results: []
+- id: P12
+  slug: bg-w4-far
+  asset: BG-W4
+  title_ru: 'Космос: дальний слой'
+  milestone: M2
+  first_week: false
+  tools:
+  - gemini
+  - chatgpt
+  tool_primary: gemini
+  aspect: '16:9'
+  chatgpt_size: 1536x1024, затем кроп до 16:9
+  background: scene
+  refs:
+  - C1
+  - C3
+  variants: 2
+  subject: 'Far layer of the ''Cosmos'' world: deep space, a soft violet and teal nebula across the top third, sparse small round stars, the rest near-black navy, no planets.'
+  vars: {}
+  extras:
+  - CALM_CENTER
+  - TILE_H
+  notes_ru: Фон мира 4 и «Звездопада».
+  post:
+  - palette_snap
+  - tile_seam_h
+  - dither
+  - encode_bg
+  prompt_gemini: |-
+    Generate an image.
+    Use the attached reference images only for style, palette and lighting; do not copy their content or layout.
+    Stylized 2D game art for a calm night-time fitness game. Flat, vector-like shapes with soft smooth gradients, no outlines, rounded friendly forms, large clear silhouettes and very little fine detail. Palette: deep navy and indigo night tones (#0B0D17, #12152A, #161A33, #1E2347, #2E3566) with glowing accents only in mint #5EF2C2, violet #7C6CFF, soft lavender #A397FF, warm gold #FFD25E, sky cyan #4CC9FF and firefly lime #D8FF6A. Lighting: cool moonlight from the upper left with a thin lavender rim light on silhouette edges; warm light comes only from glowing objects. Every glow is a bright core with two soft round halos. Mood: cozy, quiet, hopeful, playful, readable from two meters away on a small screen.
+    Subject: Far layer of the 'Cosmos' world: deep space, a soft violet and teal nebula across the top third, sparse small round stars, the rest near-black navy, no planets.
+    Composition: keep the central area calm, dark and low-contrast because game objects will be drawn on top; put visual interest near the top edge and the horizon.
+    The left and right edges must continue seamlessly so the image can repeat horizontally.
+    Aspect ratio 16:9 (wide landscape). High resolution, crisp clean edges.
+    Avoid: any text, letters, numbers or symbols; logos and brand marks; watermarks and signatures; UI elements, frames, borders or card shapes; checkerboard transparency patterns; photorealism; glossy 3D plastic render; lens flares and four-pointed sparkle stars; heavy noise, film grain or paper texture; harsh black outlines; people, human faces and human hands.
+  prompt_chatgpt: |-
+    Create one image. Format: wide landscape.
+    Match the style, palette, lighting and flatness of the attached reference images; do not copy their content.
+    Stylized 2D game art for a calm night-time fitness game. Flat, vector-like shapes with soft smooth gradients, no outlines, rounded friendly forms, large clear silhouettes and very little fine detail. Palette: deep navy and indigo night tones (#0B0D17, #12152A, #161A33, #1E2347, #2E3566) with glowing accents only in mint #5EF2C2, violet #7C6CFF, soft lavender #A397FF, warm gold #FFD25E, sky cyan #4CC9FF and firefly lime #D8FF6A. Lighting: cool moonlight from the upper left with a thin lavender rim light on silhouette edges; warm light comes only from glowing objects. Every glow is a bright core with two soft round halos. Mood: cozy, quiet, hopeful, playful, readable from two meters away on a small screen.
+    Keep a cool color temperature with true deep navy blacks; no warm yellow or sepia cast.
+    Subject: Far layer of the 'Cosmos' world: deep space, a soft violet and teal nebula across the top third, sparse small round stars, the rest near-black navy, no planets.
+    Composition: keep the central area calm, dark and low-contrast because game objects will be drawn on top; put visual interest near the top edge and the horizon.
+    The left and right edges must continue seamlessly so the image can repeat horizontally.
+    Do not add any elements that are not described.
+    Avoid: any text, letters, numbers or symbols; logos and brand marks; watermarks and signatures; UI elements, frames, borders or card shapes; checkerboard transparency patterns; photorealism; glossy 3D plastic render; lens flares and four-pointed sparkle stars; heavy noise, film grain or paper texture; harsh black outlines; people, human faces and human hands.
+  status: todo
+  results: []
+- id: P13
+  slug: gm-w4-planets
+  asset: BG-W4
+  title_ru: 'Космос: планеты'
+  milestone: M2
+  first_week: false
+  tools:
+  - gemini
+  - chatgpt
+  tool_primary: gemini
+  aspect: '1:1'
+  chatgpt_size: 1024x1024
+  background: black
+  refs:
+  - C1
+  - C5
+  variants: 2
+  subject: 'Four stylized planets in a 2x2 grid: small ringed lavender planet, mint planet with soft cloud bands, tiny gold moon with shallow craters, dark violet planet with a thin glowing rim. Flat shading, lit from the upper left.'
+  vars: {}
+  extras:
+  - SHEET
+  notes_ru: Режется на 4 спрайта.
+  post:
+  - glow_alpha
+  - slice_grid
+  - palette_snap
+  - atlas
+  prompt_gemini: |-
+    Generate an image.
+    Use the attached reference images only for style, palette and lighting; do not copy their content or layout.
+    Stylized 2D game art for a calm night-time fitness game. Flat, vector-like shapes with soft smooth gradients, no outlines, rounded friendly forms, large clear silhouettes and very little fine detail. Palette: deep navy and indigo night tones (#0B0D17, #12152A, #161A33, #1E2347, #2E3566) with glowing accents only in mint #5EF2C2, violet #7C6CFF, soft lavender #A397FF, warm gold #FFD25E, sky cyan #4CC9FF and firefly lime #D8FF6A. Lighting: cool moonlight from the upper left with a thin lavender rim light on silhouette edges; warm light comes only from glowing objects. Every glow is a bright core with two soft round halos. Mood: cozy, quiet, hopeful, playful, readable from two meters away on a small screen.
+    Subject: Four stylized planets in a 2x2 grid: small ringed lavender planet, mint planet with soft cloud bands, tiny gold moon with shallow craters, dark violet planet with a thin glowing rim. Flat shading, lit from the upper left.
+    Lay the items out on an even grid with wide empty gaps; items must not touch or overlap; same scale, front view.
+    Background: perfectly flat solid pure black (#000000) filling the whole canvas edge to edge; no gradient, vignette, floor, cast shadow or reflection.
+    Aspect ratio 1:1 (square). High resolution, crisp clean edges.
+    Avoid: any text, letters, numbers or symbols; logos and brand marks; watermarks and signatures; UI elements, frames, borders or card shapes; checkerboard transparency patterns; photorealism; glossy 3D plastic render; lens flares and four-pointed sparkle stars; heavy noise, film grain or paper texture; harsh black outlines; people, human faces and human hands.
+  prompt_chatgpt: |-
+    Create one image. Format: square.
+    Match the style, palette, lighting and flatness of the attached reference images; do not copy their content.
+    Stylized 2D game art for a calm night-time fitness game. Flat, vector-like shapes with soft smooth gradients, no outlines, rounded friendly forms, large clear silhouettes and very little fine detail. Palette: deep navy and indigo night tones (#0B0D17, #12152A, #161A33, #1E2347, #2E3566) with glowing accents only in mint #5EF2C2, violet #7C6CFF, soft lavender #A397FF, warm gold #FFD25E, sky cyan #4CC9FF and firefly lime #D8FF6A. Lighting: cool moonlight from the upper left with a thin lavender rim light on silhouette edges; warm light comes only from glowing objects. Every glow is a bright core with two soft round halos. Mood: cozy, quiet, hopeful, playful, readable from two meters away on a small screen.
+    Keep a cool color temperature with true deep navy blacks; no warm yellow or sepia cast.
+    Subject: Four stylized planets in a 2x2 grid: small ringed lavender planet, mint planet with soft cloud bands, tiny gold moon with shallow craters, dark violet planet with a thin glowing rim. Flat shading, lit from the upper left.
+    Lay the items out on an even grid with wide empty gaps; items must not touch or overlap; same scale, front view.
+    Background: perfectly flat solid pure black (#000000) filling the whole canvas edge to edge; no gradient, vignette, floor, cast shadow or reflection.
+    Do not add any elements that are not described.
+    Avoid: any text, letters, numbers or symbols; logos and brand marks; watermarks and signatures; UI elements, frames, borders or card shapes; checkerboard transparency patterns; photorealism; glossy 3D plastic render; lens flares and four-pointed sparkle stars; heavy noise, film grain or paper texture; harsh black outlines; people, human faces and human hands.
+  status: todo
+  results: []
+- id: P14
+  slug: bg-w5-far
+  asset: BG-W5/W6
+  title_ru: 'Вулкан: дальний слой'
+  milestone: M4
+  first_week: false
+  tools:
+  - gemini
+  - chatgpt
+  tool_primary: gemini
+  aspect: '16:9'
+  chatgpt_size: 1536x1024, затем кроп до 16:9
+  background: scene
+  refs:
+  - C1
+  - C2
+  variants: 2
+  subject: 'Far layer of the ''Volcano'' world: night sky with a dark plum haze, distant rounded volcano silhouettes with faint deep-orange glows at the tops, a few drifting embers; warm light only from lava. Not scary.'
+  vars: {}
+  extras:
+  - CALM_CENTER
+  - TILE_H
+  notes_ru: 'Лава #E8552B, не цвета состояний.'
+  post:
+  - palette_snap
+  - tile_seam_h
+  - dither
+  - encode_bg
+  prompt_gemini: |-
+    Generate an image.
+    Use the attached reference images only for style, palette and lighting; do not copy their content or layout.
+    Stylized 2D game art for a calm night-time fitness game. Flat, vector-like shapes with soft smooth gradients, no outlines, rounded friendly forms, large clear silhouettes and very little fine detail. Palette: deep navy and indigo night tones (#0B0D17, #12152A, #161A33, #1E2347, #2E3566) with glowing accents only in mint #5EF2C2, violet #7C6CFF, soft lavender #A397FF, warm gold #FFD25E, sky cyan #4CC9FF and firefly lime #D8FF6A. Lighting: cool moonlight from the upper left with a thin lavender rim light on silhouette edges; warm light comes only from glowing objects. Every glow is a bright core with two soft round halos. Mood: cozy, quiet, hopeful, playful, readable from two meters away on a small screen.
+    Subject: Far layer of the 'Volcano' world: night sky with a dark plum haze, distant rounded volcano silhouettes with faint deep-orange glows at the tops, a few drifting embers; warm light only from lava. Not scary.
+    Composition: keep the central area calm, dark and low-contrast because game objects will be drawn on top; put visual interest near the top edge and the horizon.
+    The left and right edges must continue seamlessly so the image can repeat horizontally.
+    Aspect ratio 16:9 (wide landscape). High resolution, crisp clean edges.
+    Avoid: any text, letters, numbers or symbols; logos and brand marks; watermarks and signatures; UI elements, frames, borders or card shapes; checkerboard transparency patterns; photorealism; glossy 3D plastic render; lens flares and four-pointed sparkle stars; heavy noise, film grain or paper texture; harsh black outlines; people, human faces and human hands.
+  prompt_chatgpt: |-
+    Create one image. Format: wide landscape.
+    Match the style, palette, lighting and flatness of the attached reference images; do not copy their content.
+    Stylized 2D game art for a calm night-time fitness game. Flat, vector-like shapes with soft smooth gradients, no outlines, rounded friendly forms, large clear silhouettes and very little fine detail. Palette: deep navy and indigo night tones (#0B0D17, #12152A, #161A33, #1E2347, #2E3566) with glowing accents only in mint #5EF2C2, violet #7C6CFF, soft lavender #A397FF, warm gold #FFD25E, sky cyan #4CC9FF and firefly lime #D8FF6A. Lighting: cool moonlight from the upper left with a thin lavender rim light on silhouette edges; warm light comes only from glowing objects. Every glow is a bright core with two soft round halos. Mood: cozy, quiet, hopeful, playful, readable from two meters away on a small screen.
+    Keep a cool color temperature with true deep navy blacks; no warm yellow or sepia cast.
+    Subject: Far layer of the 'Volcano' world: night sky with a dark plum haze, distant rounded volcano silhouettes with faint deep-orange glows at the tops, a few drifting embers; warm light only from lava. Not scary.
+    Composition: keep the central area calm, dark and low-contrast because game objects will be drawn on top; put visual interest near the top edge and the horizon.
+    The left and right edges must continue seamlessly so the image can repeat horizontally.
+    Do not add any elements that are not described.
+    Avoid: any text, letters, numbers or symbols; logos and brand marks; watermarks and signatures; UI elements, frames, borders or card shapes; checkerboard transparency patterns; photorealism; glossy 3D plastic render; lens flares and four-pointed sparkle stars; heavy noise, film grain or paper texture; harsh black outlines; people, human faces and human hands.
+  status: todo
+  results: []
+- id: P15
+  slug: bg-w6-far
+  asset: BG-W5/W6
+  title_ru: 'Сияние: дальний слой'
+  milestone: M4
+  first_week: false
+  tools:
+  - gemini
+  - chatgpt
+  tool_primary: gemini
+  aspect: '16:9'
+  chatgpt_size: 1536x1024, затем кроп до 16:9
+  background: scene
+  refs:
+  - C1
+  - C2
+  variants: 2
+  subject: 'Far layer of the ''Northern Lights'' world: soft mint and violet aurora ribbons across the upper half, snowy rounded mountains in dark blue-grey on the horizon, a few stars. Silent and gentle.'
+  vars: {}
+  extras:
+  - CALM_CENTER
+  - TILE_H
+  notes_ru: Фон мира 6 и «Высоты».
+  post:
+  - palette_snap
+  - tile_seam_h
+  - dither
+  - encode_bg
+  prompt_gemini: |-
+    Generate an image.
+    Use the attached reference images only for style, palette and lighting; do not copy their content or layout.
+    Stylized 2D game art for a calm night-time fitness game. Flat, vector-like shapes with soft smooth gradients, no outlines, rounded friendly forms, large clear silhouettes and very little fine detail. Palette: deep navy and indigo night tones (#0B0D17, #12152A, #161A33, #1E2347, #2E3566) with glowing accents only in mint #5EF2C2, violet #7C6CFF, soft lavender #A397FF, warm gold #FFD25E, sky cyan #4CC9FF and firefly lime #D8FF6A. Lighting: cool moonlight from the upper left with a thin lavender rim light on silhouette edges; warm light comes only from glowing objects. Every glow is a bright core with two soft round halos. Mood: cozy, quiet, hopeful, playful, readable from two meters away on a small screen.
+    Subject: Far layer of the 'Northern Lights' world: soft mint and violet aurora ribbons across the upper half, snowy rounded mountains in dark blue-grey on the horizon, a few stars. Silent and gentle.
+    Composition: keep the central area calm, dark and low-contrast because game objects will be drawn on top; put visual interest near the top edge and the horizon.
+    The left and right edges must continue seamlessly so the image can repeat horizontally.
+    Aspect ratio 16:9 (wide landscape). High resolution, crisp clean edges.
+    Avoid: any text, letters, numbers or symbols; logos and brand marks; watermarks and signatures; UI elements, frames, borders or card shapes; checkerboard transparency patterns; photorealism; glossy 3D plastic render; lens flares and four-pointed sparkle stars; heavy noise, film grain or paper texture; harsh black outlines; people, human faces and human hands.
+  prompt_chatgpt: |-
+    Create one image. Format: wide landscape.
+    Match the style, palette, lighting and flatness of the attached reference images; do not copy their content.
+    Stylized 2D game art for a calm night-time fitness game. Flat, vector-like shapes with soft smooth gradients, no outlines, rounded friendly forms, large clear silhouettes and very little fine detail. Palette: deep navy and indigo night tones (#0B0D17, #12152A, #161A33, #1E2347, #2E3566) with glowing accents only in mint #5EF2C2, violet #7C6CFF, soft lavender #A397FF, warm gold #FFD25E, sky cyan #4CC9FF and firefly lime #D8FF6A. Lighting: cool moonlight from the upper left with a thin lavender rim light on silhouette edges; warm light comes only from glowing objects. Every glow is a bright core with two soft round halos. Mood: cozy, quiet, hopeful, playful, readable from two meters away on a small screen.
+    Keep a cool color temperature with true deep navy blacks; no warm yellow or sepia cast.
+    Subject: Far layer of the 'Northern Lights' world: soft mint and violet aurora ribbons across the upper half, snowy rounded mountains in dark blue-grey on the horizon, a few stars. Silent and gentle.
+    Composition: keep the central area calm, dark and low-contrast because game objects will be drawn on top; put visual interest near the top edge and the horizon.
+    The left and right edges must continue seamlessly so the image can repeat horizontally.
+    Do not add any elements that are not described.
+    Avoid: any text, letters, numbers or symbols; logos and brand marks; watermarks and signatures; UI elements, frames, borders or card shapes; checkerboard transparency patterns; photorealism; glossy 3D plastic render; lens flares and four-pointed sparkle stars; heavy noise, film grain or paper texture; harsh black outlines; people, human faces and human hands.
+  status: todo
+  results: []
+- id: P16
+  slug: bg-pulse-stage
+  asset: BG-PL
+  title_ru: 'Пульс: сцена ×4'
+  milestone: M2
+  first_week: false
+  tools:
+  - gemini
+  - chatgpt
+  tool_primary: gemini
+  aspect: '16:9'
+  chatgpt_size: 1536x1024, затем кроп до 16:9
+  background: scene
+  refs:
+  - C1
+  - C3
+  variants: 1
+  subject: 'Abstract rhythm-game background, mood {mood}: dark stage-like space, soft horizon at 60% height, gentle concentric light rings and faint distant vertical light bars, accents {colors}. The central vertical band for note lanes stays dark and empty.'
+  vars:
+    mood/colors:
+    - 'calm / cyan #4CC9FF and violet #7C6CFF'
+    - 'focus / violet #7C6CFF and mint #5EF2C2'
+    - 'energetic / mint #5EF2C2 and gold #FFD25E'
+    - 'epic / violet #7C6CFF and gold #FFD25E'
+  extras:
+  - CALM_CENTER
+  notes_ru: 4 прогона по vars; пульс делает код.
+  post:
+  - palette_snap
+  - dither
+  - encode_bg
+  prompt_gemini: |-
+    Generate an image.
+    Use the attached reference images only for style, palette and lighting; do not copy their content or layout.
+    Stylized 2D game art for a calm night-time fitness game. Flat, vector-like shapes with soft smooth gradients, no outlines, rounded friendly forms, large clear silhouettes and very little fine detail. Palette: deep navy and indigo night tones (#0B0D17, #12152A, #161A33, #1E2347, #2E3566) with glowing accents only in mint #5EF2C2, violet #7C6CFF, soft lavender #A397FF, warm gold #FFD25E, sky cyan #4CC9FF and firefly lime #D8FF6A. Lighting: cool moonlight from the upper left with a thin lavender rim light on silhouette edges; warm light comes only from glowing objects. Every glow is a bright core with two soft round halos. Mood: cozy, quiet, hopeful, playful, readable from two meters away on a small screen.
+    Subject: Abstract rhythm-game background, mood {mood}: dark stage-like space, soft horizon at 60% height, gentle concentric light rings and faint distant vertical light bars, accents {colors}. The central vertical band for note lanes stays dark and empty.
+    Composition: keep the central area calm, dark and low-contrast because game objects will be drawn on top; put visual interest near the top edge and the horizon.
+    Aspect ratio 16:9 (wide landscape). High resolution, crisp clean edges.
+    Avoid: any text, letters, numbers or symbols; logos and brand marks; watermarks and signatures; UI elements, frames, borders or card shapes; checkerboard transparency patterns; photorealism; glossy 3D plastic render; lens flares and four-pointed sparkle stars; heavy noise, film grain or paper texture; harsh black outlines; people, human faces and human hands.
+  prompt_chatgpt: |-
+    Create one image. Format: wide landscape.
+    Match the style, palette, lighting and flatness of the attached reference images; do not copy their content.
+    Stylized 2D game art for a calm night-time fitness game. Flat, vector-like shapes with soft smooth gradients, no outlines, rounded friendly forms, large clear silhouettes and very little fine detail. Palette: deep navy and indigo night tones (#0B0D17, #12152A, #161A33, #1E2347, #2E3566) with glowing accents only in mint #5EF2C2, violet #7C6CFF, soft lavender #A397FF, warm gold #FFD25E, sky cyan #4CC9FF and firefly lime #D8FF6A. Lighting: cool moonlight from the upper left with a thin lavender rim light on silhouette edges; warm light comes only from glowing objects. Every glow is a bright core with two soft round halos. Mood: cozy, quiet, hopeful, playful, readable from two meters away on a small screen.
+    Keep a cool color temperature with true deep navy blacks; no warm yellow or sepia cast.
+    Subject: Abstract rhythm-game background, mood {mood}: dark stage-like space, soft horizon at 60% height, gentle concentric light rings and faint distant vertical light bars, accents {colors}. The central vertical band for note lanes stays dark and empty.
+    Composition: keep the central area calm, dark and low-contrast because game objects will be drawn on top; put visual interest near the top edge and the horizon.
+    Do not add any elements that are not described.
+    Avoid: any text, letters, numbers or symbols; logos and brand marks; watermarks and signatures; UI elements, frames, borders or card shapes; checkerboard transparency patterns; photorealism; glossy 3D plastic render; lens flares and four-pointed sparkle stars; heavy noise, film grain or paper texture; harsh black outlines; people, human faces and human hands.
+  status: todo
+  results: []
+- id: P17
+  slug: map-w1-tile
+  asset: MAP-W1
+  title_ru: 'Карта: тайл «Поляна»'
+  milestone: M1
+  first_week: true
+  tools:
+  - gemini
+  - chatgpt
+  tool_primary: gemini
+  aspect: '9:16'
+  chatgpt_size: 1024x1536, затем кроп до 9:16
+  background: scene
+  refs:
+  - C1
+  - C2
+  variants: 2
+  subject: 'Vertical map tile for the ''Firefly Meadow'' world, seen from above at a gentle angle: dark grassy meadow, patches of lighter moss, two small ponds, round bushes, tiny mushrooms, scattered fireflies. No path, road or markers.'
+  vars: {}
+  extras:
+  - TILE_V
+  notes_ru: Путь и узлы — SVG поверх.
+  post:
+  - palette_snap
+  - tile_seam_v
+  - dither
+  - encode_bg
+  prompt_gemini: |-
+    Generate an image.
+    Use the attached reference images only for style, palette and lighting; do not copy their content or layout.
+    Stylized 2D game art for a calm night-time fitness game. Flat, vector-like shapes with soft smooth gradients, no outlines, rounded friendly forms, large clear silhouettes and very little fine detail. Palette: deep navy and indigo night tones (#0B0D17, #12152A, #161A33, #1E2347, #2E3566) with glowing accents only in mint #5EF2C2, violet #7C6CFF, soft lavender #A397FF, warm gold #FFD25E, sky cyan #4CC9FF and firefly lime #D8FF6A. Lighting: cool moonlight from the upper left with a thin lavender rim light on silhouette edges; warm light comes only from glowing objects. Every glow is a bright core with two soft round halos. Mood: cozy, quiet, hopeful, playful, readable from two meters away on a small screen.
+    Subject: Vertical map tile for the 'Firefly Meadow' world, seen from above at a gentle angle: dark grassy meadow, patches of lighter moss, two small ponds, round bushes, tiny mushrooms, scattered fireflies. No path, road or markers.
+    The top and bottom edges must continue seamlessly so the image can repeat vertically.
+    Aspect ratio 9:16 (tall portrait). High resolution, crisp clean edges.
+    Avoid: any text, letters, numbers or symbols; logos and brand marks; watermarks and signatures; UI elements, frames, borders or card shapes; checkerboard transparency patterns; photorealism; glossy 3D plastic render; lens flares and four-pointed sparkle stars; heavy noise, film grain or paper texture; harsh black outlines; people, human faces and human hands.
+  prompt_chatgpt: |-
+    Create one image. Format: tall portrait.
+    Match the style, palette, lighting and flatness of the attached reference images; do not copy their content.
+    Stylized 2D game art for a calm night-time fitness game. Flat, vector-like shapes with soft smooth gradients, no outlines, rounded friendly forms, large clear silhouettes and very little fine detail. Palette: deep navy and indigo night tones (#0B0D17, #12152A, #161A33, #1E2347, #2E3566) with glowing accents only in mint #5EF2C2, violet #7C6CFF, soft lavender #A397FF, warm gold #FFD25E, sky cyan #4CC9FF and firefly lime #D8FF6A. Lighting: cool moonlight from the upper left with a thin lavender rim light on silhouette edges; warm light comes only from glowing objects. Every glow is a bright core with two soft round halos. Mood: cozy, quiet, hopeful, playful, readable from two meters away on a small screen.
+    Keep a cool color temperature with true deep navy blacks; no warm yellow or sepia cast.
+    Subject: Vertical map tile for the 'Firefly Meadow' world, seen from above at a gentle angle: dark grassy meadow, patches of lighter moss, two small ponds, round bushes, tiny mushrooms, scattered fireflies. No path, road or markers.
+    The top and bottom edges must continue seamlessly so the image can repeat vertically.
+    Do not add any elements that are not described.
+    Avoid: any text, letters, numbers or symbols; logos and brand marks; watermarks and signatures; UI elements, frames, borders or card shapes; checkerboard transparency patterns; photorealism; glossy 3D plastic render; lens flares and four-pointed sparkle stars; heavy noise, film grain or paper texture; harsh black outlines; people, human faces and human hands.
+  status: todo
+  results: []
+- id: P18
+  slug: map-w2-tile
+  asset: MAP-W2
+  title_ru: 'Карта: тайл «Тоннель»'
+  milestone: M1
+  first_week: true
+  tools:
+  - gemini
+  - chatgpt
+  tool_primary: gemini
+  aspect: '9:16'
+  chatgpt_size: 1024x1536, затем кроп до 9:16
+  background: scene
+  refs:
+  - C1
+  - C3
+  variants: 2
+  subject: 'Vertical map tile for the ''Neon Tunnel'' world seen from above: night city district of dark violet blocks and rounded rooftops, thin glowing violet and mint lines along streets, tiny lit windows. No path, no signs.'
+  vars: {}
+  extras:
+  - TILE_V
+  notes_ru: Шаблон для миров 3–6.
+  post:
+  - palette_snap
+  - tile_seam_v
+  - dither
+  - encode_bg
+  prompt_gemini: |-
+    Generate an image.
+    Use the attached reference images only for style, palette and lighting; do not copy their content or layout.
+    Stylized 2D game art for a calm night-time fitness game. Flat, vector-like shapes with soft smooth gradients, no outlines, rounded friendly forms, large clear silhouettes and very little fine detail. Palette: deep navy and indigo night tones (#0B0D17, #12152A, #161A33, #1E2347, #2E3566) with glowing accents only in mint #5EF2C2, violet #7C6CFF, soft lavender #A397FF, warm gold #FFD25E, sky cyan #4CC9FF and firefly lime #D8FF6A. Lighting: cool moonlight from the upper left with a thin lavender rim light on silhouette edges; warm light comes only from glowing objects. Every glow is a bright core with two soft round halos. Mood: cozy, quiet, hopeful, playful, readable from two meters away on a small screen.
+    Subject: Vertical map tile for the 'Neon Tunnel' world seen from above: night city district of dark violet blocks and rounded rooftops, thin glowing violet and mint lines along streets, tiny lit windows. No path, no signs.
+    The top and bottom edges must continue seamlessly so the image can repeat vertically.
+    Aspect ratio 9:16 (tall portrait). High resolution, crisp clean edges.
+    Avoid: any text, letters, numbers or symbols; logos and brand marks; watermarks and signatures; UI elements, frames, borders or card shapes; checkerboard transparency patterns; photorealism; glossy 3D plastic render; lens flares and four-pointed sparkle stars; heavy noise, film grain or paper texture; harsh black outlines; people, human faces and human hands.
+  prompt_chatgpt: |-
+    Create one image. Format: tall portrait.
+    Match the style, palette, lighting and flatness of the attached reference images; do not copy their content.
+    Stylized 2D game art for a calm night-time fitness game. Flat, vector-like shapes with soft smooth gradients, no outlines, rounded friendly forms, large clear silhouettes and very little fine detail. Palette: deep navy and indigo night tones (#0B0D17, #12152A, #161A33, #1E2347, #2E3566) with glowing accents only in mint #5EF2C2, violet #7C6CFF, soft lavender #A397FF, warm gold #FFD25E, sky cyan #4CC9FF and firefly lime #D8FF6A. Lighting: cool moonlight from the upper left with a thin lavender rim light on silhouette edges; warm light comes only from glowing objects. Every glow is a bright core with two soft round halos. Mood: cozy, quiet, hopeful, playful, readable from two meters away on a small screen.
+    Keep a cool color temperature with true deep navy blacks; no warm yellow or sepia cast.
+    Subject: Vertical map tile for the 'Neon Tunnel' world seen from above: night city district of dark violet blocks and rounded rooftops, thin glowing violet and mint lines along streets, tiny lit windows. No path, no signs.
+    The top and bottom edges must continue seamlessly so the image can repeat vertically.
+    Do not add any elements that are not described.
+    Avoid: any text, letters, numbers or symbols; logos and brand marks; watermarks and signatures; UI elements, frames, borders or card shapes; checkerboard transparency patterns; photorealism; glossy 3D plastic render; lens flares and four-pointed sparkle stars; heavy noise, film grain or paper texture; harsh black outlines; people, human faces and human hands.
+  status: todo
+  results: []
+- id: P19
+  slug: boss-owl
+  asset: GM-TI-W1
+  title_ru: 'Титан: Филин-Тень'
+  milestone: M2
+  first_week: false
+  tools:
+  - gemini
+  - chatgpt
+  tool_primary: gemini
+  aspect: '16:9'
+  chatgpt_size: 1536x1024, затем кроп до 16:9
+  background: white
+  refs:
+  - C1
+  - C2
+  variants: 2
+  subject: 'Boss concept ''Shadow Owl'': a huge round owl of dark indigo night shadow, big glowing violet eyes, soft layered feathers, wings casting long shadows left and right. Impressive but friendly, never scary, fine for children. Three poses side by side: idle, attack telegraph, dizzy defeated.'
+  vars: {}
+  extras: []
+  notes_ru: Затем P25 — детали для рига.
+  post:
+  - review
+  prompt_gemini: |-
+    Generate an image.
+    Use the attached reference images only for style, palette and lighting; do not copy their content or layout.
+    Stylized 2D game art for a calm night-time fitness game. Flat, vector-like shapes with soft smooth gradients, no outlines, rounded friendly forms, large clear silhouettes and very little fine detail. Palette: deep navy and indigo night tones (#0B0D17, #12152A, #161A33, #1E2347, #2E3566) with glowing accents only in mint #5EF2C2, violet #7C6CFF, soft lavender #A397FF, warm gold #FFD25E, sky cyan #4CC9FF and firefly lime #D8FF6A. Lighting: cool moonlight from the upper left with a thin lavender rim light on silhouette edges; warm light comes only from glowing objects. Every glow is a bright core with two soft round halos. Mood: cozy, quiet, hopeful, playful, readable from two meters away on a small screen.
+    Subject: Boss concept 'Shadow Owl': a huge round owl of dark indigo night shadow, big glowing violet eyes, soft layered feathers, wings casting long shadows left and right. Impressive but friendly, never scary, fine for children. Three poses side by side: idle, attack telegraph, dizzy defeated.
+    Background: perfectly flat solid pure white (#FFFFFF) filling the whole canvas edge to edge; no gradient, vignette, floor, cast shadow or reflection.
+    Aspect ratio 16:9 (wide landscape). High resolution, crisp clean edges.
+    Avoid: any text, letters, numbers or symbols; logos and brand marks; watermarks and signatures; UI elements, frames, borders or card shapes; checkerboard transparency patterns; photorealism; glossy 3D plastic render; lens flares and four-pointed sparkle stars; heavy noise, film grain or paper texture; harsh black outlines; people, human faces and human hands.
+  prompt_chatgpt: |-
+    Create one image. Format: wide landscape.
+    Match the style, palette, lighting and flatness of the attached reference images; do not copy their content.
+    Stylized 2D game art for a calm night-time fitness game. Flat, vector-like shapes with soft smooth gradients, no outlines, rounded friendly forms, large clear silhouettes and very little fine detail. Palette: deep navy and indigo night tones (#0B0D17, #12152A, #161A33, #1E2347, #2E3566) with glowing accents only in mint #5EF2C2, violet #7C6CFF, soft lavender #A397FF, warm gold #FFD25E, sky cyan #4CC9FF and firefly lime #D8FF6A. Lighting: cool moonlight from the upper left with a thin lavender rim light on silhouette edges; warm light comes only from glowing objects. Every glow is a bright core with two soft round halos. Mood: cozy, quiet, hopeful, playful, readable from two meters away on a small screen.
+    Keep a cool color temperature with true deep navy blacks; no warm yellow or sepia cast.
+    Subject: Boss concept 'Shadow Owl': a huge round owl of dark indigo night shadow, big glowing violet eyes, soft layered feathers, wings casting long shadows left and right. Impressive but friendly, never scary, fine for children. Three poses side by side: idle, attack telegraph, dizzy defeated.
+    Background: perfectly flat solid pure white (#FFFFFF) filling the whole canvas edge to edge; no gradient, vignette, floor, cast shadow or reflection.
+    Do not add any elements that are not described.
+    Avoid: any text, letters, numbers or symbols; logos and brand marks; watermarks and signatures; UI elements, frames, borders or card shapes; checkerboard transparency patterns; photorealism; glossy 3D plastic render; lens flares and four-pointed sparkle stars; heavy noise, film grain or paper texture; harsh black outlines; people, human faces and human hands.
+  status: todo
+  results: []
+- id: P20
+  slug: boss-worm
+  asset: GM-TI-W2
+  title_ru: 'Титан: Тоннельный Червь'
+  milestone: M2
+  first_week: false
+  tools:
+  - gemini
+  - chatgpt
+  tool_primary: gemini
+  aspect: '16:9'
+  chatgpt_size: 1536x1024, затем кроп до 16:9
+  background: white
+  refs:
+  - C1
+  - C3
+  variants: 2
+  subject: 'Boss concept ''Tunnel Worm'': a long worm of glowing violet ring segments with a round stubborn-cute face, coiling out of a neon tunnel mouth; in the telegraph pose it squeezes the tunnel narrower. Impressive but friendly, never scary, fine for children. Three poses side by side: idle, attack telegraph, dizzy defeated.'
+  vars: {}
+  extras: []
+  notes_ru: Атака сужает проход.
+  post:
+  - review
+  prompt_gemini: |-
+    Generate an image.
+    Use the attached reference images only for style, palette and lighting; do not copy their content or layout.
+    Stylized 2D game art for a calm night-time fitness game. Flat, vector-like shapes with soft smooth gradients, no outlines, rounded friendly forms, large clear silhouettes and very little fine detail. Palette: deep navy and indigo night tones (#0B0D17, #12152A, #161A33, #1E2347, #2E3566) with glowing accents only in mint #5EF2C2, violet #7C6CFF, soft lavender #A397FF, warm gold #FFD25E, sky cyan #4CC9FF and firefly lime #D8FF6A. Lighting: cool moonlight from the upper left with a thin lavender rim light on silhouette edges; warm light comes only from glowing objects. Every glow is a bright core with two soft round halos. Mood: cozy, quiet, hopeful, playful, readable from two meters away on a small screen.
+    Subject: Boss concept 'Tunnel Worm': a long worm of glowing violet ring segments with a round stubborn-cute face, coiling out of a neon tunnel mouth; in the telegraph pose it squeezes the tunnel narrower. Impressive but friendly, never scary, fine for children. Three poses side by side: idle, attack telegraph, dizzy defeated.
+    Background: perfectly flat solid pure white (#FFFFFF) filling the whole canvas edge to edge; no gradient, vignette, floor, cast shadow or reflection.
+    Aspect ratio 16:9 (wide landscape). High resolution, crisp clean edges.
+    Avoid: any text, letters, numbers or symbols; logos and brand marks; watermarks and signatures; UI elements, frames, borders or card shapes; checkerboard transparency patterns; photorealism; glossy 3D plastic render; lens flares and four-pointed sparkle stars; heavy noise, film grain or paper texture; harsh black outlines; people, human faces and human hands.
+  prompt_chatgpt: |-
+    Create one image. Format: wide landscape.
+    Match the style, palette, lighting and flatness of the attached reference images; do not copy their content.
+    Stylized 2D game art for a calm night-time fitness game. Flat, vector-like shapes with soft smooth gradients, no outlines, rounded friendly forms, large clear silhouettes and very little fine detail. Palette: deep navy and indigo night tones (#0B0D17, #12152A, #161A33, #1E2347, #2E3566) with glowing accents only in mint #5EF2C2, violet #7C6CFF, soft lavender #A397FF, warm gold #FFD25E, sky cyan #4CC9FF and firefly lime #D8FF6A. Lighting: cool moonlight from the upper left with a thin lavender rim light on silhouette edges; warm light comes only from glowing objects. Every glow is a bright core with two soft round halos. Mood: cozy, quiet, hopeful, playful, readable from two meters away on a small screen.
+    Keep a cool color temperature with true deep navy blacks; no warm yellow or sepia cast.
+    Subject: Boss concept 'Tunnel Worm': a long worm of glowing violet ring segments with a round stubborn-cute face, coiling out of a neon tunnel mouth; in the telegraph pose it squeezes the tunnel narrower. Impressive but friendly, never scary, fine for children. Three poses side by side: idle, attack telegraph, dizzy defeated.
+    Background: perfectly flat solid pure white (#FFFFFF) filling the whole canvas edge to edge; no gradient, vignette, floor, cast shadow or reflection.
+    Do not add any elements that are not described.
+    Avoid: any text, letters, numbers or symbols; logos and brand marks; watermarks and signatures; UI elements, frames, borders or card shapes; checkerboard transparency patterns; photorealism; glossy 3D plastic render; lens flares and four-pointed sparkle stars; heavy noise, film grain or paper texture; harsh black outlines; people, human faces and human hands.
+  status: todo
+  results: []
+- id: P21
+  slug: boss-kraken
+  asset: GM-TI-W3
+  title_ru: 'Титан: Кракен'
+  milestone: M2
+  first_week: false
+  tools:
+  - gemini
+  - chatgpt
+  tool_primary: gemini
+  aspect: '16:9'
+  chatgpt_size: 1536x1024, затем кроп до 16:9
+  background: white
+  refs:
+  - C1
+  - C2
+  variants: 2
+  subject: 'Boss concept ''Kraken'': a big round deep-teal octopus with large curious eyes and cyan glowing spots; in the telegraph pose tentacles rise from the left and right edges, the center stays clear. Impressive but friendly, never scary, fine for children. Three poses side by side: idle, attack telegraph, dizzy defeated.'
+  vars: {}
+  extras: []
+  notes_ru: Центр безопасен.
+  post:
+  - review
+  prompt_gemini: |-
+    Generate an image.
+    Use the attached reference images only for style, palette and lighting; do not copy their content or layout.
+    Stylized 2D game art for a calm night-time fitness game. Flat, vector-like shapes with soft smooth gradients, no outlines, rounded friendly forms, large clear silhouettes and very little fine detail. Palette: deep navy and indigo night tones (#0B0D17, #12152A, #161A33, #1E2347, #2E3566) with glowing accents only in mint #5EF2C2, violet #7C6CFF, soft lavender #A397FF, warm gold #FFD25E, sky cyan #4CC9FF and firefly lime #D8FF6A. Lighting: cool moonlight from the upper left with a thin lavender rim light on silhouette edges; warm light comes only from glowing objects. Every glow is a bright core with two soft round halos. Mood: cozy, quiet, hopeful, playful, readable from two meters away on a small screen.
+    Subject: Boss concept 'Kraken': a big round deep-teal octopus with large curious eyes and cyan glowing spots; in the telegraph pose tentacles rise from the left and right edges, the center stays clear. Impressive but friendly, never scary, fine for children. Three poses side by side: idle, attack telegraph, dizzy defeated.
+    Background: perfectly flat solid pure white (#FFFFFF) filling the whole canvas edge to edge; no gradient, vignette, floor, cast shadow or reflection.
+    Aspect ratio 16:9 (wide landscape). High resolution, crisp clean edges.
+    Avoid: any text, letters, numbers or symbols; logos and brand marks; watermarks and signatures; UI elements, frames, borders or card shapes; checkerboard transparency patterns; photorealism; glossy 3D plastic render; lens flares and four-pointed sparkle stars; heavy noise, film grain or paper texture; harsh black outlines; people, human faces and human hands.
+  prompt_chatgpt: |-
+    Create one image. Format: wide landscape.
+    Match the style, palette, lighting and flatness of the attached reference images; do not copy their content.
+    Stylized 2D game art for a calm night-time fitness game. Flat, vector-like shapes with soft smooth gradients, no outlines, rounded friendly forms, large clear silhouettes and very little fine detail. Palette: deep navy and indigo night tones (#0B0D17, #12152A, #161A33, #1E2347, #2E3566) with glowing accents only in mint #5EF2C2, violet #7C6CFF, soft lavender #A397FF, warm gold #FFD25E, sky cyan #4CC9FF and firefly lime #D8FF6A. Lighting: cool moonlight from the upper left with a thin lavender rim light on silhouette edges; warm light comes only from glowing objects. Every glow is a bright core with two soft round halos. Mood: cozy, quiet, hopeful, playful, readable from two meters away on a small screen.
+    Keep a cool color temperature with true deep navy blacks; no warm yellow or sepia cast.
+    Subject: Boss concept 'Kraken': a big round deep-teal octopus with large curious eyes and cyan glowing spots; in the telegraph pose tentacles rise from the left and right edges, the center stays clear. Impressive but friendly, never scary, fine for children. Three poses side by side: idle, attack telegraph, dizzy defeated.
+    Background: perfectly flat solid pure white (#FFFFFF) filling the whole canvas edge to edge; no gradient, vignette, floor, cast shadow or reflection.
+    Do not add any elements that are not described.
+    Avoid: any text, letters, numbers or symbols; logos and brand marks; watermarks and signatures; UI elements, frames, borders or card shapes; checkerboard transparency patterns; photorealism; glossy 3D plastic render; lens flares and four-pointed sparkle stars; heavy noise, film grain or paper texture; harsh black outlines; people, human faces and human hands.
+  status: todo
+  results: []
+- id: P22
+  slug: boss-golem
+  asset: GM-TI-W4
+  title_ru: 'Титан: Метеорный Голем'
+  milestone: M2
+  first_week: false
+  tools:
+  - gemini
+  - chatgpt
+  tool_primary: gemini
+  aspect: '16:9'
+  chatgpt_size: 1536x1024, затем кроп до 16:9
+  background: white
+  refs:
+  - C1
+  - C5
+  variants: 2
+  subject: 'Boss concept ''Meteor Golem'': a chunky friendly giant of floating rounded space rocks with glowing gold cracks and small bright eyes; telegraph lifts rocks overhead; defeated crumbles into floating pebbles. Impressive but friendly, never scary, fine for children. Three poses side by side: idle, attack telegraph, dizzy defeated.'
+  vars: {}
+  extras: []
+  notes_ru: Щит рисует код.
+  post:
+  - review
+  prompt_gemini: |-
+    Generate an image.
+    Use the attached reference images only for style, palette and lighting; do not copy their content or layout.
+    Stylized 2D game art for a calm night-time fitness game. Flat, vector-like shapes with soft smooth gradients, no outlines, rounded friendly forms, large clear silhouettes and very little fine detail. Palette: deep navy and indigo night tones (#0B0D17, #12152A, #161A33, #1E2347, #2E3566) with glowing accents only in mint #5EF2C2, violet #7C6CFF, soft lavender #A397FF, warm gold #FFD25E, sky cyan #4CC9FF and firefly lime #D8FF6A. Lighting: cool moonlight from the upper left with a thin lavender rim light on silhouette edges; warm light comes only from glowing objects. Every glow is a bright core with two soft round halos. Mood: cozy, quiet, hopeful, playful, readable from two meters away on a small screen.
+    Subject: Boss concept 'Meteor Golem': a chunky friendly giant of floating rounded space rocks with glowing gold cracks and small bright eyes; telegraph lifts rocks overhead; defeated crumbles into floating pebbles. Impressive but friendly, never scary, fine for children. Three poses side by side: idle, attack telegraph, dizzy defeated.
+    Background: perfectly flat solid pure white (#FFFFFF) filling the whole canvas edge to edge; no gradient, vignette, floor, cast shadow or reflection.
+    Aspect ratio 16:9 (wide landscape). High resolution, crisp clean edges.
+    Avoid: any text, letters, numbers or symbols; logos and brand marks; watermarks and signatures; UI elements, frames, borders or card shapes; checkerboard transparency patterns; photorealism; glossy 3D plastic render; lens flares and four-pointed sparkle stars; heavy noise, film grain or paper texture; harsh black outlines; people, human faces and human hands.
+  prompt_chatgpt: |-
+    Create one image. Format: wide landscape.
+    Match the style, palette, lighting and flatness of the attached reference images; do not copy their content.
+    Stylized 2D game art for a calm night-time fitness game. Flat, vector-like shapes with soft smooth gradients, no outlines, rounded friendly forms, large clear silhouettes and very little fine detail. Palette: deep navy and indigo night tones (#0B0D17, #12152A, #161A33, #1E2347, #2E3566) with glowing accents only in mint #5EF2C2, violet #7C6CFF, soft lavender #A397FF, warm gold #FFD25E, sky cyan #4CC9FF and firefly lime #D8FF6A. Lighting: cool moonlight from the upper left with a thin lavender rim light on silhouette edges; warm light comes only from glowing objects. Every glow is a bright core with two soft round halos. Mood: cozy, quiet, hopeful, playful, readable from two meters away on a small screen.
+    Keep a cool color temperature with true deep navy blacks; no warm yellow or sepia cast.
+    Subject: Boss concept 'Meteor Golem': a chunky friendly giant of floating rounded space rocks with glowing gold cracks and small bright eyes; telegraph lifts rocks overhead; defeated crumbles into floating pebbles. Impressive but friendly, never scary, fine for children. Three poses side by side: idle, attack telegraph, dizzy defeated.
+    Background: perfectly flat solid pure white (#FFFFFF) filling the whole canvas edge to edge; no gradient, vignette, floor, cast shadow or reflection.
+    Do not add any elements that are not described.
+    Avoid: any text, letters, numbers or symbols; logos and brand marks; watermarks and signatures; UI elements, frames, borders or card shapes; checkerboard transparency patterns; photorealism; glossy 3D plastic render; lens flares and four-pointed sparkle stars; heavy noise, film grain or paper texture; harsh black outlines; people, human faces and human hands.
+  status: todo
+  results: []
+- id: P23
+  slug: boss-volcano
+  asset: GM-TI-W5/W6
+  title_ru: 'Титан: Огненный Вулкан'
+  milestone: M4
+  first_week: false
+  tools:
+  - gemini
+  - chatgpt
+  tool_primary: gemini
+  aspect: '16:9'
+  chatgpt_size: 1536x1024, затем кроп до 16:9
+  background: white
+  refs:
+  - C1
+  - C2
+  variants: 2
+  subject: 'Boss concept ''Fire Volcano'': a living volcano with a grumpy cartoon face in the rock and a glowing deep-orange lava crown; telegraph rumbles with rising lava; defeated cools down and dozes. Impressive but friendly, never scary, fine for children. Three poses side by side: idle, attack telegraph, dizzy defeated.'
+  vars: {}
+  extras: []
+  notes_ru: Лава в бит — кодом.
+  post:
+  - review
+  prompt_gemini: |-
+    Generate an image.
+    Use the attached reference images only for style, palette and lighting; do not copy their content or layout.
+    Stylized 2D game art for a calm night-time fitness game. Flat, vector-like shapes with soft smooth gradients, no outlines, rounded friendly forms, large clear silhouettes and very little fine detail. Palette: deep navy and indigo night tones (#0B0D17, #12152A, #161A33, #1E2347, #2E3566) with glowing accents only in mint #5EF2C2, violet #7C6CFF, soft lavender #A397FF, warm gold #FFD25E, sky cyan #4CC9FF and firefly lime #D8FF6A. Lighting: cool moonlight from the upper left with a thin lavender rim light on silhouette edges; warm light comes only from glowing objects. Every glow is a bright core with two soft round halos. Mood: cozy, quiet, hopeful, playful, readable from two meters away on a small screen.
+    Subject: Boss concept 'Fire Volcano': a living volcano with a grumpy cartoon face in the rock and a glowing deep-orange lava crown; telegraph rumbles with rising lava; defeated cools down and dozes. Impressive but friendly, never scary, fine for children. Three poses side by side: idle, attack telegraph, dizzy defeated.
+    Background: perfectly flat solid pure white (#FFFFFF) filling the whole canvas edge to edge; no gradient, vignette, floor, cast shadow or reflection.
+    Aspect ratio 16:9 (wide landscape). High resolution, crisp clean edges.
+    Avoid: any text, letters, numbers or symbols; logos and brand marks; watermarks and signatures; UI elements, frames, borders or card shapes; checkerboard transparency patterns; photorealism; glossy 3D plastic render; lens flares and four-pointed sparkle stars; heavy noise, film grain or paper texture; harsh black outlines; people, human faces and human hands.
+  prompt_chatgpt: |-
+    Create one image. Format: wide landscape.
+    Match the style, palette, lighting and flatness of the attached reference images; do not copy their content.
+    Stylized 2D game art for a calm night-time fitness game. Flat, vector-like shapes with soft smooth gradients, no outlines, rounded friendly forms, large clear silhouettes and very little fine detail. Palette: deep navy and indigo night tones (#0B0D17, #12152A, #161A33, #1E2347, #2E3566) with glowing accents only in mint #5EF2C2, violet #7C6CFF, soft lavender #A397FF, warm gold #FFD25E, sky cyan #4CC9FF and firefly lime #D8FF6A. Lighting: cool moonlight from the upper left with a thin lavender rim light on silhouette edges; warm light comes only from glowing objects. Every glow is a bright core with two soft round halos. Mood: cozy, quiet, hopeful, playful, readable from two meters away on a small screen.
+    Keep a cool color temperature with true deep navy blacks; no warm yellow or sepia cast.
+    Subject: Boss concept 'Fire Volcano': a living volcano with a grumpy cartoon face in the rock and a glowing deep-orange lava crown; telegraph rumbles with rising lava; defeated cools down and dozes. Impressive but friendly, never scary, fine for children. Three poses side by side: idle, attack telegraph, dizzy defeated.
+    Background: perfectly flat solid pure white (#FFFFFF) filling the whole canvas edge to edge; no gradient, vignette, floor, cast shadow or reflection.
+    Do not add any elements that are not described.
+    Avoid: any text, letters, numbers or symbols; logos and brand marks; watermarks and signatures; UI elements, frames, borders or card shapes; checkerboard transparency patterns; photorealism; glossy 3D plastic render; lens flares and four-pointed sparkle stars; heavy noise, film grain or paper texture; harsh black outlines; people, human faces and human hands.
+  status: todo
+  results: []
+- id: P24
+  slug: boss-dragon
+  asset: GM-TI-W5/W6
+  title_ru: 'Титан: Полярный Дракон'
+  milestone: M4
+  first_week: false
+  tools:
+  - gemini
+  - chatgpt
+  tool_primary: gemini
+  aspect: '16:9'
+  chatgpt_size: 1536x1024, затем кроп до 16:9
+  background: white
+  refs:
+  - C1
+  - C2
+  variants: 2
+  subject: 'Boss concept ''Polar Dragon'': an elegant long dragon of ice crystals and aurora light, mint and violet glowing mane, big gentle-stern eyes; telegraph inhales frost; defeated curls up asleep. Impressive but friendly, never scary, fine for children. Three poses side by side: idle, attack telegraph, dizzy defeated.'
+  vars: {}
+  extras: []
+  notes_ru: Не похож на известных драконов.
+  post:
+  - review
+  prompt_gemini: |-
+    Generate an image.
+    Use the attached reference images only for style, palette and lighting; do not copy their content or layout.
+    Stylized 2D game art for a calm night-time fitness game. Flat, vector-like shapes with soft smooth gradients, no outlines, rounded friendly forms, large clear silhouettes and very little fine detail. Palette: deep navy and indigo night tones (#0B0D17, #12152A, #161A33, #1E2347, #2E3566) with glowing accents only in mint #5EF2C2, violet #7C6CFF, soft lavender #A397FF, warm gold #FFD25E, sky cyan #4CC9FF and firefly lime #D8FF6A. Lighting: cool moonlight from the upper left with a thin lavender rim light on silhouette edges; warm light comes only from glowing objects. Every glow is a bright core with two soft round halos. Mood: cozy, quiet, hopeful, playful, readable from two meters away on a small screen.
+    Subject: Boss concept 'Polar Dragon': an elegant long dragon of ice crystals and aurora light, mint and violet glowing mane, big gentle-stern eyes; telegraph inhales frost; defeated curls up asleep. Impressive but friendly, never scary, fine for children. Three poses side by side: idle, attack telegraph, dizzy defeated.
+    Background: perfectly flat solid pure white (#FFFFFF) filling the whole canvas edge to edge; no gradient, vignette, floor, cast shadow or reflection.
+    Aspect ratio 16:9 (wide landscape). High resolution, crisp clean edges.
+    Avoid: any text, letters, numbers or symbols; logos and brand marks; watermarks and signatures; UI elements, frames, borders or card shapes; checkerboard transparency patterns; photorealism; glossy 3D plastic render; lens flares and four-pointed sparkle stars; heavy noise, film grain or paper texture; harsh black outlines; people, human faces and human hands.
+  prompt_chatgpt: |-
+    Create one image. Format: wide landscape.
+    Match the style, palette, lighting and flatness of the attached reference images; do not copy their content.
+    Stylized 2D game art for a calm night-time fitness game. Flat, vector-like shapes with soft smooth gradients, no outlines, rounded friendly forms, large clear silhouettes and very little fine detail. Palette: deep navy and indigo night tones (#0B0D17, #12152A, #161A33, #1E2347, #2E3566) with glowing accents only in mint #5EF2C2, violet #7C6CFF, soft lavender #A397FF, warm gold #FFD25E, sky cyan #4CC9FF and firefly lime #D8FF6A. Lighting: cool moonlight from the upper left with a thin lavender rim light on silhouette edges; warm light comes only from glowing objects. Every glow is a bright core with two soft round halos. Mood: cozy, quiet, hopeful, playful, readable from two meters away on a small screen.
+    Keep a cool color temperature with true deep navy blacks; no warm yellow or sepia cast.
+    Subject: Boss concept 'Polar Dragon': an elegant long dragon of ice crystals and aurora light, mint and violet glowing mane, big gentle-stern eyes; telegraph inhales frost; defeated curls up asleep. Impressive but friendly, never scary, fine for children. Three poses side by side: idle, attack telegraph, dizzy defeated.
+    Background: perfectly flat solid pure white (#FFFFFF) filling the whole canvas edge to edge; no gradient, vignette, floor, cast shadow or reflection.
+    Do not add any elements that are not described.
+    Avoid: any text, letters, numbers or symbols; logos and brand marks; watermarks and signatures; UI elements, frames, borders or card shapes; checkerboard transparency patterns; photorealism; glossy 3D plastic render; lens flares and four-pointed sparkle stars; heavy noise, film grain or paper texture; harsh black outlines; people, human faces and human hands.
+  status: todo
+  results: []
+- id: P25
+  slug: boss-parts
+  asset: GM-TI-W1
+  title_ru: 'Титан: детали для рига'
+  milestone: M2
+  first_week: false
+  tools:
+  - gemini
+  tool_primary: gemini
+  aspect: '1:1'
+  chatgpt_size: 1024x1024
+  background: pair
+  refs:
+  - P19*
+  variants: 2
+  subject: 'Parts sheet of the approved boss from the attached image for cutout animation: body, head, left and right wing, left and right eye, closed eyelid, beak, two feet; each part complete, including normally hidden areas; same style and scale.'
+  vars: {}
+  extras:
+  - SHEET
+  notes_ru: 'Шаблон: заменить список деталей. Только Gemini.'
+  post:
+  - matte_pair
+  - slice_grid
+  - palette_snap
+  - atlas
+  prompt_gemini: |-
+    Generate an image.
+    Use the attached reference images only for style, palette and lighting; do not copy their content or layout.
+    Stylized 2D game art for a calm night-time fitness game. Flat, vector-like shapes with soft smooth gradients, no outlines, rounded friendly forms, large clear silhouettes and very little fine detail. Palette: deep navy and indigo night tones (#0B0D17, #12152A, #161A33, #1E2347, #2E3566) with glowing accents only in mint #5EF2C2, violet #7C6CFF, soft lavender #A397FF, warm gold #FFD25E, sky cyan #4CC9FF and firefly lime #D8FF6A. Lighting: cool moonlight from the upper left with a thin lavender rim light on silhouette edges; warm light comes only from glowing objects. Every glow is a bright core with two soft round halos. Mood: cozy, quiet, hopeful, playful, readable from two meters away on a small screen.
+    Subject: Parts sheet of the approved boss from the attached image for cutout animation: body, head, left and right wing, left and right eye, closed eyelid, beak, two feet; each part complete, including normally hidden areas; same style and scale.
+    Lay the items out on an even grid with wide empty gaps; items must not touch or overlap; same scale, front view.
+    Background: perfectly flat solid pure white (#FFFFFF) filling the whole canvas edge to edge; no gradient, vignette, floor, cast shadow or reflection.
+    Aspect ratio 1:1 (square). High resolution, crisp clean edges.
+    Avoid: any text, letters, numbers or symbols; logos and brand marks; watermarks and signatures; UI elements, frames, borders or card shapes; checkerboard transparency patterns; photorealism; glossy 3D plastic render; lens flares and four-pointed sparkle stars; heavy noise, film grain or paper texture; harsh black outlines; people, human faces and human hands.
+  followup_gemini: 'Repeat exactly the same image: identical composition, size, position and colors of every element. Change only the background to perfectly flat solid pure black (#000000). Do not redraw, move, crop or restyle anything.'
+  status: todo
+  results: []
+- id: P26
+  slug: gm-jar-skins
+  asset: GM-FF-JARS
+  title_ru: 'Светлячки: скины банки'
+  milestone: M1
+  first_week: true
+  tools:
+  - gemini
+  - chatgpt
+  tool_primary: gemini
+  aspect: '1:1'
+  chatgpt_size: 1024x1024
+  background: pair
+  refs:
+  - C1
+  - C5
+  variants: 2
+  subject: 'Four collectible firefly jars side by side, empty, front view: clear glass jar with a wooden lid, round clay jug with a painted stripe, paper lantern, small brass lantern with glass panes. Glass slightly tinted and see-through; soft cool highlight upper left.'
+  vars: {}
+  extras:
+  - SHEET
+  notes_ru: Стекло полупрозрачное — только пара.
+  post:
+  - matte_pair
+  - slice_grid
+  - palette_snap
+  - atlas
+  prompt_gemini: |-
+    Generate an image.
+    Use the attached reference images only for style, palette and lighting; do not copy their content or layout.
+    Stylized 2D game art for a calm night-time fitness game. Flat, vector-like shapes with soft smooth gradients, no outlines, rounded friendly forms, large clear silhouettes and very little fine detail. Palette: deep navy and indigo night tones (#0B0D17, #12152A, #161A33, #1E2347, #2E3566) with glowing accents only in mint #5EF2C2, violet #7C6CFF, soft lavender #A397FF, warm gold #FFD25E, sky cyan #4CC9FF and firefly lime #D8FF6A. Lighting: cool moonlight from the upper left with a thin lavender rim light on silhouette edges; warm light comes only from glowing objects. Every glow is a bright core with two soft round halos. Mood: cozy, quiet, hopeful, playful, readable from two meters away on a small screen.
+    Subject: Four collectible firefly jars side by side, empty, front view: clear glass jar with a wooden lid, round clay jug with a painted stripe, paper lantern, small brass lantern with glass panes. Glass slightly tinted and see-through; soft cool highlight upper left.
+    Lay the items out on an even grid with wide empty gaps; items must not touch or overlap; same scale, front view.
+    Background: perfectly flat solid pure white (#FFFFFF) filling the whole canvas edge to edge; no gradient, vignette, floor, cast shadow or reflection.
+    Aspect ratio 1:1 (square). High resolution, crisp clean edges.
+    Avoid: any text, letters, numbers or symbols; logos and brand marks; watermarks and signatures; UI elements, frames, borders or card shapes; checkerboard transparency patterns; photorealism; glossy 3D plastic render; lens flares and four-pointed sparkle stars; heavy noise, film grain or paper texture; harsh black outlines; people, human faces and human hands.
+  followup_gemini: 'Repeat exactly the same image: identical composition, size, position and colors of every element. Change only the background to perfectly flat solid pure black (#000000). Do not redraw, move, crop or restyle anything.'
+  prompt_chatgpt: |-
+    Create one image. Format: square.
+    Match the style, palette, lighting and flatness of the attached reference images; do not copy their content.
+    Stylized 2D game art for a calm night-time fitness game. Flat, vector-like shapes with soft smooth gradients, no outlines, rounded friendly forms, large clear silhouettes and very little fine detail. Palette: deep navy and indigo night tones (#0B0D17, #12152A, #161A33, #1E2347, #2E3566) with glowing accents only in mint #5EF2C2, violet #7C6CFF, soft lavender #A397FF, warm gold #FFD25E, sky cyan #4CC9FF and firefly lime #D8FF6A. Lighting: cool moonlight from the upper left with a thin lavender rim light on silhouette edges; warm light comes only from glowing objects. Every glow is a bright core with two soft round halos. Mood: cozy, quiet, hopeful, playful, readable from two meters away on a small screen.
+    Keep a cool color temperature with true deep navy blacks; no warm yellow or sepia cast.
+    Subject: Four collectible firefly jars side by side, empty, front view: clear glass jar with a wooden lid, round clay jug with a painted stripe, paper lantern, small brass lantern with glass panes. Glass slightly tinted and see-through; soft cool highlight upper left.
+    Lay the items out on an even grid with wide empty gaps; items must not touch or overlap; same scale, front view.
+    Output a PNG with a real transparent background (alpha channel), not a drawn checkerboard. If real transparency is not possible, use a perfectly flat solid pure magenta (#FF00FF) background instead.
+    Do not add any elements that are not described.
+    Avoid: any text, letters, numbers or symbols; logos and brand marks; watermarks and signatures; UI elements, frames, borders or card shapes; checkerboard transparency patterns; photorealism; glossy 3D plastic render; lens flares and four-pointed sparkle stars; heavy noise, film grain or paper texture; harsh black outlines; people, human faces and human hands.
+  status: todo
+  results: []
+- id: P27
+  slug: gm-meteors
+  asset: GM-SF
+  title_ru: 'Звездопад: метеоры'
+  milestone: M2
+  first_week: false
+  tools:
+  - gemini
+  - chatgpt
+  tool_primary: gemini
+  aspect: '1:1'
+  chatgpt_size: 1024x1024
+  background: black
+  refs:
+  - C1
+  - C5
+  variants: 2
+  subject: 'Six falling meteors in a 3x2 grid: chunky dark rocks with angular but slightly rounded corners, glowing orange #FF7A45 cracks, a short fiery trail pointing straight up, different sizes, same lighting.'
+  vars: {}
+  extras:
+  - SHEET
+  notes_ru: 'Опасность: угловатая и оранжевая.'
+  post:
+  - glow_alpha
+  - slice_grid
+  - palette_snap
+  - atlas
+  prompt_gemini: |-
+    Generate an image.
+    Use the attached reference images only for style, palette and lighting; do not copy their content or layout.
+    Stylized 2D game art for a calm night-time fitness game. Flat, vector-like shapes with soft smooth gradients, no outlines, rounded friendly forms, large clear silhouettes and very little fine detail. Palette: deep navy and indigo night tones (#0B0D17, #12152A, #161A33, #1E2347, #2E3566) with glowing accents only in mint #5EF2C2, violet #7C6CFF, soft lavender #A397FF, warm gold #FFD25E, sky cyan #4CC9FF and firefly lime #D8FF6A. Lighting: cool moonlight from the upper left with a thin lavender rim light on silhouette edges; warm light comes only from glowing objects. Every glow is a bright core with two soft round halos. Mood: cozy, quiet, hopeful, playful, readable from two meters away on a small screen.
+    Subject: Six falling meteors in a 3x2 grid: chunky dark rocks with angular but slightly rounded corners, glowing orange #FF7A45 cracks, a short fiery trail pointing straight up, different sizes, same lighting.
+    Lay the items out on an even grid with wide empty gaps; items must not touch or overlap; same scale, front view.
+    Background: perfectly flat solid pure black (#000000) filling the whole canvas edge to edge; no gradient, vignette, floor, cast shadow or reflection.
+    Aspect ratio 1:1 (square). High resolution, crisp clean edges.
+    Avoid: any text, letters, numbers or symbols; logos and brand marks; watermarks and signatures; UI elements, frames, borders or card shapes; checkerboard transparency patterns; photorealism; glossy 3D plastic render; lens flares and four-pointed sparkle stars; heavy noise, film grain or paper texture; harsh black outlines; people, human faces and human hands.
+  prompt_chatgpt: |-
+    Create one image. Format: square.
+    Match the style, palette, lighting and flatness of the attached reference images; do not copy their content.
+    Stylized 2D game art for a calm night-time fitness game. Flat, vector-like shapes with soft smooth gradients, no outlines, rounded friendly forms, large clear silhouettes and very little fine detail. Palette: deep navy and indigo night tones (#0B0D17, #12152A, #161A33, #1E2347, #2E3566) with glowing accents only in mint #5EF2C2, violet #7C6CFF, soft lavender #A397FF, warm gold #FFD25E, sky cyan #4CC9FF and firefly lime #D8FF6A. Lighting: cool moonlight from the upper left with a thin lavender rim light on silhouette edges; warm light comes only from glowing objects. Every glow is a bright core with two soft round halos. Mood: cozy, quiet, hopeful, playful, readable from two meters away on a small screen.
+    Keep a cool color temperature with true deep navy blacks; no warm yellow or sepia cast.
+    Subject: Six falling meteors in a 3x2 grid: chunky dark rocks with angular but slightly rounded corners, glowing orange #FF7A45 cracks, a short fiery trail pointing straight up, different sizes, same lighting.
+    Lay the items out on an even grid with wide empty gaps; items must not touch or overlap; same scale, front view.
+    Background: perfectly flat solid pure black (#000000) filling the whole canvas edge to edge; no gradient, vignette, floor, cast shadow or reflection.
+    Do not add any elements that are not described.
+    Avoid: any text, letters, numbers or symbols; logos and brand marks; watermarks and signatures; UI elements, frames, borders or card shapes; checkerboard transparency patterns; photorealism; glossy 3D plastic render; lens flares and four-pointed sparkle stars; heavy noise, film grain or paper texture; harsh black outlines; people, human faces and human hands.
+  status: todo
+  results: []
+- id: P28
+  slug: gm-starfall-pickups
+  asset: GM-SF
+  title_ru: 'Звездопад: бонусы'
+  milestone: M2
+  first_week: false
+  tools:
+  - gemini
+  - chatgpt
+  tool_primary: gemini
+  aspect: '1:1'
+  chatgpt_size: 1024x1024
+  background: black
+  refs:
+  - C1
+  - C5
+  variants: 2
+  subject: 'Star-catching pickups in a 3x2 grid: rounded five-pointed gold star in three sizes, cyan shield orb with a soft hexagon pattern, lavender moonstone gem, small cyan comet. Soft glow, flat shading.'
+  vars: {}
+  extras:
+  - SHEET
+  notes_ru: Для уровня A; на C — процедурно.
+  post:
+  - glow_alpha
+  - slice_grid
+  - palette_snap
+  - atlas
+  prompt_gemini: |-
+    Generate an image.
+    Use the attached reference images only for style, palette and lighting; do not copy their content or layout.
+    Stylized 2D game art for a calm night-time fitness game. Flat, vector-like shapes with soft smooth gradients, no outlines, rounded friendly forms, large clear silhouettes and very little fine detail. Palette: deep navy and indigo night tones (#0B0D17, #12152A, #161A33, #1E2347, #2E3566) with glowing accents only in mint #5EF2C2, violet #7C6CFF, soft lavender #A397FF, warm gold #FFD25E, sky cyan #4CC9FF and firefly lime #D8FF6A. Lighting: cool moonlight from the upper left with a thin lavender rim light on silhouette edges; warm light comes only from glowing objects. Every glow is a bright core with two soft round halos. Mood: cozy, quiet, hopeful, playful, readable from two meters away on a small screen.
+    Subject: Star-catching pickups in a 3x2 grid: rounded five-pointed gold star in three sizes, cyan shield orb with a soft hexagon pattern, lavender moonstone gem, small cyan comet. Soft glow, flat shading.
+    Lay the items out on an even grid with wide empty gaps; items must not touch or overlap; same scale, front view.
+    Background: perfectly flat solid pure black (#000000) filling the whole canvas edge to edge; no gradient, vignette, floor, cast shadow or reflection.
+    Aspect ratio 1:1 (square). High resolution, crisp clean edges.
+    Avoid: any text, letters, numbers or symbols; logos and brand marks; watermarks and signatures; UI elements, frames, borders or card shapes; checkerboard transparency patterns; photorealism; glossy 3D plastic render; lens flares and four-pointed sparkle stars; heavy noise, film grain or paper texture; harsh black outlines; people, human faces and human hands.
+  prompt_chatgpt: |-
+    Create one image. Format: square.
+    Match the style, palette, lighting and flatness of the attached reference images; do not copy their content.
+    Stylized 2D game art for a calm night-time fitness game. Flat, vector-like shapes with soft smooth gradients, no outlines, rounded friendly forms, large clear silhouettes and very little fine detail. Palette: deep navy and indigo night tones (#0B0D17, #12152A, #161A33, #1E2347, #2E3566) with glowing accents only in mint #5EF2C2, violet #7C6CFF, soft lavender #A397FF, warm gold #FFD25E, sky cyan #4CC9FF and firefly lime #D8FF6A. Lighting: cool moonlight from the upper left with a thin lavender rim light on silhouette edges; warm light comes only from glowing objects. Every glow is a bright core with two soft round halos. Mood: cozy, quiet, hopeful, playful, readable from two meters away on a small screen.
+    Keep a cool color temperature with true deep navy blacks; no warm yellow or sepia cast.
+    Subject: Star-catching pickups in a 3x2 grid: rounded five-pointed gold star in three sizes, cyan shield orb with a soft hexagon pattern, lavender moonstone gem, small cyan comet. Soft glow, flat shading.
+    Lay the items out on an even grid with wide empty gaps; items must not touch or overlap; same scale, front view.
+    Background: perfectly flat solid pure black (#000000) filling the whole canvas edge to edge; no gradient, vignette, floor, cast shadow or reflection.
+    Do not add any elements that are not described.
+    Avoid: any text, letters, numbers or symbols; logos and brand marks; watermarks and signatures; UI elements, frames, borders or card shapes; checkerboard transparency patterns; photorealism; glossy 3D plastic render; lens flares and four-pointed sparkle stars; heavy noise, film grain or paper texture; harsh black outlines; people, human faces and human hands.
+  status: todo
+  results: []
+- id: P29
+  slug: onb-welcome
+  asset: ONB-ILL
+  title_ru: 'Онбординг: приветствие'
+  milestone: M1
+  first_week: true
+  tools:
+  - gemini
+  - chatgpt
+  tool_primary: gemini
+  aspect: '9:16'
+  chatgpt_size: 1024x1536, затем кроп до 9:16
+  background: scene
+  refs:
+  - C1
+  - C2
+  - C6
+  variants: 2
+  subject: 'Portrait onboarding illustration: calm night meadow under a big sky; in the lower third a plain soft glowing circle of light hovers above the grass (no face, placeholder for the mascot), fireflies rising around it; upper half is dark empty sky.'
+  vars: {}
+  extras: []
+  notes_ru: Искру кладёт ассистент; заголовок — шрифтом.
+  post:
+  - palette_snap
+  - dither
+  - encode_ill
+  prompt_gemini: |-
+    Generate an image.
+    Use the attached reference images only for style, palette and lighting; do not copy their content or layout.
+    Stylized 2D game art for a calm night-time fitness game. Flat, vector-like shapes with soft smooth gradients, no outlines, rounded friendly forms, large clear silhouettes and very little fine detail. Palette: deep navy and indigo night tones (#0B0D17, #12152A, #161A33, #1E2347, #2E3566) with glowing accents only in mint #5EF2C2, violet #7C6CFF, soft lavender #A397FF, warm gold #FFD25E, sky cyan #4CC9FF and firefly lime #D8FF6A. Lighting: cool moonlight from the upper left with a thin lavender rim light on silhouette edges; warm light comes only from glowing objects. Every glow is a bright core with two soft round halos. Mood: cozy, quiet, hopeful, playful, readable from two meters away on a small screen.
+    Subject: Portrait onboarding illustration: calm night meadow under a big sky; in the lower third a plain soft glowing circle of light hovers above the grass (no face, placeholder for the mascot), fireflies rising around it; upper half is dark empty sky.
+    Aspect ratio 9:16 (tall portrait). High resolution, crisp clean edges.
+    Avoid: any text, letters, numbers or symbols; logos and brand marks; watermarks and signatures; UI elements, frames, borders or card shapes; checkerboard transparency patterns; photorealism; glossy 3D plastic render; lens flares and four-pointed sparkle stars; heavy noise, film grain or paper texture; harsh black outlines; people, human faces and human hands.
+  prompt_chatgpt: |-
+    Create one image. Format: tall portrait.
+    Match the style, palette, lighting and flatness of the attached reference images; do not copy their content.
+    Stylized 2D game art for a calm night-time fitness game. Flat, vector-like shapes with soft smooth gradients, no outlines, rounded friendly forms, large clear silhouettes and very little fine detail. Palette: deep navy and indigo night tones (#0B0D17, #12152A, #161A33, #1E2347, #2E3566) with glowing accents only in mint #5EF2C2, violet #7C6CFF, soft lavender #A397FF, warm gold #FFD25E, sky cyan #4CC9FF and firefly lime #D8FF6A. Lighting: cool moonlight from the upper left with a thin lavender rim light on silhouette edges; warm light comes only from glowing objects. Every glow is a bright core with two soft round halos. Mood: cozy, quiet, hopeful, playful, readable from two meters away on a small screen.
+    Keep a cool color temperature with true deep navy blacks; no warm yellow or sepia cast.
+    Subject: Portrait onboarding illustration: calm night meadow under a big sky; in the lower third a plain soft glowing circle of light hovers above the grass (no face, placeholder for the mascot), fireflies rising around it; upper half is dark empty sky.
+    Do not add any elements that are not described.
+    Avoid: any text, letters, numbers or symbols; logos and brand marks; watermarks and signatures; UI elements, frames, borders or card shapes; checkerboard transparency patterns; photorealism; glossy 3D plastic render; lens flares and four-pointed sparkle stars; heavy noise, film grain or paper texture; harsh black outlines; people, human faces and human hands.
+  status: todo
+  results: []
+- id: P30
+  slug: empty-friends
+  asset: EMP-01
+  title_ru: 'Пусто: нет друзей'
+  milestone: M3
+  first_week: false
+  tools:
+  - gemini
+  - chatgpt
+  tool_primary: gemini
+  aspect: '4:3'
+  chatgpt_size: 1536x1024, затем кроп до 4:3
+  background: scene
+  refs:
+  - C1
+  - C6
+  variants: 2
+  subject: 'Empty-state illustration: two small empty exercise mats side by side on a hill under the stars, a faint path leading to them, a few fireflies waiting. Hopeful, not sad; lots of dark negative space.'
+  vars: {}
+  extras: []
+  notes_ru: «Друзья скоро будут здесь».
+  post:
+  - palette_snap
+  - vectorize_try
+  - encode_ill
+  prompt_gemini: |-
+    Generate an image.
+    Use the attached reference images only for style, palette and lighting; do not copy their content or layout.
+    Stylized 2D game art for a calm night-time fitness game. Flat, vector-like shapes with soft smooth gradients, no outlines, rounded friendly forms, large clear silhouettes and very little fine detail. Palette: deep navy and indigo night tones (#0B0D17, #12152A, #161A33, #1E2347, #2E3566) with glowing accents only in mint #5EF2C2, violet #7C6CFF, soft lavender #A397FF, warm gold #FFD25E, sky cyan #4CC9FF and firefly lime #D8FF6A. Lighting: cool moonlight from the upper left with a thin lavender rim light on silhouette edges; warm light comes only from glowing objects. Every glow is a bright core with two soft round halos. Mood: cozy, quiet, hopeful, playful, readable from two meters away on a small screen.
+    Subject: Empty-state illustration: two small empty exercise mats side by side on a hill under the stars, a faint path leading to them, a few fireflies waiting. Hopeful, not sad; lots of dark negative space.
+    Aspect ratio 4:3 (landscape). High resolution, crisp clean edges.
+    Avoid: any text, letters, numbers or symbols; logos and brand marks; watermarks and signatures; UI elements, frames, borders or card shapes; checkerboard transparency patterns; photorealism; glossy 3D plastic render; lens flares and four-pointed sparkle stars; heavy noise, film grain or paper texture; harsh black outlines; people, human faces and human hands.
+  prompt_chatgpt: |-
+    Create one image. Format: landscape.
+    Match the style, palette, lighting and flatness of the attached reference images; do not copy their content.
+    Stylized 2D game art for a calm night-time fitness game. Flat, vector-like shapes with soft smooth gradients, no outlines, rounded friendly forms, large clear silhouettes and very little fine detail. Palette: deep navy and indigo night tones (#0B0D17, #12152A, #161A33, #1E2347, #2E3566) with glowing accents only in mint #5EF2C2, violet #7C6CFF, soft lavender #A397FF, warm gold #FFD25E, sky cyan #4CC9FF and firefly lime #D8FF6A. Lighting: cool moonlight from the upper left with a thin lavender rim light on silhouette edges; warm light comes only from glowing objects. Every glow is a bright core with two soft round halos. Mood: cozy, quiet, hopeful, playful, readable from two meters away on a small screen.
+    Keep a cool color temperature with true deep navy blacks; no warm yellow or sepia cast.
+    Subject: Empty-state illustration: two small empty exercise mats side by side on a hill under the stars, a faint path leading to them, a few fireflies waiting. Hopeful, not sad; lots of dark negative space.
+    Do not add any elements that are not described.
+    Avoid: any text, letters, numbers or symbols; logos and brand marks; watermarks and signatures; UI elements, frames, borders or card shapes; checkerboard transparency patterns; photorealism; glossy 3D plastic render; lens flares and four-pointed sparkle stars; heavy noise, film grain or paper texture; harsh black outlines; people, human faces and human hands.
+  status: todo
+  results: []
+- id: P31
+  slug: empty-rest-day
+  asset: EMP-02
+  title_ru: 'Пусто: день отдыха'
+  milestone: M1
+  first_week: true
+  tools:
+  - gemini
+  - chatgpt
+  tool_primary: gemini
+  aspect: '4:3'
+  chatgpt_size: 1536x1024, затем кроп до 4:3
+  background: scene
+  refs:
+  - C1
+  - C2
+  - C6
+  variants: 2
+  subject: 'Rest-day empty state: a tiny tent and small campfire on a quiet night meadow, a steaming mug, moon and stars, warm firelight on the grass; a clear spot beside the fire for the mascot, no character drawn.'
+  vars: {}
+  extras: []
+  notes_ru: Искра (sleep) у костра.
+  post:
+  - palette_snap
+  - vectorize_try
+  - encode_ill
+  prompt_gemini: |-
+    Generate an image.
+    Use the attached reference images only for style, palette and lighting; do not copy their content or layout.
+    Stylized 2D game art for a calm night-time fitness game. Flat, vector-like shapes with soft smooth gradients, no outlines, rounded friendly forms, large clear silhouettes and very little fine detail. Palette: deep navy and indigo night tones (#0B0D17, #12152A, #161A33, #1E2347, #2E3566) with glowing accents only in mint #5EF2C2, violet #7C6CFF, soft lavender #A397FF, warm gold #FFD25E, sky cyan #4CC9FF and firefly lime #D8FF6A. Lighting: cool moonlight from the upper left with a thin lavender rim light on silhouette edges; warm light comes only from glowing objects. Every glow is a bright core with two soft round halos. Mood: cozy, quiet, hopeful, playful, readable from two meters away on a small screen.
+    Subject: Rest-day empty state: a tiny tent and small campfire on a quiet night meadow, a steaming mug, moon and stars, warm firelight on the grass; a clear spot beside the fire for the mascot, no character drawn.
+    Aspect ratio 4:3 (landscape). High resolution, crisp clean edges.
+    Avoid: any text, letters, numbers or symbols; logos and brand marks; watermarks and signatures; UI elements, frames, borders or card shapes; checkerboard transparency patterns; photorealism; glossy 3D plastic render; lens flares and four-pointed sparkle stars; heavy noise, film grain or paper texture; harsh black outlines; people, human faces and human hands.
+  prompt_chatgpt: |-
+    Create one image. Format: landscape.
+    Match the style, palette, lighting and flatness of the attached reference images; do not copy their content.
+    Stylized 2D game art for a calm night-time fitness game. Flat, vector-like shapes with soft smooth gradients, no outlines, rounded friendly forms, large clear silhouettes and very little fine detail. Palette: deep navy and indigo night tones (#0B0D17, #12152A, #161A33, #1E2347, #2E3566) with glowing accents only in mint #5EF2C2, violet #7C6CFF, soft lavender #A397FF, warm gold #FFD25E, sky cyan #4CC9FF and firefly lime #D8FF6A. Lighting: cool moonlight from the upper left with a thin lavender rim light on silhouette edges; warm light comes only from glowing objects. Every glow is a bright core with two soft round halos. Mood: cozy, quiet, hopeful, playful, readable from two meters away on a small screen.
+    Keep a cool color temperature with true deep navy blacks; no warm yellow or sepia cast.
+    Subject: Rest-day empty state: a tiny tent and small campfire on a quiet night meadow, a steaming mug, moon and stars, warm firelight on the grass; a clear spot beside the fire for the mascot, no character drawn.
+    Do not add any elements that are not described.
+    Avoid: any text, letters, numbers or symbols; logos and brand marks; watermarks and signatures; UI elements, frames, borders or card shapes; checkerboard transparency patterns; photorealism; glossy 3D plastic render; lens flares and four-pointed sparkle stars; heavy noise, film grain or paper texture; harsh black outlines; people, human faces and human hands.
+  status: todo
+  results: []
+- id: P32
+  slug: empty-offline
+  asset: EMP-03
+  title_ru: 'Пусто: офлайн, камера'
+  milestone: M1
+  first_week: true
+  tools:
+  - gemini
+  - chatgpt
+  tool_primary: gemini
+  aspect: '4:3'
+  chatgpt_size: 1536x1024, затем кроп до 4:3
+  background: scene
+  refs:
+  - C1
+  - C6
+  variants: 2
+  subject: 'Empty-state illustration: a night window with the moon, curtain half closed, a smartphone with a dark screen on the windowsill, a soft round cushion nearby. Calm, not alarming.'
+  vars: {}
+  extras: []
+  notes_ru: Офлайн, запрет камеры, нет поддержки.
+  post:
+  - palette_snap
+  - vectorize_try
+  - encode_ill
+  prompt_gemini: |-
+    Generate an image.
+    Use the attached reference images only for style, palette and lighting; do not copy their content or layout.
+    Stylized 2D game art for a calm night-time fitness game. Flat, vector-like shapes with soft smooth gradients, no outlines, rounded friendly forms, large clear silhouettes and very little fine detail. Palette: deep navy and indigo night tones (#0B0D17, #12152A, #161A33, #1E2347, #2E3566) with glowing accents only in mint #5EF2C2, violet #7C6CFF, soft lavender #A397FF, warm gold #FFD25E, sky cyan #4CC9FF and firefly lime #D8FF6A. Lighting: cool moonlight from the upper left with a thin lavender rim light on silhouette edges; warm light comes only from glowing objects. Every glow is a bright core with two soft round halos. Mood: cozy, quiet, hopeful, playful, readable from two meters away on a small screen.
+    Subject: Empty-state illustration: a night window with the moon, curtain half closed, a smartphone with a dark screen on the windowsill, a soft round cushion nearby. Calm, not alarming.
+    Aspect ratio 4:3 (landscape). High resolution, crisp clean edges.
+    Avoid: any text, letters, numbers or symbols; logos and brand marks; watermarks and signatures; UI elements, frames, borders or card shapes; checkerboard transparency patterns; photorealism; glossy 3D plastic render; lens flares and four-pointed sparkle stars; heavy noise, film grain or paper texture; harsh black outlines; people, human faces and human hands.
+  prompt_chatgpt: |-
+    Create one image. Format: landscape.
+    Match the style, palette, lighting and flatness of the attached reference images; do not copy their content.
+    Stylized 2D game art for a calm night-time fitness game. Flat, vector-like shapes with soft smooth gradients, no outlines, rounded friendly forms, large clear silhouettes and very little fine detail. Palette: deep navy and indigo night tones (#0B0D17, #12152A, #161A33, #1E2347, #2E3566) with glowing accents only in mint #5EF2C2, violet #7C6CFF, soft lavender #A397FF, warm gold #FFD25E, sky cyan #4CC9FF and firefly lime #D8FF6A. Lighting: cool moonlight from the upper left with a thin lavender rim light on silhouette edges; warm light comes only from glowing objects. Every glow is a bright core with two soft round halos. Mood: cozy, quiet, hopeful, playful, readable from two meters away on a small screen.
+    Keep a cool color temperature with true deep navy blacks; no warm yellow or sepia cast.
+    Subject: Empty-state illustration: a night window with the moon, curtain half closed, a smartphone with a dark screen on the windowsill, a soft round cushion nearby. Calm, not alarming.
+    Do not add any elements that are not described.
+    Avoid: any text, letters, numbers or symbols; logos and brand marks; watermarks and signatures; UI elements, frames, borders or card shapes; checkerboard transparency patterns; photorealism; glossy 3D plastic render; lens flares and four-pointed sparkle stars; heavy noise, film grain or paper texture; harsh black outlines; people, human faces and human hands.
+  status: todo
+  results: []
+- id: P33
+  slug: res-backdrop
+  asset: RES-02
+  title_ru: 'Итоги: подложка'
+  milestone: M1
+  first_week: false
+  tools:
+  - gemini
+  - chatgpt
+  tool_primary: gemini
+  aspect: '1:1'
+  chatgpt_size: 1024x1024
+  background: black
+  refs:
+  - C1
+  variants: 2
+  subject: 'Celebration backdrop: soft radial burst of light rays in mint, violet and gold from the center, gentle concentric glow rings, a few floating round light dots; the center bright but empty for the mascot and a number. No confetti.'
+  vars: {}
+  extras: []
+  notes_ru: Аддитивно, альфа не нужна.
+  post:
+  - glow_alpha
+  - encode_layer
+  prompt_gemini: |-
+    Generate an image.
+    Use the attached reference images only for style, palette and lighting; do not copy their content or layout.
+    Stylized 2D game art for a calm night-time fitness game. Flat, vector-like shapes with soft smooth gradients, no outlines, rounded friendly forms, large clear silhouettes and very little fine detail. Palette: deep navy and indigo night tones (#0B0D17, #12152A, #161A33, #1E2347, #2E3566) with glowing accents only in mint #5EF2C2, violet #7C6CFF, soft lavender #A397FF, warm gold #FFD25E, sky cyan #4CC9FF and firefly lime #D8FF6A. Lighting: cool moonlight from the upper left with a thin lavender rim light on silhouette edges; warm light comes only from glowing objects. Every glow is a bright core with two soft round halos. Mood: cozy, quiet, hopeful, playful, readable from two meters away on a small screen.
+    Subject: Celebration backdrop: soft radial burst of light rays in mint, violet and gold from the center, gentle concentric glow rings, a few floating round light dots; the center bright but empty for the mascot and a number. No confetti.
+    Background: perfectly flat solid pure black (#000000) filling the whole canvas edge to edge; no gradient, vignette, floor, cast shadow or reflection.
+    Aspect ratio 1:1 (square). High resolution, crisp clean edges.
+    Avoid: any text, letters, numbers or symbols; logos and brand marks; watermarks and signatures; UI elements, frames, borders or card shapes; checkerboard transparency patterns; photorealism; glossy 3D plastic render; lens flares and four-pointed sparkle stars; heavy noise, film grain or paper texture; harsh black outlines; people, human faces and human hands.
+  prompt_chatgpt: |-
+    Create one image. Format: square.
+    Match the style, palette, lighting and flatness of the attached reference images; do not copy their content.
+    Stylized 2D game art for a calm night-time fitness game. Flat, vector-like shapes with soft smooth gradients, no outlines, rounded friendly forms, large clear silhouettes and very little fine detail. Palette: deep navy and indigo night tones (#0B0D17, #12152A, #161A33, #1E2347, #2E3566) with glowing accents only in mint #5EF2C2, violet #7C6CFF, soft lavender #A397FF, warm gold #FFD25E, sky cyan #4CC9FF and firefly lime #D8FF6A. Lighting: cool moonlight from the upper left with a thin lavender rim light on silhouette edges; warm light comes only from glowing objects. Every glow is a bright core with two soft round halos. Mood: cozy, quiet, hopeful, playful, readable from two meters away on a small screen.
+    Keep a cool color temperature with true deep navy blacks; no warm yellow or sepia cast.
+    Subject: Celebration backdrop: soft radial burst of light rays in mint, violet and gold from the center, gentle concentric glow rings, a few floating round light dots; the center bright but empty for the mascot and a number. No confetti.
+    Background: perfectly flat solid pure black (#000000) filling the whole canvas edge to edge; no gradient, vignette, floor, cast shadow or reflection.
+    Do not add any elements that are not described.
+    Avoid: any text, letters, numbers or symbols; logos and brand marks; watermarks and signatures; UI elements, frames, borders or card shapes; checkerboard transparency patterns; photorealism; glossy 3D plastic render; lens flares and four-pointed sparkle stars; heavy noise, film grain or paper texture; harsh black outlines; people, human faces and human hands.
+  status: todo
+  results: []
+- id: P34
+  slug: boss-victory
+  asset: RES-03
+  title_ru: Победа над Титаном
+  milestone: M2
+  first_week: false
+  tools:
+  - gemini
+  - chatgpt
+  tool_primary: gemini
+  aspect: '16:9'
+  chatgpt_size: 1536x1024, затем кроп до 16:9
+  background: scene
+  refs:
+  - C1
+  - C2
+  - P19*
+  variants: 2
+  subject: 'Victory backdrop after defeating the {boss} in the {world} world: the landscape at dawn with the sky brightening, the defeated boss resting peacefully in the background, a clear spot in the foreground center for the mascot.'
+  vars:
+    boss/world:
+    - Shadow Owl / Firefly Meadow
+    - Tunnel Worm / Neon Tunnel
+    - Kraken / Ocean
+    - Meteor Golem / Cosmos
+    - Fire Volcano / Volcano
+    - Polar Dragon / Northern Lights
+  extras: []
+  notes_ru: По одному на мир; концепт босса в refs.
+  post:
+  - palette_snap
+  - dither
+  - encode_bg
+  prompt_gemini: |-
+    Generate an image.
+    Use the attached reference images only for style, palette and lighting; do not copy their content or layout.
+    Stylized 2D game art for a calm night-time fitness game. Flat, vector-like shapes with soft smooth gradients, no outlines, rounded friendly forms, large clear silhouettes and very little fine detail. Palette: deep navy and indigo night tones (#0B0D17, #12152A, #161A33, #1E2347, #2E3566) with glowing accents only in mint #5EF2C2, violet #7C6CFF, soft lavender #A397FF, warm gold #FFD25E, sky cyan #4CC9FF and firefly lime #D8FF6A. Lighting: cool moonlight from the upper left with a thin lavender rim light on silhouette edges; warm light comes only from glowing objects. Every glow is a bright core with two soft round halos. Mood: cozy, quiet, hopeful, playful, readable from two meters away on a small screen.
+    Subject: Victory backdrop after defeating the {boss} in the {world} world: the landscape at dawn with the sky brightening, the defeated boss resting peacefully in the background, a clear spot in the foreground center for the mascot.
+    Aspect ratio 16:9 (wide landscape). High resolution, crisp clean edges.
+    Avoid: any text, letters, numbers or symbols; logos and brand marks; watermarks and signatures; UI elements, frames, borders or card shapes; checkerboard transparency patterns; photorealism; glossy 3D plastic render; lens flares and four-pointed sparkle stars; heavy noise, film grain or paper texture; harsh black outlines; people, human faces and human hands.
+  prompt_chatgpt: |-
+    Create one image. Format: wide landscape.
+    Match the style, palette, lighting and flatness of the attached reference images; do not copy their content.
+    Stylized 2D game art for a calm night-time fitness game. Flat, vector-like shapes with soft smooth gradients, no outlines, rounded friendly forms, large clear silhouettes and very little fine detail. Palette: deep navy and indigo night tones (#0B0D17, #12152A, #161A33, #1E2347, #2E3566) with glowing accents only in mint #5EF2C2, violet #7C6CFF, soft lavender #A397FF, warm gold #FFD25E, sky cyan #4CC9FF and firefly lime #D8FF6A. Lighting: cool moonlight from the upper left with a thin lavender rim light on silhouette edges; warm light comes only from glowing objects. Every glow is a bright core with two soft round halos. Mood: cozy, quiet, hopeful, playful, readable from two meters away on a small screen.
+    Keep a cool color temperature with true deep navy blacks; no warm yellow or sepia cast.
+    Subject: Victory backdrop after defeating the {boss} in the {world} world: the landscape at dawn with the sky brightening, the defeated boss resting peacefully in the background, a clear spot in the foreground center for the mascot.
+    Do not add any elements that are not described.
+    Avoid: any text, letters, numbers or symbols; logos and brand marks; watermarks and signatures; UI elements, frames, borders or card shapes; checkerboard transparency patterns; photorealism; glossy 3D plastic render; lens flares and four-pointed sparkle stars; heavy noise, film grain or paper texture; harsh black outlines; people, human faces and human hands.
+  status: todo
+  results: []
+- id: P35
+  slug: promo-hero
+  asset: PRM
+  title_ru: 'Промо: главный фон'
+  milestone: M3
+  first_week: false
+  tools:
+  - chatgpt
+  - gemini
+  tool_primary: chatgpt
+  aspect: '16:9'
+  chatgpt_size: 1536x1024, затем кроп до 16:9
+  background: scene
+  refs:
+  - C1
+  - C6
+  variants: 2
+  subject: 'Wide promo background: dark living room at floor level at night, an exercise mat leading to a smartphone propped on the floor, its screen casting a mint-violet glow, a few fireflies drifting out of the screen. No person; dark area on the right for a headline.'
+  vars: {}
+  extras: []
+  notes_ru: ChatGPT первым; скриншот — в экран.
+  post:
+  - palette_snap
+  - encode_bg
+  prompt_gemini: |-
+    Generate an image.
+    Use the attached reference images only for style, palette and lighting; do not copy their content or layout.
+    Stylized 2D game art for a calm night-time fitness game. Flat, vector-like shapes with soft smooth gradients, no outlines, rounded friendly forms, large clear silhouettes and very little fine detail. Palette: deep navy and indigo night tones (#0B0D17, #12152A, #161A33, #1E2347, #2E3566) with glowing accents only in mint #5EF2C2, violet #7C6CFF, soft lavender #A397FF, warm gold #FFD25E, sky cyan #4CC9FF and firefly lime #D8FF6A. Lighting: cool moonlight from the upper left with a thin lavender rim light on silhouette edges; warm light comes only from glowing objects. Every glow is a bright core with two soft round halos. Mood: cozy, quiet, hopeful, playful, readable from two meters away on a small screen.
+    Subject: Wide promo background: dark living room at floor level at night, an exercise mat leading to a smartphone propped on the floor, its screen casting a mint-violet glow, a few fireflies drifting out of the screen. No person; dark area on the right for a headline.
+    Aspect ratio 16:9 (wide landscape). High resolution, crisp clean edges.
+    Avoid: any text, letters, numbers or symbols; logos and brand marks; watermarks and signatures; UI elements, frames, borders or card shapes; checkerboard transparency patterns; photorealism; glossy 3D plastic render; lens flares and four-pointed sparkle stars; heavy noise, film grain or paper texture; harsh black outlines; people, human faces and human hands.
+  prompt_chatgpt: |-
+    Create one image. Format: wide landscape.
+    Match the style, palette, lighting and flatness of the attached reference images; do not copy their content.
+    Stylized 2D game art for a calm night-time fitness game. Flat, vector-like shapes with soft smooth gradients, no outlines, rounded friendly forms, large clear silhouettes and very little fine detail. Palette: deep navy and indigo night tones (#0B0D17, #12152A, #161A33, #1E2347, #2E3566) with glowing accents only in mint #5EF2C2, violet #7C6CFF, soft lavender #A397FF, warm gold #FFD25E, sky cyan #4CC9FF and firefly lime #D8FF6A. Lighting: cool moonlight from the upper left with a thin lavender rim light on silhouette edges; warm light comes only from glowing objects. Every glow is a bright core with two soft round halos. Mood: cozy, quiet, hopeful, playful, readable from two meters away on a small screen.
+    Keep a cool color temperature with true deep navy blacks; no warm yellow or sepia cast.
+    Subject: Wide promo background: dark living room at floor level at night, an exercise mat leading to a smartphone propped on the floor, its screen casting a mint-violet glow, a few fireflies drifting out of the screen. No person; dark area on the right for a headline.
+    Do not add any elements that are not described.
+    Avoid: any text, letters, numbers or symbols; logos and brand marks; watermarks and signatures; UI elements, frames, borders or card shapes; checkerboard transparency patterns; photorealism; glossy 3D plastic render; lens flares and four-pointed sparkle stars; heavy noise, film grain or paper texture; harsh black outlines; people, human faces and human hands.
+  status: todo
+  results: []
+- id: P36
+  slug: og-backdrop
+  asset: SHR-01
+  title_ru: 'OG: фон'
+  milestone: M1
+  first_week: false
+  tools:
+  - chatgpt
+  - gemini
+  tool_primary: chatgpt
+  aspect: 1.91:1
+  chatgpt_size: 1536x1024, затем кроп до 1200x630
+  background: scene
+  refs:
+  - C1
+  - C2
+  variants: 2
+  subject: 'Very wide social preview background: deep navy night gradient, a soft trail of glowing fireflies and a mint light streak flowing left to right, low hills at the bottom; the left 55% dark and empty for the title.'
+  vars: {}
+  extras: []
+  notes_ru: Текст и Искру кладёт ассистент.
+  post:
+  - palette_snap
+  - encode_og
+  prompt_gemini: |-
+    Generate an image.
+    Use the attached reference images only for style, palette and lighting; do not copy their content or layout.
+    Stylized 2D game art for a calm night-time fitness game. Flat, vector-like shapes with soft smooth gradients, no outlines, rounded friendly forms, large clear silhouettes and very little fine detail. Palette: deep navy and indigo night tones (#0B0D17, #12152A, #161A33, #1E2347, #2E3566) with glowing accents only in mint #5EF2C2, violet #7C6CFF, soft lavender #A397FF, warm gold #FFD25E, sky cyan #4CC9FF and firefly lime #D8FF6A. Lighting: cool moonlight from the upper left with a thin lavender rim light on silhouette edges; warm light comes only from glowing objects. Every glow is a bright core with two soft round halos. Mood: cozy, quiet, hopeful, playful, readable from two meters away on a small screen.
+    Subject: Very wide social preview background: deep navy night gradient, a soft trail of glowing fireflies and a mint light streak flowing left to right, low hills at the bottom; the left 55% dark and empty for the title.
+    Aspect ratio 1.91:1 (very wide landscape). High resolution, crisp clean edges.
+    Avoid: any text, letters, numbers or symbols; logos and brand marks; watermarks and signatures; UI elements, frames, borders or card shapes; checkerboard transparency patterns; photorealism; glossy 3D plastic render; lens flares and four-pointed sparkle stars; heavy noise, film grain or paper texture; harsh black outlines; people, human faces and human hands.
+  prompt_chatgpt: |-
+    Create one image. Format: very wide landscape.
+    Match the style, palette, lighting and flatness of the attached reference images; do not copy their content.
+    Stylized 2D game art for a calm night-time fitness game. Flat, vector-like shapes with soft smooth gradients, no outlines, rounded friendly forms, large clear silhouettes and very little fine detail. Palette: deep navy and indigo night tones (#0B0D17, #12152A, #161A33, #1E2347, #2E3566) with glowing accents only in mint #5EF2C2, violet #7C6CFF, soft lavender #A397FF, warm gold #FFD25E, sky cyan #4CC9FF and firefly lime #D8FF6A. Lighting: cool moonlight from the upper left with a thin lavender rim light on silhouette edges; warm light comes only from glowing objects. Every glow is a bright core with two soft round halos. Mood: cozy, quiet, hopeful, playful, readable from two meters away on a small screen.
+    Keep a cool color temperature with true deep navy blacks; no warm yellow or sepia cast.
+    Subject: Very wide social preview background: deep navy night gradient, a soft trail of glowing fireflies and a mint light streak flowing left to right, low hills at the bottom; the left 55% dark and empty for the title.
+    Do not add any elements that are not described.
+    Avoid: any text, letters, numbers or symbols; logos and brand marks; watermarks and signatures; UI elements, frames, borders or card shapes; checkerboard transparency patterns; photorealism; glossy 3D plastic render; lens flares and four-pointed sparkle stars; heavy noise, film grain or paper texture; harsh black outlines; people, human faces and human hands.
+  status: todo
+  results: []
+- id: P37
+  slug: promo-frames
+  asset: PRM
+  title_ru: 'Промо: фоны скриншотов'
+  milestone: M3
+  first_week: false
+  tools:
+  - chatgpt
+  - gemini
+  tool_primary: chatgpt
+  aspect: '9:16'
+  chatgpt_size: 1024x1536, затем кроп до 9:16
+  background: scene
+  refs:
+  - C1
+  variants: 3
+  subject: 'Vertical background for store screenshots: abstract soft night gradient in {palette} with one gentle curved light ribbon and very low detail; the middle 70% stays calm for a phone mockup.'
+  vars:
+    palette:
+    - 'violet #7C6CFF and mint #5EF2C2'
+    - 'mint #5EF2C2 and gold #FFD25E'
+    - 'cyan #4CC9FF and violet #7C6CFF'
+  extras: []
+  notes_ru: 3 палитры из vars.
+  post:
+  - palette_snap
+  - dither
+  - encode_bg
+  prompt_gemini: |-
+    Generate an image.
+    Use the attached reference images only for style, palette and lighting; do not copy their content or layout.
+    Stylized 2D game art for a calm night-time fitness game. Flat, vector-like shapes with soft smooth gradients, no outlines, rounded friendly forms, large clear silhouettes and very little fine detail. Palette: deep navy and indigo night tones (#0B0D17, #12152A, #161A33, #1E2347, #2E3566) with glowing accents only in mint #5EF2C2, violet #7C6CFF, soft lavender #A397FF, warm gold #FFD25E, sky cyan #4CC9FF and firefly lime #D8FF6A. Lighting: cool moonlight from the upper left with a thin lavender rim light on silhouette edges; warm light comes only from glowing objects. Every glow is a bright core with two soft round halos. Mood: cozy, quiet, hopeful, playful, readable from two meters away on a small screen.
+    Subject: Vertical background for store screenshots: abstract soft night gradient in {palette} with one gentle curved light ribbon and very low detail; the middle 70% stays calm for a phone mockup.
+    Aspect ratio 9:16 (tall portrait). High resolution, crisp clean edges.
+    Avoid: any text, letters, numbers or symbols; logos and brand marks; watermarks and signatures; UI elements, frames, borders or card shapes; checkerboard transparency patterns; photorealism; glossy 3D plastic render; lens flares and four-pointed sparkle stars; heavy noise, film grain or paper texture; harsh black outlines; people, human faces and human hands.
+  prompt_chatgpt: |-
+    Create one image. Format: tall portrait.
+    Match the style, palette, lighting and flatness of the attached reference images; do not copy their content.
+    Stylized 2D game art for a calm night-time fitness game. Flat, vector-like shapes with soft smooth gradients, no outlines, rounded friendly forms, large clear silhouettes and very little fine detail. Palette: deep navy and indigo night tones (#0B0D17, #12152A, #161A33, #1E2347, #2E3566) with glowing accents only in mint #5EF2C2, violet #7C6CFF, soft lavender #A397FF, warm gold #FFD25E, sky cyan #4CC9FF and firefly lime #D8FF6A. Lighting: cool moonlight from the upper left with a thin lavender rim light on silhouette edges; warm light comes only from glowing objects. Every glow is a bright core with two soft round halos. Mood: cozy, quiet, hopeful, playful, readable from two meters away on a small screen.
+    Keep a cool color temperature with true deep navy blacks; no warm yellow or sepia cast.
+    Subject: Vertical background for store screenshots: abstract soft night gradient in {palette} with one gentle curved light ribbon and very low detail; the middle 70% stays calm for a phone mockup.
+    Do not add any elements that are not described.
+    Avoid: any text, letters, numbers or symbols; logos and brand marks; watermarks and signatures; UI elements, frames, borders or card shapes; checkerboard transparency patterns; photorealism; glossy 3D plastic render; lens flares and four-pointed sparkle stars; heavy noise, film grain or paper texture; harsh black outlines; people, human faces and human hands.
+  status: todo
+  results: []
+- id: V01
+  slug: trailer-clip-spark
+  asset: PRM
+  title_ru: 'Трейлер: ИИ-вставка'
+  milestone: M3
+  first_week: false
+  tools:
+  - gemini
+  tool_primary: gemini
+  aspect: '16:9'
+  chatgpt_size: 1536x1024, затем кроп до 16:9
+  background: scene
+  refs:
+  - C2
+  variants: 2
+  subject: '4-second video: a small glowing mint light orb flies low over a dark night meadow, fireflies rise from the grass and follow it, smooth tracking camera, soft moonlight from the upper left, flat stylized 2D animation look.'
+  vars: {}
+  extras: []
+  notes_ru: Veo; квоты не проверены; это не Искра.
+  post:
+  - video_trim
+  prompt_gemini: |-
+    Generate a short video (Veo).
+    Use the attached reference images only for style, palette and lighting; do not copy their content or layout.
+    Stylized 2D game art for a calm night-time fitness game. Flat, vector-like shapes with soft smooth gradients, no outlines, rounded friendly forms, large clear silhouettes and very little fine detail. Palette: deep navy and indigo night tones (#0B0D17, #12152A, #161A33, #1E2347, #2E3566) with glowing accents only in mint #5EF2C2, violet #7C6CFF, soft lavender #A397FF, warm gold #FFD25E, sky cyan #4CC9FF and firefly lime #D8FF6A. Lighting: cool moonlight from the upper left with a thin lavender rim light on silhouette edges; warm light comes only from glowing objects. Every glow is a bright core with two soft round halos. Mood: cozy, quiet, hopeful, playful, readable from two meters away on a small screen.
+    Subject: 4-second video: a small glowing mint light orb flies low over a dark night meadow, fireflies rise from the grass and follow it, smooth tracking camera, soft moonlight from the upper left, flat stylized 2D animation look.
+    Aspect ratio 16:9 (wide landscape). High resolution, crisp clean edges.
+    Avoid: any text, letters, numbers or symbols; logos and brand marks; watermarks and signatures; UI elements, frames, borders or card shapes; checkerboard transparency patterns; photorealism; glossy 3D plastic render; lens flares and four-pointed sparkle stars; heavy noise, film grain or paper texture; harsh black outlines; people, human faces and human hands.
+  status: todo
+  results: []
