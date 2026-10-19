@@ -1,6 +1,6 @@
 # art/ — графика Plank Run
 
-Полный план — `docs/plan/spec-visual-art.md`. Промпты — `art/prompts.yaml`.
+Главный план проекта — [`docs/PLAN.md`](../docs/PLAN.md) (§8 — визуал: §8.5 — правило метки Gemini, §8.10 — арт-неделя). Арт-библия — [`docs/plan/spec-visual-art.md`](../docs/plan/spec-visual-art.md). Промпты — `art/prompts.yaml`. Где они расходятся, прав `docs/PLAN.md`.
 
 ## Структура
 
@@ -30,7 +30,7 @@ art/
 
 Не нужно:
 - писать в Gemini «transparent» (получится нарисованная шахматка);
-- вырезать или закрашивать метку Gemini (её убирает только Settings → Media watermark);
+- вырезать, закрашивать или обрезать метку Gemini (её убирает только Settings → Media watermark); с меткой картинка годится только для мудборда и референса, производственные растры — из ChatGPT или процедурно;
 - загружать фото людей.
 
 ## Как отправить
