@@ -1,0 +1,34 @@
+{
+  "generated": "2026-10-19",
+  "style": "Style: a friendly fitness coach, energetic but calm, warm and confident. Clear diction, natural Russian, steady medium pace. Voice only, no music, no sound effects.",
+  "phrases": [
+    "Займи планку лицом к экрану",
+    "Отлично. Держи!",
+    "Дыши ровно",
+    "Подними таз",
+    "Ещё десять секунд",
+    "Цель достигнута! Отдыхай и дыши",
+    "Банка полная! Плюс десять",
+    "Не вижу тебя",
+    "Вернись в планку",
+    "Начинаем проверку. Держи только до сигнала. Любой отрезок можно сделать на коленях или пропустить."
+  ],
+  "voices": {
+    "Kore": {
+      "ok": true,
+      "model": "gemini-3.1-flash-tts-preview",
+      "ms": [
+        2310,
+        2220,
+        1240,
+        1050,
+        1510,
+        3480,
+        2600,
+        1160,
+        1430,
+        7690
+      ]
+    }
+  }
+}
