@@ -469,7 +469,7 @@ export interface InputRecording {
 **Хранилище.**
 
 - Таблицы Dexie: `settings`, `deviceProfile`, `profile`, `plan`, `progress`, `sessions` (неизменяемые, UUIDv7), `recordings`, `outbox`, `tracks`, `analyses`, `charts`, `health`. Таблица `health` никогда не синхронизируется.
-- Треки пользователя лежат в OPFS. В Safari до 26 запись идёт через `createSyncAccessHandle` в воркере, где есть `createWritable` — через него. Без OPFS — Blob в IndexedDB.
+- Треки пользователя лежат в OPFS. В Safari до 26 запись идёт через `createSyncAccessHandle` в воркере, где есть `createWritable` — через него. Без OPFS — Blob в IndexedDB. Каждую загрузку проверяем пробным декодированием. Ogg не обещаем: его поддержка зависит от ОС. Библиотека поставляется в AAC и MP3.
 - В настройках показываем `storage.estimate()` и кнопку «Стереть всё на устройстве».
 - `navigator.storage.persist()` запрашиваем после первой завершённой сессии или после установки. Пользователю без аккаунта предлагаем экспорт в JSON: Safari во вкладке может стереть данные через 7 дней.
 
@@ -478,12 +478,12 @@ export interface InputRecording {
 **Установка.**
 
 - Chromium: откладываем `beforeinstallprompt` и предлагаем установку на итогах второй сессии.
-- iOS: `InstallSheet` с инструкцией «Поделиться → На экран „Домой“». С iOS 26 любой сайт с экрана «Домой» открывается как веб-приложение, но манифест (`display: standalone`, иконки, `scope`) всё равно нужен.
-- TWA — позже.
+- iOS: `InstallSheet` с инструкцией «Поделиться → На экран „Домой“». С iOS 26 любой сайт с экрана «Домой» открывается как веб-приложение, но манифест (`display: standalone`, иконки, `scope`) всё равно нужен, без него не будет push.
+- Напоминания (M8): на iOS — Declarative Web Push (18.4+) и только в установленной PWA. TWA — позже.
 
 **Сессия и фон.**
 
-- Wake Lock запрашиваем при старте сессии и повторно на `visibilitychange`. Если запрос не удался (установленная PWA на iOS до 18.4), подсказываем выключить автоблокировку. На Android при старте вызываем `requestFullscreen`.
+- Wake Lock запрашиваем при старте сессии и повторно на `visibilitychange`. В установленной PWA на iOS до 18.4 он не работает. По заметкам Safari 17 экран не гаснет, пока включена камера, но это надо проверить на устройстве; на всякий случай подсказываем выключить автоблокировку. На Android при старте вызываем `requestFullscreen` (на iPhone его нет).
 - При `hidden`: пауза, `AudioContext.suspend()`, инференс останавливается, через 60 с отключается камера. При возврате показываем «Нажми или замри, чтобы продолжить»: iOS нужен жест для `resume()`. Состояние `interrupted` (звонок, Siri) тоже ставит паузу.
 - `navigator.audioSession.type = 'playback'`, чтобы переключатель «Без звука» на iPhone не глушил игру.
 - Журнал сессии пишется в IDB каждые 5 с и на `pagehide`. Упавшая сессия сохраняется как «прервана».
@@ -546,7 +546,7 @@ export interface InputRecording {
 
 **9.4 Реальные устройства.**
 
-Парк: iPhone SE 2/3 (iOS 17), 12/13 (18.x), 15+ (26), iPad; слабый Android (3–4 ГБ, Helio G8x или Snapdragon 4xx), средний (Snapdragon 7xx), Pixel; Windows с встроенной графикой, macOS Safari, Firefox.
+Парк: iPhone SE 2/3 (iOS 17), 12/13 (18.x), 15+ (26 и текущая 27), iPad; слабый Android (3–4 ГБ, Helio G8x или Snapdragon 4xx), средний (Snapdragon 7xx), Pixel; Windows с встроенной графикой, macOS Safari, Firefox.
 
 Чек-лист:
 
