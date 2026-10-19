@@ -102,7 +102,7 @@
 
 Все факты с источниками — в `docs/research/verify-*.md`.
 
-## 4. Что сделано (всё в `main`, сайт https://kaktys281999-sketch.github.io/plank-run/)
+## 4. Что сделано (всё в `main`, сайт https://plank.erg-team.ru/)
 
 | Что | Где |
 |---|---|
@@ -117,18 +117,18 @@
 | Синтетический стенд (3D-человек → фейковая камера) | `test/` |
 | Инструкция по домену | `docs/stage0/domain.md` |
 
-Ссылки для владельца:
-- игра — https://kaktys281999-sketch.github.io/plank-run/
-- проверка — https://kaktys281999-sketch.github.io/plank-run/?protocol
-- памятка — https://kaktys281999-sketch.github.io/plank-run/protocol-memo.html
-- доска — https://kaktys281999-sketch.github.io/plank-run/board/
-- голоса — https://kaktys281999-sketch.github.io/plank-run/voices/
+Ссылки для владельца (постоянный адрес с 20.10.2026, решение D25; старые адреса github.io переадресуют сюда):
+- игра https://plank.erg-team.ru/
+- проверка https://plank.erg-team.ru/?protocol
+- памятка https://plank.erg-team.ru/protocol-memo.html
+- доска https://plank.erg-team.ru/board/
+- голоса https://plank.erg-team.ru/voices/
 
 ## 5. Что делать дальше (порядок)
 
-1. **Поддомен на сервере владельца** (просьба №12). Статический сайт из `main`, HTTPS обязателен (камера), MIME: `.wasm` → `application/wasm`, `.mjs`/`.js` → `text/javascript`, `.m4a` → `audio/mp4`, `.task`/`.tflite` → `application/octet-stream`; gzip/brotli; кэш `vendor/` и `assets/` — неделя, `*.html` и `js/` — `no-cache`; не ставить заголовки, блокирующие камеру; автообновление `git fetch && git reset --hard origin/main` раз в 5 минут. Файл `CNAME` в репозиторий **не** добавлять (он только для варианта «DNS → GitHub Pages»). После — перевести ссылки в памятке на поддомен.
+1. **Сделано 20.10.2026, решение D25 в плане.** **Поддомен на сервере владельца** (просьба №12). Статический сайт из `main`, HTTPS обязателен (камера), MIME: `.wasm` → `application/wasm`, `.mjs`/`.js` → `text/javascript`, `.m4a` → `audio/mp4`, `.task`/`.tflite` → `application/octet-stream`; gzip/brotli; кэш `vendor/` и `assets/` — неделя, `*.html` и `js/` — `no-cache`; не ставить заголовки, блокирующие камеру; автообновление `git fetch && git reset --hard origin/main` раз в 5 минут. Файл `CNAME` в репозиторий **не** добавлять (он только для варианта «DNS → GitHub Pages»). После — перевести ссылки в памятке на поддомен.
 2. **Живая проверка** (Этап 0, `docs/PLAN.md` §12.3): владелец сам проходит `?protocol` (3 раза спереди, 1 сбоку) и присылает файлы → разбор `node tools/field-report/report.mjs <папка>` → проверить клипы `.m4a` и задержку тела на реальном телефоне → круг 1 с 8–10 друзьями → пороги v0.2 → круг 2 → контрольная точка → спайк «Пульса».
-3. **Голос:** добавить игровые реплики (`ten_left` … `jar_full`, есть в `assets/voice/manifest.json`) в `js/voice-lines.js` и перевести подсказки игры на клипы (фолбэк — `speechSynthesis`); после выбора голоса владельцем — перегенерировать (`node tools/tts/generate.mjs …`, ключ из `.env`).
+3. **Голос.** Игровые реплики в `js/voice-lines.js` и клипы в играх сделаны 20.10.2026 (фолбэк `speechSynthesis`). Осталось после выбора голоса владельцем перегенерировать (`node tools/tts/generate.mjs …`, ключ из `.env`).
 4. **Визуал:** после выбора на доске — арт-неделя по `art/README.md` и `docs/plan/spec-visual-art.md` (владелец генерирует в Gemini/ChatGPT, присылает, ассистент обрабатывает).
 5. **Записи живой проверки** — только у владельца, вне репозитория (публичный), удаление через 90 дней после настройки порогов.
 6. Известное для v0.2: при боли в пояснице сбоку пропадают отрезки «провис/домик» — по их отсутствию можно вывести ответ; переделать.

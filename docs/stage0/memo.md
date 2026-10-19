@@ -1,6 +1,6 @@
 # Памятка проверяющему · Plank Run, Этап 0
 
-Ссылка на проверку: **https://kaktys281999-sketch.github.io/plank-run/?protocol**
+Ссылка на проверку: **https://plank.erg-team.ru/?protocol**
 Версия для печати и телефона: [`protocol-memo.html`](../../protocol-memo.html).
 
 Проверка занимает 6–8 минут. Телефон сам ведёт голосом по коротким отрезкам планки,

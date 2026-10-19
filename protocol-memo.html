@@ -2,6 +2,11 @@
 <html lang="ru">
 <head>
   <meta charset="utf-8">
+  <script>
+    // The permanent address is plank.erg-team.ru (PLAN D25). The GitHub Pages copy forwards there,
+    // keeping path and query, so settings, records and the future service worker live on one origin.
+    if (location.hostname.endsWith('.github.io')) location.replace('https://plank.erg-team.ru' + location.pathname.replace(/^\/plank-run/, '') + location.search + location.hash);
+  </script>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#0b0d17">
   <title>Памятка проверяющему</title>
@@ -39,8 +44,8 @@
     <p class="eyebrow">Plank Run · Этап 0 · живая проверка</p>
     <h1>Памятка проверяющему</h1>
     <p class="lead">6–8 минут. Телефон сам ведёт голосом по коротким отрезкам планки, потом задаёт 5 вопросов и собирает файл с числами. Файл ты отправляешь владельцу сам.</p>
-    <p class="go"><a class="btn primary" href="./?protocol">Начать проверку</a></p>
-    <p class="lead" style="text-align:center"><code>kaktys281999-sketch.github.io/plank-run/?protocol</code></p>
+    <p class="go"><a class="btn primary" href="https://plank.erg-team.ru/?protocol">Начать проверку</a></p>
+    <p class="lead" style="text-align:center"><code>plank.erg-team.ru/?protocol</code></p>
 
     <section class="card">
       <h2>Безопасность</h2>
@@ -153,7 +158,7 @@
         <li><b>Экран гаснет:</b> коснись его во время отдыха.</li>
       </ul>
     </section>
-    <p class="go"><a class="btn primary" href="./?protocol">Начать проверку</a></p>
+    <p class="go"><a class="btn primary" href="https://plank.erg-team.ru/?protocol">Начать проверку</a></p>
   </main>
 </body>
 </html>
