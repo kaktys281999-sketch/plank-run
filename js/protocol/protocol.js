@@ -74,6 +74,7 @@ const st = {
   phase: 'check',
   phaseStart: 0,
   phaseDur: 0,
+  phaseScale: 1,
   note: '',
   seg: null,
   segIndex: -1,
@@ -175,6 +176,11 @@ function bindSetup() {
   $('#p-setup').addEventListener('change', update);
   update();
   next.addEventListener('click', () => {
+    // iOS 17+: let the voice play even with the silent switch on. Only here: the test
+    // is guided by voice; the games keep the default ('ambient', plan D22).
+    try {
+      if (navigator.audioSession) navigator.audioSession.type = 'playback';
+    } catch { /* not supported */ }
     // User gesture: unlock audio and speech now (iOS), start fetching voice clips.
     sound.unlock();
     sound.prime();
@@ -314,7 +320,8 @@ async function deviceCheck() {
   }
   const t2 = performance.now();
   tModel ??= t1;
-  st.device.load = { mediapipeMs: round(tModel - t1), modelMs: round(t2 - tModel), totalMs: round(t2 - t1), source: tracker.source?.name ?? null };
+  // bundleMs: the JS bundle; initMs: WASM runtime + model download and compile (the bulk).
+  st.device.load = { bundleMs: round(tModel - t1), initMs: round(t2 - tModel), totalMs: round(t2 - t1), source: tracker.source?.name ?? null };
   st.device.delegate = tracker.delegate;
   st.device.model = kind === 'face' ? 'blaze_face_short_range' : `pose_landmarker_${MODEL}`;
   setRow('model', 'ok', `${kind === 'face' ? 'лицо (BlazeFace)' : `поза (${MODEL})`} · ${tracker.delegate} · загрузка ${secText(t2 - t1)}`);
@@ -344,7 +351,7 @@ async function deviceCheck() {
   setRow('voice', voiceOk ? 'ok' : 'warn', voiceOk
     ? `записанный голос, ${vs.loaded} фраз`
     : vs.loaded ? `записано ${vs.loaded} из ${vs.lines}, остальное — голос системы`
-      : vs.manifest && vs.codec === false ? `браузер не играет .m4a — ${system}` : system);
+      : vs.manifest && vs.codec === false ? `браузер не играет .m4a; ${system}` : system);
 
   Object.assign(st.device, await deviceInfo());
   st.device.frameClock = st.frameClock;
@@ -469,10 +476,12 @@ function closePause(now, cut = false) {
 
 // ---------------- the script ----------------
 
-function setPhase(phase, durMs = 0, note = '') {
+// timeScale: how durMs relates to real seconds on screen (fast mode shows the real-speed count).
+function setPhase(phase, durMs = 0, note = '', timeScale = SCALE) {
   st.phase = phase;
   st.phaseStart = performance.now();
   st.phaseDur = durMs;
+  st.phaseScale = timeScale;
   st.note = note;
 }
 
@@ -718,7 +727,7 @@ async function hold(seg, rec, durMs) {
   const start = performance.now();
   const cap = st.inPositionSince ? st.inPositionSince + MAX_IN_POSITION - start : Infinity;
   const dur = Math.max(S(1), Math.min(durMs, cap));
-  setPhase('hold', dur);
+  setPhase('hold', dur, '', seg.beat ? 1 : SCALE);
   st.rec.event('hold_start', { seg: rec.i, ms: Math.round(dur), ...(dur < durMs && { capped: true }) });
   voice.play('p_go', { priority: 2 });
   const cues = (seg.cues ?? []).map((c) => ({ ...c, atMs: S(c.at), firedAt: null }));
@@ -877,12 +886,12 @@ function render() {
     }
     case 'countdown':
       phase = 'Приготовься';
-      big = String(Math.max(1, Math.ceil(left / 1000 / SCALE)));
+      big = String(Math.max(1, Math.ceil(left / 1000 / st.phaseScale)));
       ring = st.phaseDur ? el / st.phaseDur : 0;
       break;
     case 'hold':
       phase = st.pause ? 'Пауза' : 'Держи';
-      big = String(Math.ceil(left / 1000 / SCALE));
+      big = String(Math.ceil(left / 1000 / st.phaseScale));
       ring = st.phaseDur ? left / st.phaseDur : 0;
       if (st.pause) {
         bad = !st.pause.expected;
@@ -890,7 +899,7 @@ function render() {
       }
       if (seg?.beat && st.beat) {
         const k = st.beat.heard.filter((h) => h <= now).length;
-        big = k ? `${k}` : String(Math.ceil(left / 1000 / SCALE));
+        big = k ? `${k}` : String(Math.ceil(left / 1000 / st.phaseScale));
         hint = k ? `Щелчок ${k} из ${st.beat.heard.length}: ${k % 2 ? 'влево' : 'вправо'}` : 'Сейчас пойдут щелчки: первый — влево';
       }
       break;
@@ -900,7 +909,7 @@ function render() {
       hint = st.note === 'calib'
         ? 'Сейчас попробуем ещё раз. Проверь: свет спереди, лицо или тело в кадре, расстояние.'
         : `Дальше: ${st.note}. Дыши ровно.`;
-      big = String(Math.ceil(left / 1000 / SCALE));
+      big = String(Math.ceil(left / 1000 / st.phaseScale));
       ring = st.phaseDur ? left / st.phaseDur : 0;
       break;
     case 'end':
@@ -930,7 +939,7 @@ function render() {
   form.hidden = !(measured || st.phase === 'calibrate');
   form.classList.toggle('ok', measured && !!pose?.formOk);
   form.classList.toggle('bad', measured && !pose?.formOk);
-  setText('pr-form-text', st.phase === 'calibrate' ? 'Калибровка' : pose?.formOk ? 'Позиция в порядке' : PAUSE_TEXT[pose?.issue] ?? 'Вернись в планку');
+  setText('pr-form-text', st.phase === 'calibrate' ? 'Калибровка' : pose?.formOk ? 'В позиции' : PAUSE_TEXT[pose?.issue] ?? 'Вернись в планку');
 
   // Steering meter on the segments that ask for full deflection.
   const meter = $('#pr-meter');
@@ -1122,9 +1131,9 @@ function showDone() {
   const cells = [
     [c.firstMs === null ? 'нет' : secText(c.firstMs), c.firstAttempts > 1 ? `калибровка (попыток: ${c.firstAttempts})` : 'первая калибровка'],
     [s.pauses.falsePerMin === null ? '—' : `${String(s.pauses.falsePerMin).replace('.', ',')}/мин`, `ложных пауз на ровных (всего пауз: ${s.pauses.total})`],
-    [s.steering.maxAbs === null ? '—' : `−${s.steering.maxNeg} … +${s.steering.maxPos}`.replace(/\./g, ','), 'размах руля (нужно ±1)'],
+    [s.steering.maxAbs === null ? '—' : `${s.steering.maxNeg} | ${s.steering.maxPos}`.replace(/\./g, ','), 'руль влево | вправо (нужно 1)'],
     [lat.ms === null ? '—' : `${lat.ms} мс`, lat.confidence === 'ok' ? 'задержка тела' : 'задержка тела (неуверенно)'],
-    [s.perf.fps === null ? '—' : `${String(s.perf.fps).replace('.', ',')} к/с`, `инференс ${s.perf.inferenceP50}/${s.perf.inferenceP95} мс`],
+    [s.perf.fps === null ? '—' : `${String(s.perf.fps).replace('.', ',')} к/с`, `инференс ${s.perf.inferenceP50}/${s.perf.inferenceP95} мс`.replace(/\./g, ',')],
     [secText(s.perf.loadMs), 'загрузка модели'],
     [`${s.segments.done} из ${s.segments.planned}`, 'отрезков сделано'],
   ];
@@ -1155,6 +1164,7 @@ window.__protocol = {
       pauses: st.pauses.length,
       paused: !!st.pause,
       scale: SCALE,
+      scenario: st.scenario.map((g) => g.id),
       filename: st.filename,
     };
   },

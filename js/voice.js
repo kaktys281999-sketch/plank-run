@@ -86,7 +86,8 @@ export class VoicePlayer {
     // Browsers without AAC (some Linux Chromium/Firefox builds) can't decode .m4a:
     // don't download 21 clips just to fail on each.
     const probe = document.createElement('audio');
-    this.stats.codec = !!(probe.canPlayType?.('audio/mp4; codecs="mp4a.40.2"') || probe.canPlayType?.('audio/mp4') || probe.canPlayType?.('audio/aac'));
+    // Ask for the exact codec: plain 'audio/mp4' answers "maybe" even without AAC.
+    this.stats.codec = !!(probe.canPlayType?.('audio/mp4; codecs="mp4a.40.2"') || probe.canPlayType?.('audio/aac'));
     const ids = this.stats.codec ? Object.keys(VOICE_LINES).filter((id) => this.entries[id]?.file) : [];
     this.stats.failed = Object.keys(VOICE_LINES).length - ids.length;
     const queue = [...ids];

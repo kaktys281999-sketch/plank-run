@@ -64,6 +64,18 @@ MediaPipe (WASM) и модели лежат в репозитории, в `vendo
 Параметры URL: `?debug` — сразу показать метрики, `?cpu` — не использовать GPU,
 `?cdn` — грузить модели с CDN.
 
+### Живая проверка (`?protocol`)
+
+**https://kaktys281999-sketch.github.io/plank-run/?protocol** — инструмент Этапа 0 (PLAN §12.1):
+согласие и псевдоним → те же вопросы о здоровье → самопроверка телефона → сценарий из коротких
+отрезков (каждый ≤ 20 с) голосом → разметка пауз и 5 вопросов → один файл
+`plank-protocol-<псевдоним>-<ГГГГММДД-ЧЧММ>.json.gz`, который друг отправляет владельцу сам
+(`navigator.share` или «Скачать файл»). В файле только производные числа ≤ 30 Гц — ни видео,
+ни картинок, ни точек тела. Памятка: [`protocol-memo.html`](protocol-memo.html)
+([docs/stage0/memo.md](docs/stage0/memo.md)). Разбор файлов:
+`node tools/field-report/report.mjs <папка>`. Для тестов: `?protocol&fast` (×0,25),
+`&voice=<имя>` — голос из `assets/voice/manifest.json`, `&full` — точная модель позы сбоку.
+
 ## Устройство кода
 
 Без сборки и зависимостей: чистые ES-модули.
@@ -79,6 +91,10 @@ MediaPipe (WASM) и модели лежат в репозитории, в `vendo
 | `js/audio.js` | звуки (WebAudio) и голосовые подсказки (speechSynthesis) |
 | `js/storage.js` | настройки и история в localStorage |
 | `js/config.js` | откуда грузить MediaPipe и модели (сначала `vendor/`, потом CDN) |
+| `js/voice-lines.js` | таблица фраз голоса (id → текст), общая с `tools/tts` |
+| `js/voice.js` | `VoicePlayer`: заранее записанные клипы на общем AudioContext, запасной путь — speechSynthesis |
+| `js/protocol/` | `?protocol`: сценарий (`scenario.js`), запись чисел (`recorder.js`), задержка тела (`latency.js`), итоги (`summary.js`), экраны (`protocol.js`) |
+| `tools/field-report/report.mjs` | разбор файлов проверки: таблица «Готово, когда» |
 
 ## Тесты
 
@@ -96,6 +112,8 @@ node e2e.mjs front 45                      # приложение + фейков
 node e2e.mjs side 50
 node ui.mjs                                # демо-режим и скриншоты экранов
 node fireflies-bot.mjs                     # бот ловит светлячков в демо-режиме
+node safety.mjs                            # v0.1.1: вопросы о здоровье, цели 20/30/45 с
+node protocol.mjs both                     # ?protocol целиком (fast), проверка файла + field-report
 ```
 
 Нужен Playwright (`npm i -g playwright`) и ffmpeg.

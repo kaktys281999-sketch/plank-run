@@ -6,7 +6,7 @@
 //
 //   node protocol.mjs [front|side|both]      (server: npx http-server -p 8765 -c-1 -s . in the repo root)
 import { createRequire } from 'node:module';
-import { mkdirSync, writeFileSync, readFileSync, copyFileSync } from 'node:fs';
+import { mkdirSync, writeFileSync, readFileSync } from 'node:fs';
 import { gunzipSync } from 'node:zlib';
 import { execFileSync } from 'node:child_process';
 import { estimateLatency } from '../js/protocol/latency.js';
@@ -89,7 +89,8 @@ async function run(view) {
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
   // Playwright's Chromium has no AAC decoder: .m4a voice clips fall back to speech there.
-  page.on('console', (m) => { if (m.type() === 'error' && !/decode audio data/.test(m.text())) errors.push(m.text().slice(0, 200)); });
+  // MediaPipe's WASM prints its INFO lines through console.error.
+  page.on('console', (m) => { if (m.type() === 'error' && !/decode audio data|^INFO:/.test(m.text())) errors.push(m.text().slice(0, 200)); });
   const shot = (name) => page.screenshot({ path: `${OUT}/${view}-${name}.png` });
   const state = () => page.evaluate(() => window.__protocol?.state ?? null);
 
@@ -115,7 +116,8 @@ async function run(view) {
   if (!front) {
     await page.click('label:has(input[name="p-camera"][value="side"])');
     ok(await page.isDisabled('#p-setup-next'), `${view}: back-pain question required for the side view`);
-    await page.click('label:has(input[name="p-back"][value="yes"])');
+    // "No" here so the sag / pike cues run; "yes" is checked by backPainWiring().
+    await page.click('label:has(input[name="p-back"][value="no"])');
   }
   await shot('2-setup');
   await page.click('#p-setup-next');
@@ -134,6 +136,7 @@ async function run(view) {
   let skipped = false;
   let restSkipped = false;
   let landscape = false;
+  const shots = {};
   while (Date.now() - t0 < 8 * 60 * 1000) {
     const s = await state();
     if (s.step !== 'run') break;
@@ -159,10 +162,17 @@ async function run(view) {
       await page.click('#pr-skip');
       restSkipped = true;
     }
+    if (front && s.seg === 'knees' && s.phase === 'calibrate' && !shots.calibLandscape) {
+      shots.calibLandscape = true;
+      await page.setViewportSize({ width: 844, height: 390 });
+      await page.waitForTimeout(400);
+      await shot('5-calibrate-landscape');
+      await page.setViewportSize(viewport);
+    }
     if (front && s.seg === 'shift' && s.phase === 'hold' && !landscape) {
       landscape = true;
       await page.setViewportSize({ width: 844, height: 390 });
-      await page.waitForTimeout(150);
+      await page.waitForTimeout(400);
       await shot('5-run-landscape');
       await page.setViewportSize({ width: 1280, height: 800 });
       await page.waitForTimeout(150);
@@ -235,7 +245,8 @@ async function run(view) {
   ok(need.every((t) => types.has(t)), `${view}: events ${need.filter((t) => !types.has(t)).join(',') || 'all present'} (${[...types].join(',')})`);
   ok(file.events.every((e, i, a) => i === 0 || e.t >= a[i - 1].t), `${view}: events sorted by time`);
   ok(file.segments.length === file.scenario.length, `${view}: ${file.segments.length} segments: ${file.segments.map((g) => `${g.id}=${g.status}${g.variant === 'knees' ? '(колени)' : ''}`).join(' ')}`);
-  ok(file.segments.every((g) => g.heldMs <= HOLD_MAX * 1000 * file.meta.scale + 500), `${view}: no hold longer than ${HOLD_MAX} s (scaled)`);
+  // fast mode scales every hold except the beat (40 BPM is the measurement).
+  ok(file.segments.every((g) => g.heldMs <= HOLD_MAX * 1000 * (file.scenario[g.i].beat ? 1 : file.meta.scale) + 500), `${view}: no hold longer than ${HOLD_MAX} s (scaled): ${file.segments.map((g) => g.heldMs).join(',')}`);
   ok(file.segments.filter((g) => g.calib.some((c) => c.ok)).length >= file.segments.length - 2, `${view}: calibrated in most segments (${file.segments.map((g) => g.calib.map((c) => (c.ok ? `${c.ms}` : c.aborted ? 'abort' : 'x')).join('/')).join(' ')})`);
   ok(file.pauses.every((p) => typeof p.falsePause === 'boolean' && typeof p.reason === 'string'), `${view}: ${file.pauses.length} pauses with reason + label (${file.pauses.map((p) => `${file.scenario[p.seg].id}:${p.reason}${p.expected ? '*' : ''}${p.falsePause ? '!' : ''}`).join(' ')})`);
   if (nPauses) ok(file.pauses[0].falsePause === true, `${view}: "Эта пауза была зря" label saved`);
@@ -246,7 +257,9 @@ async function run(view) {
     ok(file.segments.find((g) => g.id === 'side_knee').status === 'skipped', `${view}: optional segment skipped by button`);
     ok(file.segments.find((g) => g.id === 'straight_arms').variant === 'knees', `${view}: "На коленях" switched the variant`);
   } else {
-    ok(!file.scenario.some((g) => g.id === 'side_sag' || g.id === 'side_pike'), `${view}: back pain → no sag / pike segments`);
+    ok(file.scenario.some((g) => g.id === 'side_sag') && file.scenario.some((g) => g.id === 'side_pike'), `${view}: no back pain → sag and pike included`);
+    const cues = file.events.filter((e) => e.type === 'cue' && e.expect);
+    ok(cues.some((e) => e.line === 'p_side_sag') && cues.some((e) => e.line === 'p_side_pike'), `${view}: sag / pike cues fired with expected-pause windows`);
     ok(S.cols.includes('ang') && S.cols.includes('dev') && !S.cols.includes('dx'), `${view}: side features recorded`);
   }
 
@@ -256,11 +269,31 @@ async function run(view) {
   ok(JSON.stringify(again) === JSON.stringify(summary), `${view}: summary reproducible from raw data`);
   console.log(`   summary: calib first ${summary.calibration.firstMs} ms (${summary.calibration.firstAttempts} tries), false/min ${summary.pauses.falsePerMin}, all/min ${summary.pauses.allPerMin}, steer ${summary.steering.maxNeg}/${summary.steering.maxPos}, latency ${summary.latency.ms} (${summary.latency.confidence}), fps ${summary.perf.fps}, inf ${summary.perf.inferenceP50}/${summary.perf.inferenceP95}`);
   ok(errors.length === 0, `${view}: no page errors${errors.length ? ` → ${errors.slice(0, 3).join(' | ')}` : ''}`);
-  copyFileSync(path, `${OUT}/latest-${view}.json.gz`);
   return path;
 }
 
+// Back pain → sag and pike are not in the script (checked through the real page, up to the device check).
+async function backPainWiring() {
+  const browser = await chromium.launch({ args: ['--use-fake-ui-for-media-stream', '--use-fake-device-for-media-stream', `--use-file-for-fake-video-capture=${process.cwd()}/out/side.y4m`] });
+  const ctx = await browser.newContext({ permissions: ['camera'] });
+  await ctx.addInitScript(() => localStorage.setItem('plank-run:v1', JSON.stringify({ safety: { version: 1, ok: true } })));
+  const page = await ctx.newPage();
+  await page.goto('http://localhost:8765/?protocol&fast&cpu');
+  await page.fill('#p-pseudonym', 'x');
+  await page.click('label:has(#p-agree)');
+  await page.click('#p-consent-next');
+  ok(await page.isVisible('#p-setup'), 'stored safety pass → straight to setup');
+  await page.click('label:has(input[name="p-camera"][value="side"])');
+  await page.click('label:has(input[name="p-back"][value="yes"])');
+  await page.click('#p-setup-next');
+  await page.waitForFunction(() => !document.querySelector('#p-check-start').disabled, null, { timeout: 90000 });
+  const ids = await page.evaluate(() => window.__protocol.state.scenario);
+  ok(!ids.includes('side_sag') && !ids.includes('side_pike') && ids.includes('side_flat'), `back pain → script without sag / pike: ${ids.join(', ')}`);
+  await browser.close();
+}
+
 const files = [];
+if (which !== 'front') await backPainWiring();
 for (const view of which === 'both' ? ['front', 'side'] : [which]) {
   const f = await run(view);
   if (f) files.push(f);

@@ -42,9 +42,15 @@ function load(path) {
 }
 
 const runs = [];
+const seen = new Set();
 for (const p of inputs.flatMap(listFiles)) {
   try {
-    runs.push(load(p));
+    const run = load(p);
+    // The same run sent twice (or saved as .json and .json.gz) counts once.
+    const id = `${run.file.meta.pseudonym}|${run.file.meta.camera}|${run.file.meta.created}`;
+    if (seen.has(id)) continue;
+    seen.add(id);
+    runs.push(run);
   } catch (err) {
     console.error(`skip ${p}: ${err.message}`);
   }

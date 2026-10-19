@@ -357,7 +357,10 @@ input[type="range"] { width: 100%; accent-color: var(--accent); }
   max-width: 880px;
   margin: 0 auto;
   padding: max(24px, env(safe-area-inset-top)) 16px 48px;
+  /* width of the camera while calibrating; the text below it is laid out from it */
+  --camw: min(92vw, calc((100vh - 330px) * 4 / 3), 640px);
 }
+a.btn { display: inline-block; text-decoration: none; }
 .p-h { font-size: clamp(20px, 4.5vw, 26px); margin: 0 0 12px; }
 .p-safety {
   border-left: 4px solid var(--warn);
@@ -411,8 +414,7 @@ input[type="range"] { width: 100%; accent-color: var(--accent); }
   left: 50%;
   top: max(60px, calc(env(safe-area-inset-top) + 52px));
   transform: translateX(-50%);
-  width: min(92vw, calc((100vh - 330px) * 4 / 3), 640px);
-  min-width: 200px;
+  width: var(--camw);
 }
 .p-cam.ok { border-color: var(--accent); }
 .p-cam.bad { border-color: var(--bad); }
@@ -465,7 +467,8 @@ input[type="range"] { width: 100%; accent-color: var(--accent); }
 .p-title { margin: 4px 0; font-size: clamp(28px, 7vw, 54px); line-height: 1.1; }
 .p-hint { margin: 0; color: var(--muted); font-size: clamp(17px, 3.8vw, 26px); }
 .p-run.calibrating .p-ring { display: none; }
-.p-run.calibrating .p-main { justify-content: flex-end; }
+.p-run.calibrating .p-main { justify-content: flex-start; padding-top: calc(var(--camw) * 0.75 + 16px); }
+#pr-form { max-width: none; white-space: nowrap; }
 
 .p-meter { display: flex; align-items: center; gap: 10px; margin: 14px auto 0; width: min(92vw, 560px); color: var(--muted); font-weight: 700; }
 .p-meter-track { position: relative; flex: 1; height: 20px; border-radius: 99px; background: var(--line); }
@@ -495,14 +498,22 @@ input[type="range"] { width: 100%; accent-color: var(--accent); }
 .btn.p-big[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); }
 .btn.armed { border-color: var(--bad); color: var(--bad); }
 
+/* Phone on its side: ring left, text right, camera in the top-right corner. */
 @media (orientation: landscape) and (max-height: 560px) {
-  .p-main { flex-direction: row; text-align: left; gap: 24px; }
-  .p-ring { width: min(52vh, 260px); height: min(52vh, 260px); }
-  .p-ring span { font-size: min(22vh, 110px); }
-  .p-meter { margin-left: 0; width: min(50vw, 480px); }
-  .p-run.calibrating .p-main { justify-content: flex-end; align-items: flex-end; }
-  .p-cam[data-size="big"] { width: min(60vw, calc((100vh - 170px) * 4 / 3)); }
-  .btn.p-big { min-height: 56px; }
+  #protocol { --camw: min(46vw, calc((100vh - 150px) * 4 / 3)); --smallw: min(calc(30vh * 4 / 3), 150px); }
+  .p-main { flex-direction: row; text-align: left; gap: 20px; padding-right: calc(var(--smallw) + 8px); }
+  .p-ring { width: min(46vh, 220px); height: min(46vh, 220px); }
+  .p-ring span { font-size: min(20vh, 100px); }
+  .p-text { flex: 1; min-width: 0; }
+  .p-title { font-size: clamp(22px, 7.5vh, 40px); }
+  .p-hint { font-size: clamp(15px, 4.4vh, 20px); }
+  .p-phase { font-size: clamp(14px, 4vh, 18px); }
+  .p-meter { margin: 10px 0 0; width: 100%; }
+  .p-cam[data-size="small"] { width: var(--smallw); top: max(52px, env(safe-area-inset-top)); }
+  .p-cam[data-size="big"] { left: max(16px, env(safe-area-inset-left)); transform: none; top: 52px; }
+  .p-run.calibrating .p-main { padding: 0 0 0 calc(var(--camw) + 24px); justify-content: center; }
+  .p-buttons { flex-wrap: nowrap; }
+  .btn.p-big { min-height: 52px; font-size: 18px; min-width: 0; padding: 10px 22px; }
 }
 
 .p-pauses { list-style: none; padding: 0; margin: 0 0 20px; display: grid; gap: 8px; }

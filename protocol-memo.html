@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0b0d17">
+  <title>Памятка проверяющему</title>
+  <meta name="description" content="Plank Run, живая проверка: как подготовиться, сценарий, безопасность и как отправить файл.">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    /* Same tokens as the app; a plain document that also prints well. */
+    .memo { max-width: 760px; margin: 0 auto; padding: max(24px, env(safe-area-inset-top)) 16px 48px; }
+    .memo h1 { font-size: clamp(26px, 6vw, 36px); line-height: 1.15; margin: 0 0 8px; }
+    .memo h2 { font-size: 20px; margin: 0 0 10px; }
+    .memo ul, .memo ol { padding-left: 22px; margin: 0; }
+    .memo li { margin: 6px 0; }
+    .memo .lead { color: var(--muted); }
+    .memo .go { margin: 20px 0 4px; text-align: center; }
+    .memo .safety { border-left: 4px solid var(--warn); background: rgba(255, 181, 71, 0.08); padding: 12px 14px; border-radius: 8px; font-weight: 600; margin: 0 0 10px; }
+    .memo table { width: 100%; border-collapse: collapse; font-size: 15px; }
+    .memo th, .memo td { text-align: left; padding: 8px 6px; border-top: 1px solid var(--line); vertical-align: top; }
+    .memo th { color: var(--muted); font-weight: 600; }
+    .memo td:last-child { white-space: nowrap; }
+    .memo code { font: 14px ui-monospace, Menlo, monospace; overflow-wrap: anywhere; }
+    a.btn { display: inline-block; text-decoration: none; }
+    @media (max-width: 480px) { .memo table { font-size: 14px; } .memo td:nth-child(3) { display: none; } .memo th:nth-child(3) { display: none; } }
+    @media print {
+      :root { --text: #000; --muted: #333; --line: #bbb; --card: #fff; --bg: #fff; }
+      html, body { background: #fff; color: #000; font-size: 12pt; }
+      .card { border-color: #bbb; break-inside: avoid; }
+      .memo .go { display: none; }
+      .memo .safety { background: none; }
+      a { color: #000; }
+    }
+  </style>
+</head>
+<body>
+  <main class="memo">
+    <p class="eyebrow">Plank Run · Этап 0 · живая проверка</p>
+    <h1>Памятка проверяющему</h1>
+    <p class="lead">6–8 минут. Телефон сам ведёт голосом по коротким отрезкам планки, потом задаёт 5 вопросов и собирает файл с числами. Файл ты отправляешь владельцу сам.</p>
+    <p class="go"><a class="btn primary" href="./?protocol">Начать проверку</a></p>
+    <p class="lead" style="text-align:center"><code>kaktys281999-sketch.github.io/plank-run/?protocol</code></p>
+
+    <section class="card">
+      <h2>Безопасность</h2>
+      <p class="safety">Держи только до сигнала. Любой отрезок можно сделать на коленях или пропустить. Боль, головокружение, одышка — сразу остановись. Болит поясница — пропусти провис и „домик“.</p>
+      <ul>
+        <li>Перед проверкой — 4 вопроса о здоровье. Любое «да» — проверку сегодня не проходим.</li>
+        <li>Каждое удержание — не дольше 20 секунд, между ними отдых 15–20 секунд. Дыши ровно, не задерживай дыхание.</li>
+        <li>Остановиться можно в любой момент: встань или уйди из кадра — отрезок закончится сам; «Закончить» (два нажатия) — конец проверки. Ответы и файл всё равно пригодятся.</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>Телефон</h2>
+      <ul>
+        <li>Заряд от 30 %. Android — Chrome, iPhone — Safari. Закрой другие приложения с камерой.</li>
+        <li>Звук на средней громкости. <b>На iPhone выключи беззвучный режим</b> — подсказки идут голосом.</li>
+        <li>Первая загрузка — около 12 МБ (сбоку — около 18 МБ), лучше по Wi-Fi.</li>
+        <li>Разреши доступ к камере, когда браузер спросит.</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>Свет</h2>
+      <ul>
+        <li>Свет спереди или сверху, на лицо. Не стой спиной к окну или лампе.</li>
+        <li>Однотонный фон, без зеркал и людей в кадре.</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>Расстояние</h2>
+      <ul>
+        <li><b>Спереди (основной вариант):</b> телефон на полу в 50–80 см перед руками, экраном к тебе, с наклоном (обопри на книгу или кружку). В кадре — лицо. Смотри на экран глазами, шея — продолжение спины.</li>
+        <li><b>Сбоку (дополнительно):</b> ноутбук или второй телефон в 2–3 м сбоку, всё тело от головы до стоп в кадре.</li>
+        <li>Коврик и примерно 2 × 1 м свободного места.</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>Одежда</h2>
+      <ul>
+        <li>Облегающая, контрастная к полу и фону.</li>
+        <li>Без капюшона и кепки, волосы не закрывают лицо. Очки можно.</li>
+        <li>Босиком или в нескользящей обуви.</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>Сценарий</h2>
+      <p class="lead">Каждый отрезок: телефон говорит, что делать → встаёшь в позицию и замираешь на секунду → «Три, два, один. Начали!» → держишь до сигнала «Отдыхай». Кнопки внизу: «На коленях», «Пропустить», «Закончить».</p>
+      <table>
+        <thead><tr><th>№</th><th>Спереди</th><th>Что делать</th><th>Держать</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>Ровно</td><td>ровная планка на предплечьях</td><td>20 с</td></tr>
+          <tr><td>2</td><td>Сдвиги</td><td>медленно смещай корпус влево и вправо до краёв шкалы</td><td>20 с</td></tr>
+          <tr><td>3</td><td>Кивок</td><td>кивай головой, корпус неподвижен</td><td>12 с</td></tr>
+          <tr><td>4</td><td>Качнись в такт</td><td>12 щелчков: на каждый — в другую сторону, первый влево</td><td>20 с</td></tr>
+          <tr><td>5</td><td>На коленях</td><td>планка с колен</td><td>15 с</td></tr>
+          <tr><td>6</td><td>Прямые руки</td><td>упор на прямых руках (можно с колен)</td><td>15 с</td></tr>
+          <tr><td>7</td><td>Боковая на колене</td><td>по желанию, можно пропустить</td><td>10 с</td></tr>
+          <tr><td>8</td><td>Касания плеч ×6</td><td>на прямых руках по очереди касайся плеч</td><td>14 с</td></tr>
+          <tr><td>9</td><td>Встать</td><td>ровная планка, по сигналу «Встань» — встань</td><td>5 с</td></tr>
+        </tbody>
+      </table>
+      <p><b>Сбоку:</b> ровно (15 с) → провис таза на 3 с → «домик» на 3 с → качание вперёд-назад (15 с) → встать. Если болит поясница, провис и «домик» пропускаются — телефон спросит перед стартом.</p>
+    </section>
+
+    <section class="card">
+      <h2>После сценария</h2>
+      <ol>
+        <li><b>Паузы.</b> Игра сама ставит паузу, когда ей кажется, что ты вышел(а) из планки. Отметь «Эта пауза была зря» у тех, когда ты на самом деле держал(а) позицию.</li>
+        <li><b>5 вопросов:</b>
+          <ol>
+            <li>Насколько удобно было шее? (1–5)</li>
+            <li>Размах движений, чтобы рулить (1–5)</li>
+            <li>Игра вставала на паузу зря? (часто / иногда / никогда)</li>
+            <li>Было весело? Хочется ещё? (1–5)</li>
+            <li>Как быстро всё загрузилось? (быстро / нормально / медленно)</li>
+          </ol>
+        </li>
+      </ol>
+    </section>
+
+    <section class="card">
+      <h2>Как отправить файл</h2>
+      <ul>
+        <li>Нажми <b>«Отправить файл»</b> и выбери мессенджер или почту → владелец проекта.</li>
+        <li>Нет такой кнопки (Chrome на Android не отдаёт <code>.gz</code> в «Поделиться»)? Нажми <b>«Скачать файл»</b> и прикрепи <code>plank-protocol-…json.gz</code> из «Загрузок».</li>
+        <li>Файл небольшой (обычно 50–200 КБ), не переименовывай его.</li>
+        <li>Не закрывай вкладку, пока не отправишь: на телефоне файл сам не сохраняется.</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>Что в файле</h2>
+      <ul>
+        <li><b>Только числа:</b> где лицо в кадре относительно стартовой позиции или углы корпуса сбоку, держишь ли ты планку, паузы, скорость телефона, модель телефона и браузер, ответы.</li>
+        <li><b>Нет:</b> видео, фото, точек тела. Камера работает только внутри телефона.</li>
+        <li>Вместо имени — псевдоним. Ответы о шее и боли — отдельным блоком, без псевдонима.</li>
+        <li>Получает только владелец проекта. Удаляем через 90 дней после того, как по этим данным настроим пороги.</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>Если что-то не так</h2>
+      <ul>
+        <li><b>«Не вижу лица»:</b> больше света спереди, телефон ближе (50 см), наклон чуть круче.</li>
+        <li><b>Камера запрещена:</b> разреши её в настройках сайта и обнови страницу.</li>
+        <li><b>Нет голоса:</b> проверь громкость и беззвучный режим; иначе читай подсказки на экране.</li>
+        <li><b>Экран гаснет:</b> коснись его во время отдыха.</li>
+      </ul>
+    </section>
+    <p class="go"><a class="btn primary" href="./?protocol">Начать проверку</a></p>
+  </main>
+</body>
+</html>
