@@ -1,0 +1,680 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#090B14">
+<title>Доска направлений · Plank Run</title>
+<meta name="description" content="Неделя 1: три визуальных направления Plank Run, промпты для мудбордов и черновики маскота Искры. Выбрать за один день.">
+<link rel="icon" href="mascot/neon-idle.svg" type="image/svg+xml">
+<link rel="preload" href="fonts/onest-cyrillic-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/unbounded-cyrillic-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="board.css">
+</head>
+<body>
+
+<!-- Общие SVG: сцены «Светлячков», банки, знаки состояний. Сторонних запросов нет. -->
+<svg class="sprite" aria-hidden="true" focusable="false" width="0" height="0">
+  <defs>
+    <!-- знаки состояний: форма дублирует цвет -->
+    <symbol id="sg-ok" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8" fill="currentColor"/></symbol>
+    <symbol id="sg-warn" viewBox="0 0 24 24"><path d="M12 3.5 22 20.5H2Z" fill="currentColor" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></symbol>
+    <symbol id="sg-bad" viewBox="0 0 24 24"><path d="M5.5 5.5l13 13m0-13-13 13" stroke="currentColor" stroke-width="4.2" stroke-linecap="round"/></symbol>
+    <symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 20.5C5 15.6 2.5 12.4 2.5 8.9 2.5 6.1 4.7 4 7.4 4c1.9 0 3.5 1 4.6 2.6C13.1 5 14.7 4 16.6 4c2.7 0 4.9 2.1 4.9 4.9 0 3.5-2.5 6.7-9.5 11.6Z"/></symbol>
+
+    <!-- светлячки: ядро r, ореол 2r при 45 %, 5r при 12 % (арт-библия §1.3) -->
+    <g id="ff-lime"><circle r="10" fill="#D8FF6A" opacity=".12"/><circle r="4" fill="#D8FF6A" opacity=".45"/><circle r="2" fill="#F6FFD9"/></g>
+    <g id="ff-gold"><circle r="12" fill="#FFD25E" opacity=".12"/><circle r="5" fill="#FFD25E" opacity=".45"/><circle r="2.5" fill="#FFF3C4"/></g>
+    <g id="ff-moon"><circle r="15" fill="#A8E1FF" opacity=".12"/><circle r="6" fill="#A8E1FF" opacity=".45"/><circle r="3" fill="#EAF7FF"/></g>
+    <g id="ff-sport"><path d="M-9 4-1.5.6" stroke="#C6FF3D" stroke-opacity=".35" stroke-width="1.4" stroke-linecap="round"/><circle r="2.6" fill="#C6FF3D"/></g>
+    <g id="ff-aqua"><path d="M-10 3-2 .6" stroke="#38E1FF" stroke-opacity=".4" stroke-width="1.6" stroke-linecap="round"/><circle r="3.2" fill="#38E1FF"/></g>
+    <g id="ff-friend"><circle r="7" fill="#8C7BFF" opacity=".22"/><ellipse cx="-2.6" cy="-3.4" rx="2.6" ry="1.7" fill="#fff" stroke="#2B2350" stroke-width="1"/><ellipse cx="2.6" cy="-3.4" rx="2.6" ry="1.7" fill="#fff" stroke="#2B2350" stroke-width="1"/><circle r="3.2" fill="#6A4BF0" stroke="#2B2350" stroke-width="1.2"/></g>
+
+    <linearGradient id="sc1-sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#060818"/><stop offset=".5" stop-color="#0A1230"/><stop offset=".75" stop-color="#0E1638"/><stop offset="1" stop-color="#14243A"/></linearGradient>
+    <radialGradient id="sc2-sky" cx=".5" cy=".3" r=".8"><stop offset="0" stop-color="#1A1A1E"/><stop offset="1" stop-color="#0A0A0B"/></radialGradient>
+    <linearGradient id="sc3-sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#E6DEFF"/><stop offset=".7" stop-color="#FCEFE6"/><stop offset="1" stop-color="#FFF4DF"/></linearGradient>
+  </defs>
+
+  <!-- Направление 1: ночная поляна, луна сверху слева под линией HUD, тихий центр -->
+  <symbol id="scene-neon" viewBox="0 0 180 320" preserveAspectRatio="xMidYMid slice">
+    <rect width="180" height="320" fill="url(#sc1-sky)"/>
+    <g fill="#E8EEFF"><circle cx="76" cy="99" r="1.1" opacity=".82"/><circle cx="46" cy="126" r=".8" opacity=".7"/><circle cx="116" cy="113" r="1" opacity=".54"/><circle cx="71" cy="151" r=".6" opacity=".64"/><circle cx="148" cy="161" r="1.2" opacity=".6"/><circle cx="101" cy="124" r=".9" opacity=".58"/><circle cx="167" cy="110" r=".7" opacity=".51"/><circle cx="141" cy="123" r=".9" opacity=".54"/><circle cx="155" cy="96" r=".6" opacity=".4"/><circle cx="82" cy="134" r=".9" opacity=".75"/><circle cx="163" cy="176" r=".7" opacity=".6"/></g>
+    <circle cx="28" cy="110" r="22" fill="#E8EEFF" opacity=".08"/><circle cx="28" cy="110" r="13" fill="#E8EEFF" opacity=".16"/><circle cx="28" cy="110" r="7.5" fill="#E8EEFF"/>
+    <path d="M0 226C30 208 55 212 80 222s50-16 100-8v106H0Z" fill="#0B1630"/>
+    <path d="M0 226C30 208 55 212 80 222s50-16 100-8" fill="none" stroke="#A397FF" stroke-opacity=".5" stroke-width="1.2"/>
+    <path d="M0 254c40-14 70-6 100 4s50-12 80-8v70H0Z" fill="#081022"/>
+    <path d="M0 254c40-14 70-6 100 4s50-12 80-8" fill="none" stroke="#A397FF" stroke-opacity=".3" stroke-width="1"/>
+    <path fill="#06101C" d="M0 320V304Q0.6 295.5 2.3 289.9Q2.4 296.9 3.0 304Q3.9 291.7 4.3 283.5Q6.5 293.7 7.4 304Q8.0 290.3 9.5 281.1Q9.9 292.6 10.5 304Q11.7 293.1 13.5 285.9Q15.2 294.9 16.3 304Q17.4 296.5 17.7 291.4Q20.7 297.7 21.8 304Q22.7 290.4 22.6 281.3Q25.5 292.6 26.4 304Q27.2 296.2 28.2 290.9Q29.7 297.5 30.6 304Q31.6 291.1 34.4 282.6Q34.6 293.3 35.6 304Q36.7 291.7 37.2 283.6Q40.0 293.8 41.2 304Q42.1 292.8 44.2 285.3Q45.1 294.7 46.1 304Q47.3 289.5 48.3 279.8Q50.7 291.9 51.8 304Q52.5 289.7 52.9 280.2Q54.4 292.1 55.0 304Q56.0 289.5 58.9 279.9Q58.9 291.9 59.9 304Q60.7 294.4 63.4 288.0Q63.2 296.0 64.0 304Q65.0 289.6 67.0 279.9Q68.1 292.0 69.1 304Q69.8 290.7 71.9 281.9Q71.7 292.9 72.4 304Q73.1 292.6 75.1 285.0Q75.4 294.5 76.2 304Q77.1 294.5 77.7 288.2Q79.7 296.1 80.6 304Q81.4 295.2 82.6 289.3Q83.9 296.7 84.7 304Q85.8 288.1 86.2 277.5Q89.3 290.7 90.4 304Q91.5 292.0 93.3 283.9Q95.0 294.0 96.1 304Q96.9 287.3 98.1 276.2Q99.3 290.1 100.1 304Q100.8 295.9 103.3 290.5Q103.1 297.3 103.9 304Q104.5 292.0 105.1 284.0Q106.4 294.0 107.1 304Q107.8 288.0 109.1 277.4Q110.1 290.7 110.9 304Q111.8 287.8 111.8 276.9Q114.4 290.5 115.3 304Q116.4 289.4 118.9 279.7Q119.5 291.8 120.6 304Q121.3 296.6 122.8 291.7Q123.3 297.9 124.0 304Q125.1 290.8 127.5 281.9Q128.4 293.0 129.6 304Q130.6 287.2 133.3 276.0Q133.7 290.0 134.7 304Q135.5 293.9 136.1 287.1Q137.7 295.5 138.4 304Q139.4 291.1 141.8 282.5Q142.1 293.3 143.0 304Q143.8 288.7 144.4 278.5Q146.4 291.3 147.2 304Q148.1 291.6 149.2 283.4Q150.6 293.7 151.5 304Q152.2 295.1 152.4 289.1Q154.6 296.6 155.3 304Q156.3 289.1 156.3 279.2Q159.1 291.6 160.0 304Q161.0 292.0 163.7 284.0Q163.7 294.0 164.6 304Q165.7 291.5 168.4 283.1Q168.8 293.6 169.9 304Q170.9 288.7 171.3 278.5Q173.8 291.3 174.8 304Q175.5 289.9 175.5 280.6Q177.7 292.3 178.4 304Q179.1 294.2 178.6 287.6Q181.0 295.8 181.7 304V320Z"/>
+    <use href="#ff-lime" x="38" y="152"/><use href="#ff-lime" x="126" y="140"/><use href="#ff-lime" x="156" y="200"/><use href="#ff-lime" x="22" y="236"/><use href="#ff-lime" x="58" y="184"/><use href="#ff-lime" x="134" y="172"/><use href="#ff-lime" x="34" y="272"/><use href="#ff-lime" x="152" y="258"/>
+    <use href="#ff-gold" x="92" y="128"/><use href="#ff-moon" x="146" y="228"/>
+  </symbol>
+
+  <!-- Направление 2: графит, плоские холмы, светлячки — точки со следом -->
+  <symbol id="scene-sport" viewBox="0 0 180 320" preserveAspectRatio="xMidYMid slice">
+    <rect width="180" height="320" fill="url(#sc2-sky)"/>
+    <path d="M-20 150A140 140 0 0 1 200 150" fill="none" stroke="#C6FF3D" stroke-opacity=".14" stroke-width="1.5"/>
+    <path d="M0 236L180 236" stroke="#26262B" stroke-width="1"/>
+    <path d="M0 246Q60 226 120 242T180 236V320H0Z" fill="#17171A"/>
+    <path d="M0 274Q50 260 104 272T180 268V320H0Z" fill="#1F1F23"/>
+    <path d="M-10 318L190 286" stroke="#FF5A36" stroke-opacity=".5" stroke-width="2"/>
+    <path d="M-10 312L190 280" stroke="#38E1FF" stroke-opacity=".35" stroke-width="1.2"/>
+    <use href="#ff-sport" x="40" y="150"/><use href="#ff-sport" x="128" y="138"/><use href="#ff-sport" x="154" y="198"/><use href="#ff-sport" x="24" y="232"/><use href="#ff-sport" x="60" y="182"/><use href="#ff-sport" x="134" y="172"/><use href="#ff-sport" x="36" y="262"/><use href="#ff-sport" x="150" y="252"/><use href="#ff-sport" x="94" y="126"/>
+    <use href="#ff-aqua" x="146" y="226"/>
+  </symbol>
+
+  <!-- Направление 3: светлая поляна в сумерках, контуры чернилами -->
+  <symbol id="scene-friend" viewBox="0 0 180 320" preserveAspectRatio="xMidYMid slice">
+    <rect width="180" height="320" fill="url(#sc3-sky)"/>
+    <circle cx="28" cy="110" r="16" fill="#FFF3C9" opacity=".6"/><circle cx="28" cy="110" r="9" fill="#FFF6D8" stroke="#2B2350" stroke-width="2"/>
+    <path d="M118 128c3-7 13-7 15 0 6-1 9 6 4 9h-21c-5-3-3-10 2-9Z" fill="#fff" stroke="#2B2350" stroke-width="1.6" stroke-linejoin="round"/>
+    <path d="M0 226C30 206 55 210 82 222s52-18 98-8v106H0Z" fill="#B8EBC9" stroke="#2B2350" stroke-width="2"/>
+    <path d="M-2 256c40-16 72-8 102 4s52-14 82-8v70H-2Z" fill="#58D68D" stroke="#2B2350" stroke-width="2"/>
+    <g stroke="#2B2350" stroke-width="1.3"><circle cx="20" cy="286" r="3" fill="#FF9EC4"/><circle cx="46" cy="300" r="2.6" fill="#fff"/><circle cx="140" cy="292" r="3" fill="#FF9EC4"/><circle cx="160" cy="306" r="2.6" fill="#fff"/><circle cx="70" cy="306" r="2.4" fill="#CFC6FF"/><circle cx="118" cy="310" r="2.4" fill="#fff"/></g>
+    <use href="#ff-friend" x="38" y="152"/><use href="#ff-friend" x="126" y="148"/><use href="#ff-friend" x="156" y="200"/><use href="#ff-friend" x="22" y="236"/><use href="#ff-friend" x="58" y="184"/><use href="#ff-friend" x="134" y="176"/><use href="#ff-friend" x="94" y="130"/><use href="#ff-friend" x="150" y="262"/>
+  </symbol>
+
+  <!-- Банки: стекло поверх Искры (глаза сквозь стекло) -->
+  <symbol id="jar-neon" viewBox="0 0 60 70"><rect x="15" y="1.5" width="30" height="8" rx="3" fill="#2E3566"/><path d="M15 3h30" stroke="#A397FF" stroke-opacity=".8" stroke-width="1.2" stroke-linecap="round"/><path d="M12 11h36q4 0 4 6v38q0 13-13 13H21Q8 68 8 55V17q0-6 4-6Z" fill="#BEDCFF" fill-opacity=".1" stroke="#DCEFFF" stroke-opacity=".7" stroke-width="1.5"/><path d="M13.5 22v24" stroke="#fff" stroke-opacity=".4" stroke-width="2.5" stroke-linecap="round"/></symbol>
+  <symbol id="jar-sport" viewBox="0 0 60 70"><rect x="15" y="2" width="30" height="6" rx="1.5" fill="#A1A1AA"/><rect x="9" y="11" width="42" height="57" rx="9" fill="none" stroke="#A1A1AA" stroke-width="1.5"/></symbol>
+  <symbol id="jar-friend" viewBox="0 0 60 70"><rect x="14" y="1.5" width="32" height="9" rx="3.5" fill="#CFC6FF" stroke="#2B2350" stroke-width="2"/><path d="M12 11.5h36q4 0 4 6v37q0 13-13 13H21Q8 67.5 8 54.5v-37q0-6 4-6Z" fill="#fff" fill-opacity=".16" stroke="#2B2350" stroke-width="2"/><path d="M14 22v22" stroke="#fff" stroke-opacity=".9" stroke-width="3" stroke-linecap="round"/></symbol>
+</svg>
+
+<header class="top">
+  <div class="wrap">
+    <p class="eyebrow">Plank Run · Этап 0 · неделя 1 · версия от 19.10.2026</p>
+    <h1>Доска направлений</h1>
+    <p class="lead">Три визуальных направления и три черновика маскота Искры. За один день сгенерируй мудборды по готовым промптам, выбери направление и Искру. После этого я перепишу канон и все промпты под твой выбор (PLAN §8.1, журнал D14).</p>
+    <nav class="toc" aria-label="Разделы">
+      <a href="#todo">Что сделать</a>
+      <a href="#d1">1 · Неон + Искра</a>
+      <a href="#d2">2 · Чистый спорт</a>
+      <a href="#d3">3 · Дружелюбный маскот</a>
+      <a href="#iskra">Искра</a>
+      <a href="#vote">Мой выбор</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+<!-- ============ ЧТО СДЕЛАТЬ ВЛАДЕЛЬЦУ ============ -->
+<section id="todo" class="wrap todo" aria-labelledby="todo-title">
+  <div class="todo-head">
+    <h2 id="todo-title">Что сделать владельцу — за один день</h2>
+    <p class="todo-meta"><span>≈ 1,5–2 часа</span><span>6 промптов × 2 картинки = 12</span><span>лимит — до 30 картинок в день</span></p>
+  </div>
+
+  <ol class="steps">
+    <li>
+      <h3>Подготовка <small>5 мин</small></h3>
+      <p>Открой приложение <b>Gemini</b>, включи создание изображений и проверь, что это <b>Nano Banana Pro</b> (если приложение даёт выбрать модель — выбери Pro). Рядом открой <b>ChatGPT</b>, если он у тебя есть. Ничего прикладывать не нужно: палитра уже записана в промптах.</p>
+    </li>
+    <li>
+      <h3>Генерация <small>≈ 60 мин</small></h3>
+      <p>По очереди для направлений 1 → 2 → 3:</p>
+      <ul>
+        <li>в Gemini создай <b>новый чат</b> «PR · доска 1» (2, 3), нажми «Скопировать» у промпта <b>Gemini</b>, вставь и отправь;</li>
+        <li>сделай <b>2 картинки</b>, максимум 4. Если всё мимо, не больше 3 попыток на промпт;</li>
+        <li>то же самое в ChatGPT с промптом <b>ChatGPT</b>: 1–2 картинки.</li>
+      </ul>
+    </li>
+    <li>
+      <h3>Проверка <small>15 мин</small></h3>
+      <p>Пройди по каждой картинке <a href="#checklist">коротким чек-листом</a> ниже. Если картинка не прошла, перегенерируй. Лучшую всё равно отправь с пометкой, что не так.</p>
+    </li>
+    <li>
+      <h3>Скачивание</h3>
+      <p>Скачивай кнопкой «Скачать» в полном размере, а не скриншотом. Метку Gemini <b>не обрезай и не закрашивай</b>: в мудборде она допустима.</p>
+    </li>
+    <li>
+      <h3>Отправка</h3>
+      <p><b>В чат с ассистентом</b> (основной путь): вложи файлы и подпиши, например <code>MB1 gemini 1–2 · Nano Banana Pro · 20.10</code>, <code>MB1 chatgpt 1</code>.</p>
+      <p><b>Или через GitHub:</b> в репозитории переключи ветку на <code>art-inbox</code> (если её нет, впиши это имя в списке веток и нажми «Create branch»), открой папку <code>art/inbox/</code> (если её нет, открой <code>art/</code>) → <b>Add file → Upload files</b>. Имена файлов: <code>MB1__gemini__1.png</code>, <code>MB1__chatgpt__1.png</code>. Дальше разложу сам.</p>
+    </li>
+    <li>
+      <h3>Искра <small>10 мин</small></h3>
+      <p>Посмотри <a href="#iskra">три черновика Искры</a> и выбери один. Можно смешать, например «форма от 3, свечение от 1».</p>
+    </li>
+    <li>
+      <h3>Выбор <small>5 мин</small></h3>
+      <p>Отметь «Мне нравится» у направлений, в блоке <a href="#vote">«Мой выбор»</a> укажи главный вариант и Искру, напиши, почему, нажми <b>«Скопировать мой выбор»</b> и вставь в чат.</p>
+    </li>
+  </ol>
+
+  <div class="todo-cols">
+    <div class="tips">
+      <h3>Важно</h3>
+      <ul>
+        <li><b>Записывай модель у каждой картинки.</b> После дневного лимита Gemini молча переключается с Nano Banana Pro на обычный Nano Banana. Если приложение показывает другую модель или качество резко упало, допиши «обычный NB».</li>
+        <li><b>Записывай дату и название чата.</b> Сидов нет, поэтому повторить картинку можно только по промпту, модели, дате и чату.</li>
+        <li><b>Метку не трогай:</b> не вырезай, не закрашивай, не кадрируй.</li>
+        <li><b>Один чат — одно направление.</b> Не смешивай промпты разных направлений в одном чате.</li>
+        <li>Не загружай фото людей и не дописывай в промпты имена художников, студий и брендов.</li>
+        <li>Если ChatGPT упёрся в лимит, пропусти его: хватит картинок из Gemini.</li>
+        <li>Заодно, если есть минута: сделай скриншот Gemini → Settings → <b>Media watermark</b> (есть ли переключатель) и напиши тариф ChatGPT. Это нужно для арт-недели.</li>
+      </ul>
+    </div>
+    <div class="checklist" id="checklist">
+      <h3>Чек-лист картинки (коротко)</h3>
+      <ol>
+        <li><b>Нет текста:</b> ни букв, ни цифр, ни логотипов, ни подписей. Метка Gemini в мудборде — можно.</li>
+        <li><b>Цвета как в палитре направления:</b> сравни с образцами. Нет жёлто-сепийного налёта.</li>
+        <li><b>Главное читается за полсекунды:</b> прищурься или отойди на 1,5 м.</li>
+        <li><b>Свет сверху слева,</b> без четырёхлучевых звёздочек-бликов.</li>
+        <li><b>Ни на кого не похоже:</b> известные персонажи, бренды, флаги, религиозные и политические символы.</li>
+        <li><b>Логика без ошибок:</b> парные глаза, телефон экраном к коврику, нет лишних рук.</li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="sendlist">
+    <h3>Что прислать к концу дня</h3>
+    <ul class="chips">
+      <li><b>MB1-G</b> Gemini ×2</li><li><b>MB1-C</b> ChatGPT ×1–2</li>
+      <li><b>MB2-G</b> Gemini ×2</li><li><b>MB2-C</b> ChatGPT ×1–2</li>
+      <li><b>MB3-G</b> Gemini ×2</li><li><b>MB3-C</b> ChatGPT ×1–2</li>
+      <li><b>Выбор</b> текст из «Мой выбор»</li>
+    </ul>
+  </div>
+
+  <div class="compare">
+    <h3>Сравнение направлений <small>(оценки из исследования design.md §3)</small></h3>
+    <table>
+      <thead><tr><th scope="col"><span class="vh">Критерий</span></th><th scope="col">1 · Неон</th><th scope="col">2 · Спорт</th><th scope="col">3 · Маскот</th></tr></thead>
+      <tbody>
+        <tr><th scope="row">Мотивация</th><td><i class="m m2"></i>средне<sup>*</sup></td><td><i class="m m2"></i>средне</td><td><i class="m m3"></i>высоко</td></tr>
+        <tr><th scope="row">Читаемость в игре</th><td><i class="m m3"></i>высоко</td><td><i class="m m3"></i>высоко</td><td><i class="m m2"></i>средне</td></tr>
+        <tr><th scope="row">Стоимость</th><td><i class="m m1"></i>низко</td><td><i class="m m2"></i>средне</td><td><i class="m m3"></i>высоко</td></tr>
+        <tr><th scope="row">Узнаваемость</th><td><i class="m m2"></i>средне<sup>*</sup></td><td><i class="m m1"></i>низко</td><td><i class="m m3"></i>высоко</td></tr>
+      </tbody>
+    </table>
+    <p class="fine"><sup>*</sup> Оценка дана для «Неоновой аркады» (A). Рекомендация «Неон + Искра» — это A, к которому добавлены тепло маскота из C на метаэкранах и HUD по дисциплине B. Мотивация и узнаваемость у неё должны быть выше, но это гипотеза: её проверят плейтесты.</p>
+  </div>
+</section>
+
+<!-- ============ НАПРАВЛЕНИЕ 1 ============ -->
+<section id="d1" class="dir dir--neon" data-dir="1" aria-labelledby="d1-title">
+  <div class="wrap">
+    <header class="dir-head">
+      <p class="dir-num">Направление 1 · A <span class="rec">Рекомендация</span></p>
+      <h2 id="d1-title" class="dir-title">Неон + Искра</h2>
+      <p class="dir-idea">Тёмный неон прототипа в играх и тепло маскота на метаэкранах: светящийся шар из игр получает глаза, и ты играешь за Искру.</p>
+      <ul class="mood" aria-label="Настроение"><li>ночной</li><li>уютный</li><li>светящийся</li><li>игривый</li><li>сосредоточенный</li></ul>
+      <button class="like" type="button" data-like="1" aria-pressed="false"><svg aria-hidden="true"><use width="100%" height="100%" href="#i-heart"/></svg><span class="like-off">Мне нравится</span><span class="like-on">Нравится</span></button>
+    </header>
+
+    <div class="dir-grid">
+      <div class="dir-info">
+        <h3>Палитра</h3>
+        <ul class="swatches">
+          <li><i style="--c:#0B0D17"></i><b>#0B0D17</b><span>фон</span><em>база</em></li>
+          <li><i style="--c:#161A33"></i><b>#161A33</b><span>поверхность</span><em>1,1:1 — карточки</em></li>
+          <li><i style="--c:#F2F4FF"></i><b>#F2F4FF</b><span>текст</span><em>17,7:1</em></li>
+          <li><i style="--c:#A3A9D1"></i><b>#A3A9D1</b><span>вторичный</span><em>8,4:1</em></li>
+          <li><i style="--c:#7C6CFF"></i><b>#7C6CFF</b><span>бренд</span><em>5,0:1; белый на нём 3,9 — только крупно</em></li>
+          <li><i style="--c:#A397FF"></i><b>#A397FF</b><span>бренд-текст, забота</span><em>7,8:1</em></li>
+          <li><i style="--c:#5EF2C2"></i><b>#5EF2C2</b><span>норма ●, скин Искры</span><em>13,8:1</em></li>
+          <li><i style="--c:#FFB547"></i><b>#FFB547</b><span>внимание ▲</span><em>11,0:1</em></li>
+          <li><i style="--c:#FF5D7A"></i><b>#FF5D7A</b><span>срыв ✕</span><em>6,6:1</em></li>
+          <li><i style="--c:#FFD25E"></i><b>#FFD25E</b><span>монета, золото</span><em>13,5:1</em></li>
+          <li><i style="--c:#4CC9FF"></i><b>#4CC9FF</b><span>инфо, щит</span><em>10,2:1</em></li>
+          <li><i style="--c:#D8FF6A"></i><b>#D8FF6A</b><span>светлячок</span><em>17,0:1</em></li>
+        </ul>
+        <p class="note">Контраст указан к фону #0B0D17 (норма для текста — 4,5:1). Мятный и янтарный между собой — всего 1,25:1, при дейтеранопии они сливаются. Поэтому у каждого состояния есть свой знак: ● ▲ ✕. Янтарный и коралловый в игре означают только состояние техники.</p>
+
+        <h3>Шрифты</h3>
+        <div class="type">
+          <p class="type-hero">0:42</p>
+          <p class="type-h">Держи ровно, ещё чуть-чуть</p>
+          <p class="type-body">Камера видит лицо. Видео не покидает телефон. Oʻzbekcha: gʻalaba, oʻyin. 0123456789</p>
+          <p class="type-meta"><b>Unbounded</b> — цифры и заголовки · <b>Onest</b> — интерфейс (единственный с полным узбекским) · OFL&nbsp;1.1</p>
+        </div>
+
+        <h3>Плюсы и минусы</h3>
+        <div class="pc">
+          <ul class="pros">
+            <li>Лучше всего читается с пола и экономит заряд на OLED.</li>
+            <li>Продолжает прототип: игры и бренд не надо переделывать с нуля.</li>
+            <li>Искра — это и игровой объект (шар, курсор, свет банки), и маскот. Связь «я — Искра» понятна сразу.</li>
+            <li>Дёшево: SVG и CSS, без Rive и иллюстратора.</li>
+          </ul>
+          <ul class="cons">
+            <li>Может отпугнуть тех, кто не считает себя геймером.</li>
+            <li>Есть риск однообразия «всё тёмное и светится».</li>
+            <li>Свечение нагружает видеокарту, поэтому только из готового атласа, без <code>shadowBlur</code>.</li>
+            <li>Состояния нельзя передавать одним цветом: знак нужен всегда.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="dir-mocks">
+        <figure class="mock">
+          <div class="phone" id="ph1" data-state="ok">
+            <svg class="scene" aria-hidden="true"><use width="100%" height="100%" href="#scene-neon"/></svg>
+            <div class="jar"><img class="ik ik-ok" src="mascot/neon-ok.svg" alt=""><img class="ik ik-warn" src="mascot/neon-worry.svg" alt=""><img class="ik ik-bad" src="mascot/neon-stop.svg" alt=""><svg class="glass" aria-hidden="true"><use width="100%" height="100%" href="#jar-neon"/></svg></div>
+            <div class="hud" aria-hidden="true">
+              <div class="stat stat-l"><span>Светлячки</span><b>12</b></div>
+              <div class="ring"><svg viewBox="0 0 100 100"><circle class="ring-bg" cx="50" cy="50" r="42"/><circle class="ring-fg" cx="50" cy="50" r="42" pathLength="100"/></svg><b>0:42</b><span>цель 1:00</span></div>
+              <div class="stat stat-r"><span>Очки</span><b>70</b></div>
+            </div>
+            <div class="band" aria-hidden="true">
+              <p class="b-ok"><svg><use width="100%" height="100%" href="#sg-ok"/></svg>Техника в порядке</p>
+              <p class="b-warn"><svg><use width="100%" height="100%" href="#sg-warn"/></svg>Таз выше</p>
+              <p class="b-bad"><svg><use width="100%" height="100%" href="#sg-bad"/></svg>Таз провис</p>
+            </div>
+            <div class="alert" aria-hidden="true"><div class="alert-card"><div class="cd"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="42" pathLength="100"/></svg><b>4</b></div><p><svg><use width="100%" height="100%" href="#sg-bad"/></svg>Таз провис</p><small>пауза, пока поза не вернётся</small></div></div>
+          </div>
+          <figcaption>HUD: одна цифра и кольцо, полоса состояния по краю</figcaption>
+        </figure>
+        <figure class="mock">
+          <div class="phone phone--scene">
+            <svg class="scene" aria-hidden="true"><use width="100%" height="100%" href="#scene-neon"/></svg>
+            <div class="jar"><img class="ik" src="mascot/neon-happy.svg" alt=""><svg class="glass" aria-hidden="true"><use width="100%" height="100%" href="#jar-neon"/></svg></div>
+          </div>
+          <figcaption>«Светлячки» без HUD: луна слева вверху, тихий центр, Искра светит из банки</figcaption>
+        </figure>
+        <div class="states" role="group" aria-label="Состояние техники в макете"><span class="states-label">Покажи в HUD:</span>
+          <button type="button" data-phone="ph1" data-state="ok" aria-pressed="true"><svg aria-hidden="true"><use width="100%" height="100%" href="#sg-ok"/></svg>Норма</button>
+          <button type="button" data-phone="ph1" data-state="warn" aria-pressed="false"><svg aria-hidden="true"><use width="100%" height="100%" href="#sg-warn"/></svg>Внимание</button>
+          <button type="button" data-phone="ph1" data-state="bad" aria-pressed="false"><svg aria-hidden="true"><use width="100%" height="100%" href="#sg-bad"/></svg>Срыв</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="prompts">
+      <article class="prompt">
+        <header>
+          <h3><span class="tool tool--g">Gemini · Nano Banana Pro</span> MB1-G · «Лист настроения» <small>3:2, 6 панелей</small></h3>
+          <button class="copy" type="button" data-copy="p1g">Скопировать</button>
+        </header>
+<pre id="p1g" tabindex="0">Generate an image.
+Stylized 2D game art for a calm night-time fitness game. Flat, vector-like shapes with soft smooth gradients, no outlines, rounded friendly forms, large clear silhouettes and very little fine detail. Palette: deep navy and indigo night tones (#0B0D17, #12152A, #161A33, #1E2347, #2E3566) with glowing accents only in mint #5EF2C2, violet #7C6CFF, soft lavender #A397FF, warm gold #FFD25E, sky cyan #4CC9FF and firefly lime #D8FF6A. Lighting: cool moonlight from the upper left with a thin lavender rim light on silhouette edges; warm light comes only from glowing objects. Every glow is a bright core with two soft round halos. Mood: cozy, quiet, hopeful, playful, readable from two meters away on a small screen.
+Subject: Art direction mood board for a phone fitness game in which the player holds a plank and steers a glowing light with their body. Six equal panels in a 3 by 2 grid, separated by thin gaps of the dark background color, no borders and no captions. Panel 1: a calm night meadow with tall grass silhouettes, a small pale moon in the upper left and lime fireflies rising. Panel 2: the mascot, a perfectly round glowing mint light creature with two tall oval dark eyes with a small white highlight, a soft flame tuft of three rounded lobes on top, no arms and no legs, two tiny floating sparks as hands, smiling. Panel 3: a neon tunnel in one-point perspective with thin glowing violet edge lines and a soft glowing vanishing point. Panel 4: a glass jar on the grass slowly filling with the light of caught fireflies. Panel 5: a winding path of round glowing stepping stones across a dark meadow seen from above, like a game map. Panel 6: a gentle celebration of soft mint, violet and gold light rings and round light dots around an empty center.
+Each panel has one clear main object that reads in half a second and a calm dark background.
+Aspect ratio 3:2 (landscape). High resolution, crisp clean edges.
+Avoid: any text, letters, numbers or symbols; logos and brand marks; watermarks and signatures; UI elements, frames, borders or card shapes; checkerboard transparency patterns; photorealism; glossy 3D plastic render; lens flares and four-pointed sparkle stars; heavy noise, film grain or paper texture; harsh black outlines; people, human faces and human hands.</pre>
+      </article>
+      <article class="prompt">
+        <header>
+          <h3><span class="tool tool--c">ChatGPT</span> MB1-C · «Ключевой кадр» <small>вертикаль 2:3</small></h3>
+          <button class="copy" type="button" data-copy="p1c">Скопировать</button>
+        </header>
+<pre id="p1c" tabindex="0">Create one image. Format: tall portrait (2:3).
+Stylized 2D game art for a calm night-time fitness game. Flat, vector-like shapes with soft smooth gradients, no outlines, rounded friendly forms, large clear silhouettes and very little fine detail. Palette: deep navy and indigo night tones (#0B0D17, #12152A, #161A33, #1E2347, #2E3566) with glowing accents only in mint #5EF2C2, violet #7C6CFF, soft lavender #A397FF, warm gold #FFD25E, sky cyan #4CC9FF and firefly lime #D8FF6A. Lighting: cool moonlight from the upper left with a thin lavender rim light on silhouette edges; warm light comes only from glowing objects. Every glow is a bright core with two soft round halos. Mood: cozy, quiet, hopeful, playful, readable from two meters away on a small screen.
+Keep a cool color temperature with true deep navy blacks; no warm yellow or sepia cast.
+Subject: Full-screen key frame of a calm night firefly-catching game as it would look on a phone held upright, drawn full-bleed with no device and no interface. A dark night meadow: a small pale moon with a soft halo in the upper left, a few faint stars, two layers of soft navy hills with a thin lavender rim light, tall grass silhouettes along the bottom. In the lower middle floats a round glass jar lit from inside by a round mint light creature with two tall oval dark eyes peeking through the glass and a soft flame tuft of three rounded lobes on its head; it has no arms and no legs. Around the jar drift a dozen small lime fireflies, one gold firefly and one pale blue firefly, each a bright core with two soft round halos.
+Composition: the upper third stays calm, dark and empty; the glowing jar is the one main object and reads in half a second.
+Do not add any elements that are not described.
+Avoid: any text, letters, numbers or symbols; logos and brand marks; watermarks and signatures; UI elements, frames, borders or card shapes; checkerboard transparency patterns; photorealism; glossy 3D plastic render; lens flares and four-pointed sparkle stars; heavy noise, film grain or paper texture; harsh black outlines; people, human faces and human hands.</pre>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ============ НАПРАВЛЕНИЕ 2 ============ -->
+<section id="d2" class="dir dir--sport" data-dir="2" aria-labelledby="d2-title">
+  <div class="wrap">
+    <header class="dir-head">
+      <p class="dir-num">Направление 2 · B</p>
+      <h2 id="d2-title" class="dir-title">Чистый спорт</h2>
+      <p class="dir-idea">Взрослый спокойный фитнес: графит, одна крупная цифра, кольца и полосы. Минимум украшений, максимум ясности.</p>
+      <ul class="mood" aria-label="Настроение"><li>собранный</li><li>уверенный</li><li>взрослый</li><li>чёткий</li><li>спокойная сила</li></ul>
+      <button class="like" type="button" data-like="2" aria-pressed="false"><svg aria-hidden="true"><use width="100%" height="100%" href="#i-heart"/></svg><span class="like-off">Мне нравится</span><span class="like-on">Нравится</span></button>
+    </header>
+
+    <div class="dir-grid">
+      <div class="dir-info">
+        <h3>Палитра</h3>
+        <ul class="swatches">
+          <li><i style="--c:#0A0A0B"></i><b>#0A0A0B</b><span>фон</span><em>база</em></li>
+          <li><i style="--c:#17171A"></i><b>#17171A</b><span>поверхность</span><em>1,1:1 — карточки</em></li>
+          <li><i style="--c:#FFFFFF"></i><b>#FFFFFF</b><span>текст</span><em>19,8:1</em></li>
+          <li><i style="--c:#A1A1AA"></i><b>#A1A1AA</b><span>вторичный</span><em>7,7:1</em></li>
+          <li><i style="--c:#C6FF3D"></i><b>#C6FF3D</b><span>лайм, норма ●, Искра</span><em>16,8:1; на светлом 1,2 → #4D7A00</em></li>
+          <li><i style="--c:#38E1FF"></i><b>#38E1FF</b><span>аква, забота</span><em>12,6:1</em></li>
+          <li><i style="--c:#FFB547"></i><b>#FFB547</b><span>внимание ▲</span><em>11,3:1</em></li>
+          <li><i style="--c:#FF5A36"></i><b>#FF5A36</b><span>энергия → срыв ✕</span><em>6,4:1</em></li>
+        </ul>
+        <p class="note">Контраст указан к фону #0A0A0B. Лайм и янтарь различаются всего на 1,5:1, поэтому знак ● ▲ ✕ обязателен. Красно-оранжевый «энергия» здесь отдан под срыв, а для акцентов остаются лайм и аква.</p>
+
+        <h3>Шрифты</h3>
+        <div class="type">
+          <p class="type-hero">0:42</p>
+          <p class="type-h">Держи ровно, ещё чуть-чуть</p>
+          <p class="type-body">Камера видит лицо. Видео не покидает телефон. Oʻzbekcha: gʻalaba, oʻyin. 0123456789</p>
+          <p class="type-meta"><b>Tektur</b> — цифры и заголовки · <b>Inter Tight</b> — интерфейс · OFL&nbsp;1.1</p>
+        </div>
+
+        <h3>Плюсы и минусы</h3>
+        <div class="pc">
+          <ul class="pros">
+            <li>Выглядит как «взрослый» фитнес и вызывает доверие.</li>
+            <li>Проще сделать хорошо: мало графики, крупные цифры и кольца.</li>
+            <li>Отлично читается: лайм к фону 16,8:1.</li>
+            <li>Дисциплина HUD «одна цифра и кольцо» пригодится в любом направлении.</li>
+          </ul>
+          <ul class="cons">
+            <li>Мало игровой радости, а игры у нас главное.</li>
+            <li>Спор с гигантами фитнеса на их же поле.</li>
+            <li>Фото тренера стоят денег, а ИИ-людей мы не делаем. Остаются манекены и пиктограммы.</li>
+            <li>Искра становится значком, и привязанность к ней слабее.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="dir-mocks">
+        <figure class="mock">
+          <div class="phone" id="ph2" data-state="ok">
+            <svg class="scene" aria-hidden="true"><use width="100%" height="100%" href="#scene-sport"/></svg>
+            <div class="jar"><img class="ik ik-ok" src="mascot/sport-ok.svg" alt=""><img class="ik ik-warn" src="mascot/sport-worry.svg" alt=""><img class="ik ik-bad" src="mascot/sport-stop.svg" alt=""><svg class="glass" aria-hidden="true"><use width="100%" height="100%" href="#jar-sport"/></svg></div>
+            <div class="hud" aria-hidden="true">
+              <div class="stat stat-l"><span>Светлячки</span><b>12</b></div>
+              <div class="ring"><svg viewBox="0 0 100 100"><circle class="ring-bg" cx="50" cy="50" r="42"/><circle class="ring-fg" cx="50" cy="50" r="42" pathLength="100"/></svg><b>0:42</b><span>цель 1:00</span></div>
+              <div class="stat stat-r"><span>Очки</span><b>70</b></div>
+            </div>
+            <div class="band" aria-hidden="true">
+              <p class="b-ok"><svg><use width="100%" height="100%" href="#sg-ok"/></svg>Техника в порядке</p>
+              <p class="b-warn"><svg><use width="100%" height="100%" href="#sg-warn"/></svg>Таз выше</p>
+              <p class="b-bad"><svg><use width="100%" height="100%" href="#sg-bad"/></svg>Таз провис</p>
+            </div>
+            <div class="alert" aria-hidden="true"><div class="alert-card"><div class="cd"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="42" pathLength="100"/></svg><b>4</b></div><p><svg><use width="100%" height="100%" href="#sg-bad"/></svg>Таз провис</p><small>пауза, пока поза не вернётся</small></div></div>
+          </div>
+          <figcaption>HUD: толстое кольцо, табличные цифры, без свечения</figcaption>
+        </figure>
+        <figure class="mock">
+          <div class="phone phone--scene">
+            <svg class="scene" aria-hidden="true"><use width="100%" height="100%" href="#scene-sport"/></svg>
+            <div class="jar"><img class="ik" src="mascot/sport-happy.svg" alt=""><svg class="glass" aria-hidden="true"><use width="100%" height="100%" href="#jar-sport"/></svg></div>
+          </div>
+          <figcaption>«Светлячки» без HUD: плоские формы, светлячки — точки со следом</figcaption>
+        </figure>
+        <div class="states" role="group" aria-label="Состояние техники в макете"><span class="states-label">Покажи в HUD:</span>
+          <button type="button" data-phone="ph2" data-state="ok" aria-pressed="true"><svg aria-hidden="true"><use width="100%" height="100%" href="#sg-ok"/></svg>Норма</button>
+          <button type="button" data-phone="ph2" data-state="warn" aria-pressed="false"><svg aria-hidden="true"><use width="100%" height="100%" href="#sg-warn"/></svg>Внимание</button>
+          <button type="button" data-phone="ph2" data-state="bad" aria-pressed="false"><svg aria-hidden="true"><use width="100%" height="100%" href="#sg-bad"/></svg>Срыв</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="prompts">
+      <article class="prompt">
+        <header>
+          <h3><span class="tool tool--g">Gemini · Nano Banana Pro</span> MB2-G · «Лист настроения» <small>3:2, 6 панелей</small></h3>
+          <button class="copy" type="button" data-copy="p2g">Скопировать</button>
+        </header>
+<pre id="p2g" tabindex="0">Generate an image.
+Clean, minimal graphic art for a serious home workout app built around holding a plank. Flat geometric shapes with crisp edges, generous negative space, no outlines and no texture; gradients only as one soft vignette; bold circular rings, arcs and straight stripes suggest timing and progress. Palette: near-black graphite (#0A0A0B, #17171A, #26262B), white #FFFFFF and muted grey #A1A1AA with only three accents: electric lime #C6FF3D, red-orange #FF5A36 and aqua #38E1FF. Lighting: neutral soft light from the upper left, no glow halos and no neon haze. Mood: focused, confident, adult, calm intensity, premium, readable from two meters away on a small screen.
+Subject: Art direction mood board for a phone workout game in which the player holds a plank and steers a light with their body. Six equal panels in a 3 by 2 grid, separated by thin gaps of the dark background color, no borders and no captions. Panel 1: a faceless smooth mannequin made of light grey capsules with a plain round head holding a forearm plank on a dark floor, side view, a thin straight lime line running from head to heels. Panel 2: a thick lime circular ring almost closed around an empty dark center. Panel 3: a smartphone standing on a dark floor propped against a book, its blank screen glowing lime and aqua, an exercise mat leading to it. Panel 4: a minimal night meadow reduced to flat graphite hill shapes with small crisp lime dots as fireflies. Panel 5: a mascot reduced to a sign, a flat lime circle with two simple dark oval eyes, three small dots on top as a tuft and a thin aqua ring around it. Panel 6: three diagonal light stripes in lime, red-orange and aqua cutting across graphite, like a running track at speed.
+Each panel has one clear main object that reads in half a second.
+Aspect ratio 3:2 (landscape). High resolution, crisp clean edges.
+Avoid: any text, letters, numbers or symbols; logos and brand marks, sportswear logos; watermarks and signatures; UI elements, buttons, frames or card shapes; checkerboard transparency patterns; photorealism and photographs; glossy 3D plastic render; lens flares and four-pointed sparkle stars; heavy noise, film grain or paper texture; harsh black outlines; realistic people, human faces, skin and hands.</pre>
+      </article>
+      <article class="prompt">
+        <header>
+          <h3><span class="tool tool--c">ChatGPT</span> MB2-C · «Ключевой кадр» <small>вертикаль 2:3</small></h3>
+          <button class="copy" type="button" data-copy="p2c">Скопировать</button>
+        </header>
+<pre id="p2c" tabindex="0">Create one image. Format: tall portrait (2:3).
+Clean, minimal graphic art for a serious home workout app built around holding a plank. Flat geometric shapes with crisp edges, generous negative space, no outlines and no texture; gradients only as one soft vignette; bold circular rings, arcs and straight stripes suggest timing and progress. Palette: near-black graphite (#0A0A0B, #17171A, #26262B), white #FFFFFF and muted grey #A1A1AA with only three accents: electric lime #C6FF3D, red-orange #FF5A36 and aqua #38E1FF. Lighting: neutral soft light from the upper left, no glow halos and no neon haze. Mood: focused, confident, adult, calm intensity, premium, readable from two meters away on a small screen.
+Keep neutral graphite blacks; no warm yellow or sepia cast.
+Subject: Full-screen key frame of a minimal firefly-catching workout game as it would look on a phone held upright, drawn full-bleed with no device and no interface. Deep graphite background with one very soft vignette; low flat dark grey hill shapes along the bottom; small crisp lime dots as fireflies drifting in gentle arcs with short motion trails, and one aqua dot. In the lower middle stands a simple rounded glass jar drawn with clean flat shapes; inside it a flat lime circle with two simple dark oval eyes and three small dots on top as a tuft. A thin lime arc of light sweeps around the upper third, open at the bottom.
+Composition: the upper third stays calm and dark; the jar is the one main object and reads in half a second.
+Do not add any elements that are not described.
+Avoid: any text, letters, numbers or symbols; logos and brand marks, sportswear logos; watermarks and signatures; UI elements, buttons, frames or card shapes; checkerboard transparency patterns; photorealism and photographs; glossy 3D plastic render; lens flares and four-pointed sparkle stars; heavy noise, film grain or paper texture; harsh black outlines; realistic people, human faces, skin and hands.</pre>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ============ НАПРАВЛЕНИЕ 3 ============ -->
+<section id="d3" class="dir dir--friend" data-dir="3" aria-labelledby="d3-title">
+  <div class="wrap">
+    <header class="dir-head">
+      <p class="dir-num">Направление 3 · C</p>
+      <h2 id="d3-title" class="dir-title">Дружелюбный маскот</h2>
+      <p class="dir-idea">Светлый тёплый мир с персонажем-компаньоном. Искра пружинит, болеет за тебя и празднует, а карта похожа на настольную игру.</p>
+      <ul class="mood" aria-label="Настроение"><li>добрый</li><li>ободряющий</li><li>игривый</li><li>тёплый</li><li>чуть озорной</li></ul>
+      <button class="like" type="button" data-like="3" aria-pressed="false"><svg aria-hidden="true"><use width="100%" height="100%" href="#i-heart"/></svg><span class="like-off">Мне нравится</span><span class="like-on">Нравится</span></button>
+    </header>
+
+    <div class="dir-grid">
+      <div class="dir-info">
+        <h3>Палитра</h3>
+        <ul class="swatches">
+          <li><i style="--c:#FFF7EC"></i><b>#FFF7EC</b><span>фон</span><em>база</em></li>
+          <li><i style="--c:#2B2350"></i><b>#2B2350</b><span>чернила, контур</span><em>13,6:1</em></li>
+          <li><i style="--c:#6B6390"></i><b>#6B6390</b><span>вторичный</span><em>5,2:1</em></li>
+          <li><i style="--c:#6A4BF0"></i><b>#6A4BF0</b><span>виноград, бренд</span><em>5,1:1; белый на нём 5,4</em></li>
+          <li><i style="--c:#8C7BFF"></i><b>#8C7BFF</b><span>скин Искры</span><em>3,1:1 — только заливка</em></li>
+          <li><i style="--c:#15804B"></i><b>#15804B</b><span>зелёный для текста</span><em>4,7:1</em></li>
+          <li><i style="--c:#58D68D"></i><b>#58D68D</b><span>норма ● (заливка)</span><em>1,7:1 — только со знаком</em></li>
+          <li><i style="--c:#FFC83D"></i><b>#FFC83D</b><span>солнце → внимание ▲</span><em>1,5:1 — только со знаком</em></li>
+          <li><i style="--c:#FF8A65"></i><b>#FF8A65</b><span>коралл → срыв ✕</span><em>2,2:1; текст — #C93A40, 4,8</em></li>
+          <li><i style="--c:#FF9EC4"></i><b>#FF9EC4</b><span>розовый, забота</span><em>только заливка</em></li>
+        </ul>
+        <p class="note">Контраст указан к фону #FFF7EC. Цвета состояний на светлом фоне слабые, поэтому смысл несут знак чернилами и слово. Светлячки здесь фиолетовые: тёплые жёлтые спорили бы с янтарным ▲.</p>
+
+        <h3>Шрифты</h3>
+        <div class="type">
+          <p class="type-hero">0:42</p>
+          <p class="type-h">Держи ровно, ещё чуть-чуть</p>
+          <p class="type-body">Камера видит лицо. Видео не покидает телефон. Oʻzbekcha: gʻalaba, oʻyin. <span class="num-onest">0123456789</span></p>
+          <p class="type-meta"><b>Unbounded</b> — заголовки · <b>Nunito</b> — интерфейс · мелкие цифры — <b>Onest</b> (у Nunito нет табличных цифр) · OFL&nbsp;1.1</p>
+        </div>
+
+        <h3>Плюсы и минусы</h3>
+        <div class="pc">
+          <ul class="pros">
+            <li>Сильнее всего мотивирует и привязывает.</li>
+            <li>Самая высокая узнаваемость, лучше всего подходит для промо.</li>
+            <li>Тёплые метаэкраны: карта, онбординг, итоги, семейный режим.</li>
+          </ul>
+          <ul class="cons">
+            <li>Дорого: нужны иллюстратор и аниматор, а без них уйдёт много недель работы ассистента.</li>
+            <li>Светлый фон хуже работает в игре: свечения не видно, экран бликует и тратит заряд на OLED.</li>
+            <li>Есть риск выглядеть клоном известного приложения-изучалки или по-детски.</li>
+            <li>Для тёмной игры понадобится второй, «ночной» набор цветов.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="dir-mocks">
+        <figure class="mock">
+          <div class="phone" id="ph3" data-state="ok">
+            <svg class="scene" aria-hidden="true"><use width="100%" height="100%" href="#scene-friend"/></svg>
+            <div class="jar"><img class="ik ik-ok" src="mascot/friend-ok.svg" alt=""><img class="ik ik-warn" src="mascot/friend-worry.svg" alt=""><img class="ik ik-bad" src="mascot/friend-stop.svg" alt=""><svg class="glass" aria-hidden="true"><use width="100%" height="100%" href="#jar-friend"/></svg></div>
+            <div class="hud" aria-hidden="true">
+              <div class="stat stat-l"><span>Светлячки</span><b>12</b></div>
+              <div class="ring"><svg viewBox="0 0 100 100"><circle class="ring-bg" cx="50" cy="50" r="42"/><circle class="ring-fg" cx="50" cy="50" r="42" pathLength="100"/></svg><b>0:42</b><span>цель 1:00</span></div>
+              <div class="stat stat-r"><span>Очки</span><b>70</b></div>
+            </div>
+            <div class="band" aria-hidden="true">
+              <p class="b-ok"><svg><use width="100%" height="100%" href="#sg-ok"/></svg>Техника в порядке</p>
+              <p class="b-warn"><svg><use width="100%" height="100%" href="#sg-warn"/></svg>Таз выше</p>
+              <p class="b-bad"><svg><use width="100%" height="100%" href="#sg-bad"/></svg>Таз провис</p>
+            </div>
+            <div class="alert" aria-hidden="true"><div class="alert-card"><div class="cd"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="42" pathLength="100"/></svg><b>4</b></div><p><svg><use width="100%" height="100%" href="#sg-bad"/></svg>Таз провис</p><small>пауза, пока поза не вернётся</small></div></div>
+          </div>
+          <figcaption>HUD на светлом: плашки с чернильным текстом, знак в каждой</figcaption>
+        </figure>
+        <figure class="mock">
+          <div class="phone phone--scene">
+            <svg class="scene" aria-hidden="true"><use width="100%" height="100%" href="#scene-friend"/></svg>
+            <div class="jar"><img class="ik" src="mascot/friend-happy.svg" alt=""><svg class="glass" aria-hidden="true"><use width="100%" height="100%" href="#jar-friend"/></svg></div>
+          </div>
+          <figcaption>«Светлячки» без HUD: сумеречная поляна, контуры, фиолетовые светлячки</figcaption>
+        </figure>
+        <div class="states" role="group" aria-label="Состояние техники в макете"><span class="states-label">Покажи в HUD:</span>
+          <button type="button" data-phone="ph3" data-state="ok" aria-pressed="true"><svg aria-hidden="true"><use width="100%" height="100%" href="#sg-ok"/></svg>Норма</button>
+          <button type="button" data-phone="ph3" data-state="warn" aria-pressed="false"><svg aria-hidden="true"><use width="100%" height="100%" href="#sg-warn"/></svg>Внимание</button>
+          <button type="button" data-phone="ph3" data-state="bad" aria-pressed="false"><svg aria-hidden="true"><use width="100%" height="100%" href="#sg-bad"/></svg>Срыв</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="prompts">
+      <article class="prompt">
+        <header>
+          <h3><span class="tool tool--g">Gemini · Nano Banana Pro</span> MB3-G · «Лист настроения» <small>3:2, 6 панелей</small></h3>
+          <button class="copy" type="button" data-copy="p3g">Скопировать</button>
+        </header>
+<pre id="p3g" tabindex="0">Generate an image.
+Warm, friendly 2D illustration for a cheerful home fitness game. Soft chunky rounded shapes with smooth even outlines in deep ink violet #2B2350 (never pure black), flat colors with one soft shade step, big readable silhouettes, bouncy squash-and-stretch poses. Palette: warm cream #FFF7EC, ink violet #2B2350, muted violet grey #6B6390, fresh green #58D68D, sunny yellow #FFC83D, soft coral #FF8A65, grape violet #6A4BF0 and light lavender #CFC6FF. Lighting: soft daylight from the upper left with a gentle warm bounce. Mood: kind, encouraging, playful, cozy, a little mischievous; made for teens and adults, never babyish; readable from two meters away on a small screen.
+Subject: Art direction mood board for a phone fitness game in which the player holds a plank together with a friendly mascot. Six equal panels in a 3 by 2 grid, separated by thin gaps of the cream background color, no borders and no captions. Panel 1: a cozy dusk meadow under a lavender and peach sky with round green hills and small grape-violet fireflies. Panel 2: the mascot, a round chubby grape-violet light creature with big tall oval eyes, rosy cheeks and a flame tuft of three rounded lobes on top, no arms and no legs, two tiny floating sparks as hands, cheering. Panel 3: the same mascot squashed flat and wide on a tiny exercise mat with determined eyes, as if holding a plank. Panel 4: a winding path of round stepping stones with a small treasure chest, seen from above like a board game. Panel 5: a cozy room corner by day with an exercise mat, a smartphone standing on the floor propped against a book, a houseplant and a window. Panel 6: the mascot jumping for joy among round confetti dots and five-pointed stars with rounded tips.
+Each panel has one clear main object that reads in half a second.
+Aspect ratio 3:2 (landscape). High resolution, crisp clean edges.
+Avoid: any text, letters, numbers or symbols; logos and brand marks; watermarks and signatures; UI elements, frames, borders or card shapes; checkerboard transparency patterns; photorealism; glossy 3D plastic render; lens flares and four-pointed sparkle stars; heavy noise, film grain or paper texture; pure black outlines; owls and green birds; people, human faces and human hands.</pre>
+      </article>
+      <article class="prompt">
+        <header>
+          <h3><span class="tool tool--c">ChatGPT</span> MB3-C · «Ключевой кадр» <small>вертикаль 2:3</small></h3>
+          <button class="copy" type="button" data-copy="p3c">Скопировать</button>
+        </header>
+<pre id="p3c" tabindex="0">Create one image. Format: tall portrait (2:3).
+Warm, friendly 2D illustration for a cheerful home fitness game. Soft chunky rounded shapes with smooth even outlines in deep ink violet #2B2350 (never pure black), flat colors with one soft shade step, big readable silhouettes, bouncy squash-and-stretch poses. Palette: warm cream #FFF7EC, ink violet #2B2350, muted violet grey #6B6390, fresh green #58D68D, sunny yellow #FFC83D, soft coral #FF8A65, grape violet #6A4BF0 and light lavender #CFC6FF. Lighting: soft daylight from the upper left with a gentle warm bounce. Mood: kind, encouraging, playful, cozy, a little mischievous; made for teens and adults, never babyish; readable from two meters away on a small screen.
+Subject: Full-screen key frame of a friendly firefly-catching game as it would look on a phone held upright, drawn full-bleed with no device and no interface. A warm dusk meadow: cream and lavender sky, a pale round moon in the upper left, one small cloud, round green hills and chunky little flowers, all with smooth ink-violet outlines. In the lower middle stands a clear glass jar with a lavender lid; inside it the round grape-violet mascot with big tall oval eyes, rosy cheeks and a flame tuft of three rounded lobes glows gently and looks up; it has no arms and no legs. Small grape-violet fireflies with tiny white wings drift around the jar.
+Composition: the upper third is calm open sky; the jar with the mascot is the one main object and reads in half a second.
+Do not add any elements that are not described.
+Avoid: any text, letters, numbers or symbols; logos and brand marks; watermarks and signatures; UI elements, frames, borders or card shapes; checkerboard transparency patterns; photorealism; glossy 3D plastic render; lens flares and four-pointed sparkle stars; heavy noise, film grain or paper texture; pure black outlines; owls and green birds; people, human faces and human hands.</pre>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ============ ИСКРА ============ -->
+<section id="iskra" class="wrap iskra-sec" aria-labelledby="iskra-title">
+  <h2 id="iskra-title">Искра — три черновика</h2>
+  <p class="lead-s">Геометрия у всех вариантов одна, из арт-библии: тело — круг r 36 на холсте 128, хохолок из <b>трёх круглых лопастей</b> (не четырёхлучевая звезда, которая похожа на логотип Gemini), глаза-эллипсы с бликом, рук и ног нет, жесты делают две искорки. Пол и возраст не считываются. Отличается только отрисовка, по одному варианту на направление. Это черновик: после выбора нарисую канон C4 — 14 настроений и 5 разворотов.</p>
+
+  <div class="legend">
+    <p><b>Пять основных настроений:</b> покой (меню, моргает) · радость (поймала светлячка) · <b>забота</b> (после «Болит»: сердце у груди, ореол заботы — Искра сочувствует, а не грустит) · устала (флаг усталости, приплюснута) · праздник (цель, босс).</p>
+    <p><b>Три состояния техники:</b> цвет ореола плюс знак и лицо — ● норма; ▲ внимание: брови домиком, Искра сжимается; ✕ срыв: глаза широко, искорка вперёд — «стоп».</p>
+  </div>
+
+  <div class="variant" data-variant="neon">
+    <header>
+      <h3>Вариант 1 · «Огонёк» <small>для направления 1</small></h3>
+      <p>Светится: градиент от белого к мятному #5EF2C2, два мягких ореола цвета состояния, блик сверху слева. Тот же шар, что в «Тоннеле», только с глазами.</p>
+    </header>
+    <div class="mgrid">
+      <figure data-mood="idle"><img src="mascot/neon-idle.svg" alt="Огонёк: покой" data-inline><figcaption>покой</figcaption></figure>
+      <figure data-mood="happy"><img src="mascot/neon-happy.svg" alt="Огонёк: радость" data-inline><figcaption>радость</figcaption></figure>
+      <figure data-mood="care"><img src="mascot/neon-care.svg" alt="Огонёк: забота" data-inline><figcaption>забота</figcaption></figure>
+      <figure data-mood="tired"><img src="mascot/neon-tired.svg" alt="Огонёк: устала" data-inline><figcaption>устала</figcaption></figure>
+      <figure data-mood="celebrate"><img src="mascot/neon-celebrate.svg" alt="Огонёк: праздник" data-inline><figcaption>праздник</figcaption></figure>
+      <figure data-mood="ok" class="st"><img src="mascot/neon-ok.svg" alt="Огонёк: норма" data-inline><figcaption>●&nbsp;норма</figcaption></figure>
+      <figure data-mood="worry" class="st"><img src="mascot/neon-worry.svg" alt="Огонёк: внимание" data-inline><figcaption>▲&nbsp;внимание</figcaption></figure>
+      <figure data-mood="stop" class="st"><img src="mascot/neon-stop.svg" alt="Огонёк: срыв" data-inline><figcaption>✕&nbsp;срыв</figcaption></figure>
+    </div>
+    <div class="sizes" aria-label="Проверка размеров: 24, 32, 48 и 96 px"><span class="sz"><img src="mascot/neon-idle.svg" alt="" width="24" height="24"><small>24 px</small></span><span class="sz"><img src="mascot/neon-idle.svg" alt="" width="32" height="32"><small>32 px</small></span><span class="sz"><img src="mascot/neon-idle.svg" alt="" width="48" height="48"><small>48 px</small></span><span class="sz"><img src="mascot/neon-idle.svg" alt="" width="96" height="96"><small>96 px</small></span></div>
+  </div>
+
+  <div class="variant" data-variant="sport">
+    <header>
+      <h3>Вариант 2 · «Знак» <small>для направления 2</small></h3>
+      <p>Плоский лайм #C6FF3D без свечения. Вместо ореола — кольцо, как у таймера (полное в празднике), хохолок из трёх точек, без румянца. Строгий, читается как значок.</p>
+    </header>
+    <div class="mgrid">
+      <figure data-mood="idle"><img src="mascot/sport-idle.svg" alt="Знак: покой" data-inline><figcaption>покой</figcaption></figure>
+      <figure data-mood="happy"><img src="mascot/sport-happy.svg" alt="Знак: радость" data-inline><figcaption>радость</figcaption></figure>
+      <figure data-mood="care"><img src="mascot/sport-care.svg" alt="Знак: забота" data-inline><figcaption>забота</figcaption></figure>
+      <figure data-mood="tired"><img src="mascot/sport-tired.svg" alt="Знак: устала" data-inline><figcaption>устала</figcaption></figure>
+      <figure data-mood="celebrate"><img src="mascot/sport-celebrate.svg" alt="Знак: праздник" data-inline><figcaption>праздник</figcaption></figure>
+      <figure data-mood="ok" class="st"><img src="mascot/sport-ok.svg" alt="Знак: норма" data-inline><figcaption>●&nbsp;норма</figcaption></figure>
+      <figure data-mood="worry" class="st"><img src="mascot/sport-worry.svg" alt="Знак: внимание" data-inline><figcaption>▲&nbsp;внимание</figcaption></figure>
+      <figure data-mood="stop" class="st"><img src="mascot/sport-stop.svg" alt="Знак: срыв" data-inline><figcaption>✕&nbsp;срыв</figcaption></figure>
+    </div>
+    <div class="sizes" aria-label="Проверка размеров: 24, 32, 48 и 96 px"><span class="sz"><img src="mascot/sport-idle.svg" alt="" width="24" height="24"><small>24 px</small></span><span class="sz"><img src="mascot/sport-idle.svg" alt="" width="32" height="32"><small>32 px</small></span><span class="sz"><img src="mascot/sport-idle.svg" alt="" width="48" height="48"><small>48 px</small></span><span class="sz"><img src="mascot/sport-idle.svg" alt="" width="96" height="96"><small>96 px</small></span></div>
+  </div>
+
+  <div class="variant variant--light" data-variant="friend">
+    <header>
+      <h3>Вариант 3 · «Дружок» <small>для направления 3</small></h3>
+      <p>Контур чернилами #2B2350, глаза крупнее, двойной блик, румянец, тень одной ступенью, виноградный скин #8C7BFF. Самый тёплый, но рассчитан на светлый фон.</p>
+    </header>
+    <div class="mgrid">
+      <figure data-mood="idle"><img src="mascot/friend-idle.svg" alt="Дружок: покой" data-inline><figcaption>покой</figcaption></figure>
+      <figure data-mood="happy"><img src="mascot/friend-happy.svg" alt="Дружок: радость" data-inline><figcaption>радость</figcaption></figure>
+      <figure data-mood="care"><img src="mascot/friend-care.svg" alt="Дружок: забота" data-inline><figcaption>забота</figcaption></figure>
+      <figure data-mood="tired"><img src="mascot/friend-tired.svg" alt="Дружок: устала" data-inline><figcaption>устала</figcaption></figure>
+      <figure data-mood="celebrate"><img src="mascot/friend-celebrate.svg" alt="Дружок: праздник" data-inline><figcaption>праздник</figcaption></figure>
+      <figure data-mood="ok" class="st"><img src="mascot/friend-ok.svg" alt="Дружок: норма" data-inline><figcaption>●&nbsp;норма</figcaption></figure>
+      <figure data-mood="worry" class="st"><img src="mascot/friend-worry.svg" alt="Дружок: внимание" data-inline><figcaption>▲&nbsp;внимание</figcaption></figure>
+      <figure data-mood="stop" class="st"><img src="mascot/friend-stop.svg" alt="Дружок: срыв" data-inline><figcaption>✕&nbsp;срыв</figcaption></figure>
+    </div>
+    <div class="sizes" aria-label="Проверка размеров: 24, 32, 48 и 96 px"><span class="sz"><img src="mascot/friend-idle.svg" alt="" width="24" height="24"><small>24 px</small></span><span class="sz"><img src="mascot/friend-idle.svg" alt="" width="32" height="32"><small>32 px</small></span><span class="sz"><img src="mascot/friend-idle.svg" alt="" width="48" height="48"><small>48 px</small></span><span class="sz"><img src="mascot/friend-idle.svg" alt="" width="96" height="96"><small>96 px</small></span></div>
+  </div>
+  <p class="fine">Файлы: <code>board/mascot/&lt;вариант&gt;-&lt;настроение&gt;.svg</code>, каждый меньше 3 КБ, рисованный вектор без растра. Собраны одним скриптом <code>build-mascot.mjs</code> из одной геометрии. Анимация на странице — только CSS (дыхание 4 с, моргание, подскок); при «Уменьшить движение» её нет.</p>
+</section>
+
+<!-- ============ МОЙ ВЫБОР ============ -->
+<section id="vote" class="wrap vote" aria-labelledby="vote-title">
+  <h2 id="vote-title">Мой выбор</h2>
+  <p class="lead-s">Всё сохраняется только в этом браузере. Когда закончишь, нажми «Скопировать мой выбор» и вставь текст в чат с ассистентом.</p>
+  <form id="vote-form" class="vote-grid" autocomplete="off">
+    <fieldset>
+      <legend>Нравятся направления</legend>
+      <label class="opt"><input type="checkbox" name="like" value="1"><span>1 · Неон + Искра</span></label>
+      <label class="opt"><input type="checkbox" name="like" value="2"><span>2 · Чистый спорт</span></label>
+      <label class="opt"><input type="checkbox" name="like" value="3"><span>3 · Дружелюбный маскот</span></label>
+    </fieldset>
+    <fieldset>
+      <legend>Главный выбор</legend>
+      <label class="opt"><input type="radio" name="main" value="1"><span>1 · Неон + Искра</span></label>
+      <label class="opt"><input type="radio" name="main" value="2"><span>2 · Чистый спорт</span></label>
+      <label class="opt"><input type="radio" name="main" value="3"><span>3 · Дружелюбный маскот</span></label>
+    </fieldset>
+    <fieldset>
+      <legend>Искра</legend>
+      <label class="opt"><input type="radio" name="iskra" value="1"><span>1 · «Огонёк»</span></label>
+      <label class="opt"><input type="radio" name="iskra" value="2"><span>2 · «Знак»</span></label>
+      <label class="opt"><input type="radio" name="iskra" value="3"><span>3 · «Дружок»</span></label>
+      <label class="opt"><input type="radio" name="iskra" value="mix"><span>Смешать (опишу ниже)</span></label>
+    </fieldset>
+    <fieldset>
+      <legend>Картинки</legend>
+      <label class="field"><span>Модель Gemini</span>
+        <select name="model">
+          <option value="">— выбери —</option>
+          <option value="pro">все картинки — Nano Banana Pro</option>
+          <option value="mixed">часть — обычный Nano Banana (после лимита)</option>
+          <option value="unknown">не понял, какая модель</option>
+          <option value="none">Gemini не использовал</option>
+        </select>
+      </label>
+      <label class="field"><span>ChatGPT</span>
+        <select name="chatgpt">
+          <option value="">— выбери —</option>
+          <option value="yes">делал картинки</option>
+          <option value="limit">упёрся в лимит</option>
+          <option value="no">не использовал</option>
+        </select>
+      </label>
+    </fieldset>
+    <label class="field field--wide"><span>Почему так (1–3 фразы: что зацепило, что смущает)</span>
+      <textarea name="why" rows="3" placeholder="Например: неон читается с пола, но Искре из 3-го нужны глаза покрупнее"></textarea>
+    </label>
+  </form>
+  <div class="summary">
+    <pre id="summary" tabindex="0" aria-label="Текст для чата"></pre>
+    <div class="summary-actions">
+      <button class="btn" type="button" data-copy="summary">Скопировать мой выбор</button>
+      <button class="btn btn--ghost" type="button" id="reset">Сбросить</button>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <p>Источники: <a href="https://github.com/kaktys281999-sketch/plank-run/blob/main/docs/PLAN.md">PLAN.md</a> §8.1–8.11, <a href="https://github.com/kaktys281999-sketch/plank-run/blob/main/docs/plan/spec-visual-art.md">арт-библия</a>, <a href="https://github.com/kaktys281999-sketch/plank-run/blob/main/docs/research/design.md">design.md</a> §3, <a href="https://github.com/kaktys281999-sketch/plank-run/blob/main/art/README.md">art/README.md</a>.</p>
+    <p>Шрифты Unbounded, Onest, Inter Tight, Tektur и Nunito распространяются по лицензии SIL Open Font License 1.1 и лежат рядом со страницей (<a href="fonts/OFL-onest.txt">лицензии</a>). Страница не обращается к сторонним серверам; выбор хранится только в этом браузере.</p>
+  </div>
+</footer>
+
+<p class="toast" id="toast" role="status" aria-live="polite"></p>
+<script src="board.js" defer></script>
+</body>
+</html>

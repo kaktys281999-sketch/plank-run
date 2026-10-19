@@ -65,6 +65,8 @@ const HELP = `node tools/tts/generate.mjs [options]
   --model <id>             gemini-3.1-flash-tts-preview | gemini-2.5-flash-preview-tts
   --out <dir>              output root (assets/voice; voices/samples with --samples)
   --samples                render the 10 voice-choice phrases → <out>/<voice>/<n>.m4a
+  --as <label>             with --samples and one voice: folder/key name instead of the
+                           voice name (e.g. Kore-3.8 to compare models)
   --lines-file <p[,p…]>    line table(s), merged in order (js/voice-lines.js)
   --batch <n>              lines per request (12)
   --style <text> | --no-style   English style direction for the model
@@ -88,14 +90,14 @@ function parseArgs(argv) {
     samples: false, linesFile: 'js/voice-lines.js', batch: 12, style: DEFAULT_STYLE,
     bitrate: '40k', lufs: -16, tp: -1.5, padMs: 40, default: null, minInterval: 21,
     maxRequests: 20, cache: path.join(os.tmpdir(), 'plank-run-tts-cache'), keyFile: null,
-    force: false, fresh: false, dryRun: false, check: false,
+    force: false, fresh: false, dryRun: false, check: false, as: null,
   };
   const flags = { '--samples': 'samples', '--force': 'force', '--fresh': 'fresh', '--dry-run': 'dryRun', '--check': 'check' };
   const vals = {
     '--voice': 'voice', '--lines': 'lines', '--model': 'model', '--out': 'out', '--lines-file': 'linesFile',
     '--batch': 'batch', '--style': 'style', '--bitrate': 'bitrate', '--lufs': 'lufs', '--tp': 'tp',
     '--pad-ms': 'padMs', '--default': 'default', '--min-interval': 'minInterval',
-    '--max-requests': 'maxRequests', '--cache': 'cache', '--key-file': 'keyFile',
+    '--max-requests': 'maxRequests', '--cache': 'cache', '--key-file': 'keyFile', '--as': 'as',
   };
   const nums = new Set(['batch', 'lufs', 'tp', 'padMs', 'minInterval', 'maxRequests']);
   for (let i = 0; i < argv.length; i++) {
@@ -396,8 +398,10 @@ function rmsDb(int16) {
 }
 
 // Two-pass loudness: measure (EBU R128) → linear gain to target → lookahead
-// limiter only if the gain would push the true peak over the ceiling → 3 ms
-// fades → AAC-LC mono .m4a.
+// limiter when the gain would push peaks over the ceiling → 3 ms fades →
+// AAC-LC mono .m4a.  Low-bitrate AAC overshoots peaks by 2–3 dB, so the true
+// peak of the *encoded* file is measured and, if it is over the ceiling, the
+// limiter ceiling is lowered by the excess and the clip re-encoded.
 function encodeClip(int16, outFile, o, tmpDir) {
   const tmp = path.join(tmpDir, `clip-${process.pid}-${sha(outFile, 8)}.wav`);
   fs.writeFileSync(tmp, wav(int16));
@@ -405,18 +409,26 @@ function encodeClip(int16, outFile, o, tmpDir) {
   let gain = Number.isFinite(m.i) && m.i > -60 ? o.lufs - m.i : o.lufs - (rmsDb(int16) + 3);
   gain = Math.max(-20, Math.min(30, gain));
   const dur = int16.length / RATE;
-  const af = [`volume=${gain.toFixed(2)}dB`];
   const tp = Number.isFinite(m.tp) ? m.tp : peakDb(int16);
-  const limited = tp + gain > o.tp - 0.3;
-  if (limited) af.push(`alimiter=limit=${(10 ** ((o.tp - 0.5) / 20)).toFixed(4)}:attack=1:release=60:level=0:latency=1`);
-  af.push('afade=t=in:d=0.003', `afade=t=out:st=${Math.max(0, dur - 0.003).toFixed(4)}:d=0.003`);
+  let ceiling = o.tp - 0.5; // dBFS, before encoding
+  let limited = tp + gain > ceiling + 0.2;
+  let post = { i: NaN, tp: NaN };
   fs.mkdirSync(path.dirname(outFile), { recursive: true });
-  const r = run('ffmpeg', ['-hide_banner', '-loglevel', 'error', '-y', '-i', tmp, '-af', af.join(','),
-    '-c:a', 'aac', '-b:a', o.bitrate, '-ac', '1', '-ar', String(RATE), '-map_metadata', '-1',
-    '-movflags', '+faststart', outFile]);
+  for (let pass = 1; pass <= 4; pass++) {
+    const af = [`volume=${gain.toFixed(2)}dB`];
+    if (limited) af.push(`alimiter=limit=${(10 ** (ceiling / 20)).toFixed(4)}:attack=1:release=60:level=0:latency=1`);
+    af.push('afade=t=in:d=0.003', `afade=t=out:st=${Math.max(0, dur - 0.003).toFixed(4)}:d=0.003`);
+    const r = run('ffmpeg', ['-hide_banner', '-loglevel', 'error', '-y', '-i', tmp, '-af', af.join(','),
+      '-c:a', 'aac', '-b:a', o.bitrate, '-ac', '1', '-ar', String(RATE), '-map_metadata', '-1',
+      '-movflags', '+faststart', '-f', 'mp4', outFile]);
+    if (r.code !== 0) { fs.rmSync(tmp, { force: true }); throw new Error(`ffmpeg failed for ${rel(outFile)}: ${r.err.slice(-400)}`); }
+    post = measure(outFile);
+    if (!(post.tp > o.tp)) break;
+    ceiling -= post.tp - o.tp + 0.3;
+    limited = true;
+  }
   fs.rmSync(tmp, { force: true });
-  if (r.code !== 0) throw new Error(`ffmpeg failed for ${rel(outFile)}: ${r.err.slice(-400)}`);
-  return { ms: Math.round(dur * 1000), gain, limited, inI: m.i };
+  return { ms: Math.round(dur * 1000), gain, limited, ceiling, inI: m.i, outI: post.i, outTp: post.tp };
 }
 
 function decode(file) {
@@ -669,7 +681,7 @@ async function modeLines(o, client) {
         file: rel(file), text: table[id], ms: enc.ms, onsetMs: r.onsetMs,
         model: o.model, hash: sha(fs.readFileSync(file), 12),
       };
-      log(`  ✓ ${rel(file)}  ${enc.ms} ms  gain ${enc.gain.toFixed(1)} dB${enc.limited ? ' +limiter' : ''}`);
+      log(`  ✓ ${rel(file)}  ${enc.ms} ms  gain ${enc.gain.toFixed(1)} dB${enc.limited ? `, limiter ${enc.ceiling.toFixed(1)} dBFS` : ''} → ${enc.outI.toFixed(1)} LUFS, TP ${enc.outTp.toFixed(1)}`);
     }
     if (missing.length) log(`${voice}: not rendered: ${missing.length} line(s)`);
     if (stopped) { report.stopped = stopped; }
@@ -699,29 +711,31 @@ async function modeSamples(o, client) {
   const indexFile = path.join(outRoot, 'samples.json');
   const idx = fs.existsSync(indexFile) ? JSON.parse(fs.readFileSync(indexFile, 'utf8')) : { voices: {} };
   const report = { missing: [], stopped: null };
+  if (o.as && o.voices.length !== 1) die('--as needs exactly one --voice');
   for (const voice of o.voices) {
-    const done = SAMPLE_PHRASES.every((_, i) => fs.existsSync(path.join(outRoot, voice, `${i + 1}.m4a`)));
-    if (done && !o.force && !o.fresh && idx.voices?.[voice]?.model === o.model) { log(`${voice}: samples up to date`); continue; }
+    const key = o.as ?? voice;
+    const done = SAMPLE_PHRASES.every((_, i) => fs.existsSync(path.join(outRoot, key, `${i + 1}.m4a`)));
+    if (done && !o.force && !o.fresh && idx.voices?.[key]?.model === o.model) { log(`${key}: samples up to date`); continue; }
     log(`${voice}: rendering ${SAMPLE_PHRASES.length} sample phrases`);
     let res;
     try {
       res = await renderTexts(o, client, voice, SAMPLE_PHRASES);
     } catch (e) {
       warn(`${voice}: ${e.message}`);
-      idx.voices[voice] = { ok: false, error: e.message, model: o.model };
-      report.missing.push(...SAMPLE_PHRASES.map((_, i) => `${voice}/${i + 1}`));
+      idx.voices[key] = { ok: false, voice, error: e.message, model: o.model };
+      report.missing.push(...SAMPLE_PHRASES.map((_, i) => `${key}/${i + 1}`));
       continue;
     }
     if (o.dryRun) continue;
     const ms = [];
     SAMPLE_PHRASES.forEach((t, i) => {
       const r = res.result.get(t);
-      if (!r) { report.missing.push(`${voice}/${i + 1}`); ms.push(null); return; }
-      const enc = encodeClip(r.pcm, path.join(outRoot, voice, `${i + 1}.m4a`), o, o.cache);
+      if (!r) { report.missing.push(`${key}/${i + 1}`); ms.push(null); return; }
+      const enc = encodeClip(r.pcm, path.join(outRoot, key, `${i + 1}.m4a`), o, o.cache);
       ms.push(enc.ms);
     });
-    idx.voices[voice] = { ok: ms.every(Boolean), model: o.model, ms };
-    log(`${voice}: ${ms.filter(Boolean).length}/${SAMPLE_PHRASES.length} saved (${ms.map((v) => v ?? '–').join(', ')} ms)`);
+    idx.voices[key] = { ok: ms.every(Boolean), voice, model: o.model, ms };
+    log(`${key}: ${ms.filter(Boolean).length}/${SAMPLE_PHRASES.length} saved (${ms.map((v) => v ?? '–').join(', ')} ms)`);
     if (res.stopped) { report.stopped = res.stopped; break; }
   }
   if (o.dryRun) return report;

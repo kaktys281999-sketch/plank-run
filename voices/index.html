@@ -1,0 +1,403 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Голос тренера Plank Run</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+  /* Layout: one column of voice cards on phones, three per row (female / male) on wide screens;
+     a sticky "one phrase, all voices" strip on top. Tokens copied from css/style.css. */
+  :root {
+    --bg: #0b0d17;
+    --bg-2: #12152a;
+    --card: #161a33;
+    --line: #2a3060;
+    --text: #eef0ff;
+    --muted: #9aa0c8;
+    --accent: #5ef2c2;
+    --accent-2: #7c6cff;
+    --on-accent: #062018;
+    --warn: #ffb547;
+    --radius: 16px;
+    --font: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    color-scheme: dark;
+  }
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  html { background: var(--bg); }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font: 16px/1.5 var(--font);
+    -webkit-font-smoothing: antialiased;
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+    padding-block: 0 48px;
+  }
+  button { font: inherit; color: inherit; }
+  .wrap { max-width: 1120px; margin: 0 auto; display: grid; gap: 28px; }
+
+  header { padding-top: max(28px, env(safe-area-inset-top, 0px)); display: grid; gap: 10px; max-width: 68ch; }
+  .logo {
+    margin: 0;
+    font-weight: 900;
+    font-size: clamp(34px, 8vw, 56px);
+    letter-spacing: -0.04em;
+    line-height: 1.02;
+    text-wrap: balance;
+    background: linear-gradient(90deg, var(--accent), var(--accent-2));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .lead { margin: 0; color: var(--text); font-size: 17px; }
+  .lead strong { color: var(--accent); font-weight: 700; }
+  .meta { margin: 0; color: var(--muted); font-size: 14px; }
+
+  /* compare strip */
+  .compare {
+    position: sticky;
+    top: env(safe-area-inset-top, 0px);
+    z-index: 5;
+    background: color-mix(in srgb, var(--bg) 92%, transparent);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--line);
+    padding-block: 12px;
+    display: grid;
+    gap: 8px;
+  }
+  .compare-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  .eyebrow { margin: 0; font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+  .chips { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: thin; }
+  .chip {
+    flex: none;
+    min-height: 40px;
+    padding: 8px 14px;
+    border-radius: 99px;
+    border: 1px solid var(--line);
+    background: var(--bg-2);
+    color: var(--text);
+    cursor: pointer;
+    font-size: 14px;
+    white-space: nowrap;
+  }
+  .chip:hover { border-color: var(--accent-2); }
+  .chip[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--on-accent); font-weight: 600; }
+  .stop {
+    min-height: 40px;
+    padding: 8px 16px;
+    border-radius: 99px;
+    border: 1px solid var(--warn);
+    background: transparent;
+    color: var(--warn);
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  section { display: grid; gap: 14px; }
+  .section-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  h2 { margin: 0; font-size: 20px; letter-spacing: -0.01em; }
+  .section-note { margin: 0; color: var(--muted); font-size: 14px; max-width: 68ch; }
+  .grid { display: grid; gap: 16px; grid-template-columns: minmax(0, 1fr); }
+  @media (min-width: 980px) { .grid.three { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+  .grid.one { max-width: 560px; }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 18px;
+    display: grid;
+    gap: 14px;
+    align-content: start;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .card.is-live { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent), 0 0 32px -12px var(--accent); }
+  .card-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+  .name { margin: 0; font-size: 26px; font-weight: 800; letter-spacing: -0.02em; line-height: 1.1; }
+  .desc { margin: 4px 0 0; color: var(--muted); font-size: 14px; }
+  .facts { display: flex; flex-wrap: wrap; gap: 6px; margin: 0; padding: 0; list-style: none; }
+  .facts li {
+    font-size: 12px;
+    padding: 2px 8px;
+    border-radius: 99px;
+    border: 1px solid var(--line);
+    color: var(--muted);
+    font-variant-numeric: tabular-nums;
+  }
+  .facts li.model-new { border-color: var(--accent-2); color: var(--text); }
+  .all {
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 44px;
+    padding: 8px 16px;
+    border-radius: 99px;
+    border: 0;
+    background: var(--accent);
+    color: var(--on-accent);
+    font-weight: 700;
+    font-size: 15px;
+    cursor: pointer;
+  }
+  .all[aria-pressed="true"] { background: var(--warn); }
+  .all svg, .play svg { width: 14px; height: 14px; fill: currentColor; }
+
+  ol.lines { margin: 0; padding: 0; list-style: none; display: grid; gap: 2px; }
+  .line {
+    display: grid;
+    grid-template-columns: 44px minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 10px;
+    padding: 4px 6px 4px 0;
+    border-radius: 12px;
+  }
+  .line.is-playing { background: color-mix(in srgb, var(--accent) 12%, transparent); }
+  .line.is-error .dur { color: var(--warn); }
+  .play {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: 1px solid var(--line);
+    background: var(--bg-2);
+    color: var(--accent);
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+  }
+  .play:hover { border-color: var(--accent); }
+  .line.is-playing .play { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
+  .text { font-size: 15px; line-height: 1.35; min-width: 0; overflow-wrap: anywhere; }
+  .dur { font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
+
+  .reply {
+    border: 1px dashed var(--accent-2);
+    border-radius: var(--radius);
+    padding: 18px;
+    display: grid;
+    gap: 8px;
+    max-width: 720px;
+  }
+  .reply p { margin: 0; }
+  code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.9em; color: var(--accent); overflow-wrap: anywhere; }
+  footer { color: var(--muted); font-size: 13px; max-width: 80ch; display: grid; gap: 6px; }
+  footer p { margin: 0; }
+
+  :focus-visible { outline: 2px solid var(--accent-2); outline-offset: 2px; }
+  @media (prefers-reduced-motion: reduce) { .card { transition: none; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1 class="logo">Голос тренера</h1>
+    <p class="lead">Шесть голосов Gemini читают десять фраз из Plank Run. Послушайте и напишите ассистенту, <strong>какие 1–2 голоса нравятся</strong>: один «Мягкий» и один «Бодрый».</p>
+    <p class="meta">Удобнее слушать с телефона в наушниках или с пола, как во время планки. Звук включается только после нажатия.</p>
+  </header>
+
+  <div class="compare" role="region" aria-label="Одна фраза всеми голосами">
+    <div class="compare-head">
+      <p class="eyebrow">Одна фраза — все шесть голосов подряд</p>
+      <button class="stop" id="stop" type="button" hidden>Остановить</button>
+    </div>
+    <div class="chips" id="chips"></div>
+  </div>
+
+  <section aria-labelledby="h-female">
+    <div class="section-head"><h2 id="h-female">Женские голоса</h2></div>
+    <div class="grid three" id="female"></div>
+  </section>
+
+  <section aria-labelledby="h-male">
+    <div class="section-head"><h2 id="h-male">Мужские голоса</h2></div>
+    <div class="grid three" id="male"></div>
+  </section>
+
+  <section aria-labelledby="h-model">
+    <div class="section-head"><h2 id="h-model">Сейчас в приложении</h2></div>
+    <p class="section-note">Kore на модели <b>gemini-3.8-flash-tts</b>: этим голосом уже озвучены все 37 подсказок в <code>assets/voice</code>. Сравните с карточкой Kore выше (модель 3.1): тембр тот же, интонации немного другие. Если выберете другой голос, ассистент перерендерит подсказки одной командой.</p>
+    <div class="grid one" id="current"></div>
+  </section>
+
+  <div class="reply">
+    <p class="eyebrow">Как ответить</p>
+    <p>Напишите ассистенту одной строкой, например: <code>Мягкий — Leda, Бодрый — Puck</code>. Можно один голос на всё. Если не понравилась конкретная фраза (ударение, интонация), назовите голос и номер фразы.</p>
+  </div>
+
+  <footer>
+    <p>Модели: Kore, Aoede, Leda, Puck, Charon — gemini-3.1-flash-tts-preview; Fenrir — gemini-3.8-flash-tts, потому что дневная квота 3.1 на бесплатном тарифе закончилась (10 запросов в сутки). Fenrir на 3.1 можно добавить завтра.</p>
+    <p>Стиль для модели: дружелюбный тренер, энергично, но спокойно, чёткая дикция. Обработка: обрезка тишины до 40 мс, громкость −16 LUFS, AAC 40 кбит/с моно. «Высота» — медианная частота основного тона по всем десяти фразам.</p>
+  </footer>
+</div>
+
+<script>
+  const PHRASES = [
+    'Займи планку лицом к экрану',
+    'Отлично. Держи!',
+    'Дыши ровно',
+    'Подними таз',
+    'Ещё десять секунд',
+    'Цель достигнута! Отдыхай и дыши',
+    'Банка полная! Плюс десять',
+    'Не вижу тебя',
+    'Вернись в планку',
+    'Начинаем проверку. Держи только до сигнала. Любой отрезок можно сделать на коленях или пропустить.',
+  ];
+  const CHIP_LABELS = PHRASES.map((p, i) => (i === 9 ? 'Начинаем проверку…' : p));
+
+  // ms: clip lengths from voices/samples/samples.json; f0: median pitch (tools/tts --check).
+  const VOICES = [
+    { key: 'Kore', group: 'female', desc: 'Твёрдый, собранный', google: 'Firm', model: '3.1', f0: 186, ms: [2310, 2220, 1240, 1050, 1510, 3480, 2600, 1160, 1430, 7690] },
+    { key: 'Aoede', group: 'female', desc: 'Лёгкий, светлый', google: 'Breezy', model: '3.1', f0: 190, ms: [2240, 1760, 1180, 920, 1530, 3230, 2310, 1000, 1250, 7580] },
+    { key: 'Leda', group: 'female', desc: 'Молодой, звонкий', google: 'Youthful', model: '3.1', f0: 222, ms: [1870, 1530, 940, 790, 1270, 2650, 1990, 830, 1040, 6310] },
+    { key: 'Puck', group: 'male', desc: 'Бодрый, весёлый', google: 'Upbeat', model: '3.1', f0: 157, ms: [1830, 1530, 1000, 940, 1400, 2940, 2170, 870, 1040, 6800] },
+    { key: 'Charon', group: 'male', desc: 'Ровный, объясняющий', google: 'Informative', model: '3.1', f0: 108, ms: [2090, 1610, 1000, 970, 1440, 2670, 2100, 900, 1150, 6035] },
+    { key: 'Fenrir', group: 'male', desc: 'Энергичный, заводной', google: 'Excitable', model: '3.8', f0: 127, ms: [1830, 2040, 900, 920, 1370, 2620, 2200, 900, 990, 6120] },
+    { key: 'Kore-3.8', name: 'Kore', group: 'current', desc: 'Твёрдый, собранный', google: 'Firm', model: '3.8', f0: 186, ms: [2140, 1740, 970, 870, 1570, 3120, 1950, 1020, 1200, 6710] },
+  ];
+
+  const ICON_PLAY = '<svg viewBox="0 0 14 14" aria-hidden="true"><path d="M3 1.5v11l9.5-5.5z"/></svg>';
+  const ICON_STOP = '<svg viewBox="0 0 14 14" aria-hidden="true"><rect x="2.5" y="2.5" width="9" height="9" rx="1.5"/></svg>';
+  const sec = (ms) => `${(ms / 1000).toFixed(1).replace('.', ',')} с`;
+  const src = (key, i) => `samples/${key}/${i + 1}.m4a`;
+
+  // ---- rendering
+  const cards = new Map();
+  for (const v of VOICES) {
+    const card = document.createElement('article');
+    card.className = 'card';
+    card.id = `voice-${v.key}`;
+    const name = v.name ?? v.key;
+    const total = v.ms.reduce((a, b) => a + b, 0);
+    card.innerHTML = `
+      <div class="card-top">
+        <div>
+          <h3 class="name">${name}</h3>
+          <p class="desc">${v.desc} <span lang="en">(${v.google})</span></p>
+        </div>
+        <button class="all" type="button" aria-pressed="false">${ICON_PLAY}<span>Все 10</span></button>
+      </div>
+      <ul class="facts">
+        <li class="${v.model === '3.8' ? 'model-new' : ''}">модель ${v.model}</li>
+        <li>высота ≈ ${v.f0} Гц</li>
+        <li>10 фраз · ${sec(total)}</li>
+      </ul>
+      <ol class="lines">
+        ${PHRASES.map((p, i) => `
+          <li class="line" data-i="${i}">
+            <button class="play" type="button" aria-label="Слушать: ${p.replace(/"/g, '&quot;')}">${ICON_PLAY}</button>
+            <span class="text">${p}</span>
+            <span class="dur">${sec(v.ms[i])}</span>
+          </li>`).join('')}
+      </ol>`;
+    document.getElementById(v.group).append(card);
+    cards.set(v.key, card);
+    card.querySelectorAll('.line').forEach((li) => {
+      li.querySelector('.play').addEventListener('click', () => {
+        const i = Number(li.dataset.i);
+        if (isPlaying({ key: v.key, i }) && queueKind === 'one') return stop();
+        playQueue([{ key: v.key, i }], 'one');
+      });
+    });
+    const all = card.querySelector('.all');
+    all.addEventListener('click', () => {
+      if (queueKind === `all:${v.key}`) return stop();
+      playQueue(PHRASES.map((_, i) => ({ key: v.key, i })), `all:${v.key}`);
+    });
+  }
+
+  const chipsEl = document.getElementById('chips');
+  CHIP_LABELS.forEach((label, i) => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'chip';
+    b.textContent = label;
+    b.setAttribute('aria-pressed', 'false');
+    b.addEventListener('click', () => {
+      if (queueKind === `phrase:${i}`) return stop();
+      const six = VOICES.filter((v) => v.group !== 'current');
+      playQueue(six.map((v) => ({ key: v.key, i })), `phrase:${i}`);
+    });
+    chipsEl.append(b);
+  });
+
+  // ---- playback: one <audio>, a queue, 450 ms of air between clips
+  const audio = new Audio();
+  audio.preload = 'auto';
+  let queue = [];
+  let current = null;
+  let queueKind = null;
+  let gapTimer = 0;
+  const stopBtn = document.getElementById('stop');
+  stopBtn.addEventListener('click', () => stop());
+
+  function isPlaying(item) {
+    return current && current.key === item.key && current.i === item.i;
+  }
+
+  function mark(item, on) {
+    const card = cards.get(item.key);
+    if (!card) return;
+    card.classList.toggle('is-live', on);
+    const li = card.querySelector(`.line[data-i="${item.i}"]`);
+    li.classList.toggle('is-playing', on);
+    li.querySelector('.play').innerHTML = on ? ICON_STOP : ICON_PLAY;
+  }
+
+  function syncControls() {
+    for (const [key, card] of cards) {
+      const btn = card.querySelector('.all');
+      const on = queueKind === `all:${key}`;
+      btn.setAttribute('aria-pressed', String(on));
+      btn.innerHTML = `${on ? ICON_STOP : ICON_PLAY}<span>${on ? 'Стоп' : 'Все 10'}</span>`;
+    }
+    chipsEl.querySelectorAll('.chip').forEach((c, i) => c.setAttribute('aria-pressed', String(queueKind === `phrase:${i}`)));
+    stopBtn.hidden = !queueKind;
+  }
+
+  function playQueue(items, kind) {
+    stop();
+    queue = items.slice();
+    queueKind = kind;
+    syncControls();
+    next();
+  }
+
+  function next() {
+    if (current) mark(current, false);
+    current = queue.shift() ?? null;
+    if (!current) { queueKind = null; syncControls(); return; }
+    mark(current, true);
+    if (queueKind && queueKind.startsWith('phrase:')) cards.get(current.key).scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    audio.src = src(current.key, current.i);
+    audio.play().catch(() => fail());
+  }
+
+  let failed = null;
+  function fail() {
+    if (!current || failed === current) return;
+    failed = current;
+    const li = cards.get(current.key)?.querySelector(`.line[data-i="${current.i}"]`);
+    if (li) { li.classList.add('is-error'); li.querySelector('.dur').textContent = 'не играет'; }
+    gapTimer = setTimeout(next, 200);
+  }
+
+  function stop() {
+    clearTimeout(gapTimer);
+    audio.pause();
+    queue = [];
+    if (current) mark(current, false);
+    current = null;
+    queueKind = null;
+    syncControls();
+  }
+
+  audio.addEventListener('ended', () => { gapTimer = setTimeout(next, 450); });
+  audio.addEventListener('error', () => fail());
+</script>
+</body>
+</html>

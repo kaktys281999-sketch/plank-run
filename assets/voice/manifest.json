@@ -1,0 +1,307 @@
+{
+  "default": "Kore",
+  "model": "gemini-3.8-flash-tts",
+  "generated": "2026-10-19",
+  "format": "AAC-LC .m4a, mono, 24000 Hz, 40kbps, -16 LUFS, true peak ≤ -1.5 dBTP, 40 ms pad",
+  "style": "Style: a friendly fitness coach, energetic but calm, warm and confident. Clear diction, natural Russian, steady medium pace. Voice only, no music, no sound effects.",
+  "voices": {
+    "Kore": {
+      "p_welcome": {
+        "file": "assets/voice/Kore/p_welcome.m4a",
+        "text": "Начинаем проверку. Держи только до сигнала. Любой отрезок можно сделать на коленях или пропустить.",
+        "ms": 6710,
+        "onsetMs": 40,
+        "model": "gemini-3.8-flash-tts",
+        "hash": "94db9223ea46"
+      },
+      "p_go": {
+        "file": "assets/voice/Kore/p_go.m4a",
+        "text": "Начали!",
+        "ms": 590,
+        "onsetMs": 40,
+        "model": "gemini-3.8-flash-tts",
+        "hash": "f57947e5aa39"
+      },
+      "p_rest": {
+        "file": "assets/voice/Kore/p_rest.m4a",
+        "text": "Отдыхай.",
+        "ms": 690,
+        "onsetMs": 40,
+        "model": "gemini-3.8-flash-tts",
+        "hash": "2feb74e4a53e"
+      },
+      "p_next": {
+        "file": "assets/voice/Kore/p_next.m4a",
+        "text": "Следующий отрезок.",
+        "ms": 1260,
+        "onsetMs": 40,
+        "model": "gemini-3.8-flash-tts",
+        "hash": "b6f7d5078a62"
+      },
+      "p_hold_still": {
+        "file": "assets/voice/Kore/p_hold_still.m4a",
+        "text": "Встань в планку и держи ровно.",
+        "ms": 1870,
+        "onsetMs": 40,
+        "model": "gemini-3.8-flash-tts",
+        "hash": "351062c65e33"
+      },
+      "p_shift": {
+        "file": "assets/voice/Kore/p_shift.m4a",
+        "text": "Медленно смещай корпус влево и вправо.",
+        "ms": 2930,
+        "onsetMs": 40,
+        "model": "gemini-3.8-flash-tts",
+        "hash": "c4568152b878"
+      },
+      "p_nod": {
+        "file": "assets/voice/Kore/p_nod.m4a",
+        "text": "Теперь кивни головой, корпус не двигай.",
+        "ms": 2220,
+        "onsetMs": 40,
+        "model": "gemini-3.8-flash-tts",
+        "hash": "59362a6c6d51"
+      },
+      "p_sway_beat": {
+        "file": "assets/voice/Kore/p_sway_beat.m4a",
+        "text": "Качайся влево-вправо в такт щелчкам.",
+        "ms": 3250,
+        "onsetMs": 40,
+        "model": "gemini-3.8-flash-tts",
+        "hash": "f0009eacd394"
+      },
+      "p_knees": {
+        "file": "assets/voice/Kore/p_knees.m4a",
+        "text": "Теперь планка на коленях.",
+        "ms": 2000,
+        "onsetMs": 40,
+        "model": "gemini-3.8-flash-tts",
+        "hash": "76cd16e10d06"
+      },
+      "p_straight_arms": {
+        "file": "assets/voice/Kore/p_straight_arms.m4a",
+        "text": "Теперь на прямых руках.",
+        "ms": 1460,
+        "onsetMs": 40,
+        "model": "gemini-3.8-flash-tts",
+        "hash": "8aa5705663e7"
+      },
+      "p_side_knee": {
+        "file": "assets/voice/Kore/p_side_knee.m4a",
+        "text": "Боковая планка на колене. Можно пропустить.",
+        "ms": 3050,
+        "onsetMs": 40,
+        "model": "gemini-3.8-flash-tts",
+        "hash": "1335ebf625c5"
+      },
+      "p_shoulder_taps": {
+        "file": "assets/voice/Kore/p_shoulder_taps.m4a",
+        "text": "Касайся плеч по очереди, шесть раз.",
+        "ms": 2590,
+        "onsetMs": 40,
+        "model": "gemini-3.8-flash-tts",
+        "hash": "ce88d39959b1"
+      },
+      "p_stand": {
+        "file": "assets/voice/Kore/p_stand.m4a",
+        "text": "Встань. Отрезок закончен.",
+        "ms": 2550,
+        "onsetMs": 40,
+        "model": "gemini-3.8-flash-tts",
+        "hash": "15e71bd9176f"
+      },
+      "p_side_flat": {
+        "file": "assets/voice/Kore/p_side_flat.m4a",
+        "text": "Держи ровную линию.",
+        "ms": 1820,
+        "onsetMs": 40,
+        "model": "gemini-3.8-flash-tts",
+        "hash": "7348236c2799"
+      },
+      "p_side_sag": {
+        "file": "assets/voice/Kore/p_side_sag.m4a",
+        "text": "Чуть опусти таз на три секунды.",
+        "ms": 2570,
+        "onsetMs": 40,
+        "model": "gemini-3.8-flash-tts",
+        "hash": "81de454c34e1"
+      },
+      "p_side_pike": {
+        "file": "assets/voice/Kore/p_side_pike.m4a",
+        "text": "Подними таз домиком на три секунды.",
+        "ms": 2800,
+        "onsetMs": 40,
+        "model": "gemini-3.8-flash-tts",
+        "hash": "128886684cca"
+      },
+      "p_side_rock": {
+        "file": "assets/voice/Kore/p_side_rock.m4a",
+        "text": "Качнись вперёд и назад.",
+        "ms": 2160,
+        "onsetMs": 40,
+        "model": "gemini-3.8-flash-tts",
+        "hash": "01a39d2868b8"
+      },
+      "p_stop_pain": {
+        "file": "assets/voice/Kore/p_stop_pain.m4a",
+        "text": "Если больно — сразу остановись.",
+        "ms": 2110,
+        "onsetMs": 40,
+        "model": "gemini-3.8-flash-tts",
+        "hash": "8998ee9d5e05"
+      },
+      "p_done": {
+        "file": "assets/voice/Kore/p_done.m4a",
+        "text": "Проверка закончена. Спасибо!",
+        "ms": 2000,
+        "onsetMs": 40,
+        "model": "gemini-3.8-flash-tts",
+        "hash": "68e7c69b4fe2"
+      },
+      "p_three_two_one": {
+        "file": "assets/voice/Kore/p_three_two_one.m4a",
+        "text": "Три, два, один.",
+        "ms": 3040,
+        "onsetMs": 40,
+        "model": "gemini-3.8-flash-tts",
+        "hash": "30d993c17b67"
+      },
+      "breathe": {
+        "file": "assets/voice/Kore/breathe.m4a",
+        "text": "Дыши ровно",
+        "ms": 970,
+        "onsetMs": 40,
+        "model": "gemini-3.8-flash-tts",
+        "hash": "eac79f1efba5"
+      },
+      "ten_left": {
+        "file": "assets/voice/Kore/ten_left.m4a",
+        "text": "Ещё десять секунд",
+        "ms": 1570,
+        "onsetMs": 40,
+        "model": "gemini-3.8-flash-tts",
+        "hash": "0b62dceb6c4a"
+      },
+      "five_left": {
+        "file": "assets/voice/Kore/five_left.m4a",
+        "text": "Ещё пять секунд, дыши",
+        "ms": 2280,
+        "onsetMs": 40,
+        "model": "gemini-3.8-flash-tts",
+        "hash": "6d452acda987"
+      },
+      "goal": {
+        "file": "assets/voice/Kore/goal.m4a",
+        "text": "Цель достигнута! Отдыхай и дыши",
+        "ms": 3120,
+        "onsetMs": 40,
+        "model": "gemini-3.8-flash-tts",
+        "hash": "fe64255c2713"
+      },
+      "great_hold": {
+        "file": "assets/voice/Kore/great_hold.m4a",
+        "text": "Отлично. Держи!",
+        "ms": 1740,
+        "onsetMs": 40,
+        "model": "gemini-3.8-flash-tts",
+        "hash": "41bbed505942"
+      },
+      "get_in_plank_front": {
+        "file": "assets/voice/Kore/get_in_plank_front.m4a",
+        "text": "Займи планку лицом к экрану",
+        "ms": 2140,
+        "onsetMs": 40,
+        "model": "gemini-3.8-flash-tts",
+        "hash": "435e7b35d57d"
+      },
+      "get_in_plank_side": {
+        "file": "assets/voice/Kore/get_in_plank_side.m4a",
+        "text": "Займи планку боком к камере",
+        "ms": 1800,
+        "onsetMs": 40,
+        "model": "gemini-3.8-flash-tts",
+        "hash": "bbfcd1527ce2"
+      },
+      "lift_hips": {
+        "file": "assets/voice/Kore/lift_hips.m4a",
+        "text": "Подними таз",
+        "ms": 870,
+        "onsetMs": 40,
+        "model": "gemini-3.8-flash-tts",
+        "hash": "a08245b70fa3"
+      },
+      "lower_hips": {
+        "file": "assets/voice/Kore/lower_hips.m4a",
+        "text": "Опусти таз",
+        "ms": 1040,
+        "onsetMs": 40,
+        "model": "gemini-3.8-flash-tts",
+        "hash": "33b96f604ddf"
+      },
+      "straighten_legs": {
+        "file": "assets/voice/Kore/straighten_legs.m4a",
+        "text": "Выпрями ноги",
+        "ms": 1010,
+        "onsetMs": 40,
+        "model": "gemini-3.8-flash-tts",
+        "hash": "06c72b091f6c"
+      },
+      "cant_see": {
+        "file": "assets/voice/Kore/cant_see.m4a",
+        "text": "Не вижу тебя",
+        "ms": 1020,
+        "onsetMs": 40,
+        "model": "gemini-3.8-flash-tts",
+        "hash": "6520400627d7"
+      },
+      "look_screen": {
+        "file": "assets/voice/Kore/look_screen.m4a",
+        "text": "Смотри на экран",
+        "ms": 1220,
+        "onsetMs": 40,
+        "model": "gemini-3.8-flash-tts",
+        "hash": "f7f0c7482bd3"
+      },
+      "back_to_plank": {
+        "file": "assets/voice/Kore/back_to_plank.m4a",
+        "text": "Вернись в планку",
+        "ms": 1200,
+        "onsetMs": 40,
+        "model": "gemini-3.8-flash-tts",
+        "hash": "56885d7811d4"
+      },
+      "back_to_place": {
+        "file": "assets/voice/Kore/back_to_place.m4a",
+        "text": "Вернись на место",
+        "ms": 1190,
+        "onsetMs": 40,
+        "model": "gemini-3.8-flash-tts",
+        "hash": "478717a741c3"
+      },
+      "press_floor": {
+        "file": "assets/voice/Kore/press_floor.m4a",
+        "text": "Упрись в пол",
+        "ms": 1050,
+        "onsetMs": 40,
+        "model": "gemini-3.8-flash-tts",
+        "hash": "bd4491f93a1e"
+      },
+      "come_closer": {
+        "file": "assets/voice/Kore/come_closer.m4a",
+        "text": "Подойди ближе к камере",
+        "ms": 1360,
+        "onsetMs": 40,
+        "model": "gemini-3.8-flash-tts",
+        "hash": "d16c441ce535"
+      },
+      "jar_full": {
+        "file": "assets/voice/Kore/jar_full.m4a",
+        "text": "Банка полная! Плюс десять",
+        "ms": 1950,
+        "onsetMs": 40,
+        "model": "gemini-3.8-flash-tts",
+        "hash": "ea8d72bd178f"
+      }
+    }
+  }
+}

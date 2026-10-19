@@ -16,6 +16,7 @@
   "voices": {
     "Kore": {
       "ok": true,
+      "voice": "Kore",
       "model": "gemini-3.1-flash-tts-preview",
       "ms": [
         2310,
@@ -32,6 +33,7 @@
     },
     "Aoede": {
       "ok": true,
+      "voice": "Aoede",
       "model": "gemini-3.1-flash-tts-preview",
       "ms": [
         2240,
@@ -48,6 +50,7 @@
     },
     "Leda": {
       "ok": true,
+      "voice": "Leda",
       "model": "gemini-3.1-flash-tts-preview",
       "ms": [
         1870,
@@ -64,6 +67,7 @@
     },
     "Puck": {
       "ok": true,
+      "voice": "Puck",
       "model": "gemini-3.1-flash-tts-preview",
       "ms": [
         1830,
@@ -80,6 +84,7 @@
     },
     "Charon": {
       "ok": true,
+      "voice": "Charon",
       "model": "gemini-3.1-flash-tts-preview",
       "ms": [
         2090,
@@ -96,6 +101,7 @@
     },
     "Fenrir": {
       "ok": true,
+      "voice": "Fenrir",
       "model": "gemini-3.8-flash-tts",
       "ms": [
         1830,
@@ -108,6 +114,23 @@
         900,
         990,
         6120
+      ]
+    },
+    "Kore-3.8": {
+      "ok": true,
+      "voice": "Kore",
+      "model": "gemini-3.8-flash-tts",
+      "ms": [
+        2140,
+        1740,
+        970,
+        870,
+        1570,
+        3120,
+        1950,
+        1020,
+        1200,
+        6710
       ]
     }
   }
