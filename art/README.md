@@ -1,5 +1,7 @@
 # art/ — графика Plank Run
 
+> **29.10.2026.** Облик «Неон + Искра» снят (D28 в `docs/PLAN.md`). STYLE_CORE, AVOID и промпты `prompts.yaml` в этой папке собраны под него и для v2 не используются. Новые промты, ассеты и правила облика в [`docs/plan/spec-visual-v2.md`](../docs/plan/spec-visual-v2.md). Правило видимой метки Gemini ниже остаётся в силе.
+
 Главный план проекта — [`docs/PLAN.md`](../docs/PLAN.md) (§8 — визуал: §8.5 — правило метки Gemini, §8.10 — арт-неделя). Арт-библия — [`docs/plan/spec-visual-art.md`](../docs/plan/spec-visual-art.md). Промпты — `art/prompts.yaml`. Где они расходятся, прав `docs/PLAN.md`.
 
 ## Структура
