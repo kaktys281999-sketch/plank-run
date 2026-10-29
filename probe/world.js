@@ -142,7 +142,8 @@ export class World {
       const items = [];
       const add = (kind, name) => {
         const mesh = assets.forestMesh(name);
-        mesh.receiveShadow = kind === 'pebble';
+        // Grass and pebbles are too small for a visible shadow, so they skip the shadow pass.
+        mesh.castShadow = kind !== 'grass' && kind !== 'pebble';
         group.add(mesh);
         items.push({ kind, mesh });
       };
@@ -228,7 +229,7 @@ export class World {
     [20, 55, 88, 120, 150, 185, 215].forEach((a, i) => place(boulders[i % boulders.length], a, 8.2 + rng() * 1.2, 0.75 + rng() * 0.35));
     [0, 32, 66, 100, 135, 165, 200, 232, 262].forEach((a, i) => place(FOREST.trees[i % FOREST.trees.length], a + rng() * 10, 12 + rng() * 5, 0.9 + rng() * 0.35));
     [10, 70, 140, 190, 240].forEach((a, i) => place(FOREST.bushes[i % FOREST.bushes.length], a, 7.4 + rng(), 0.9));
-    for (let i = 0; i < 10; i++) place(pick(rng, FOREST.grass), 300 + rng() * 120, 7 + rng() * 2.5, 1);
+    for (let i = 0; i < 10; i++) place(pick(rng, FOREST.grass), 300 + rng() * 120, 7 + rng() * 2.5, 1).castShadow = false;
   }
 
   showRun() {
