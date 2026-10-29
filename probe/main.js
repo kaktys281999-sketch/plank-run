@@ -45,6 +45,7 @@ let lastUi = 0;
 let tauntIn = 4;
 let resting = false;
 let wake = null;
+let hintTimer = 0;
 const actors = new Map();
 const perf = new Perf();
 const cam = new CameraProbe($('#cam'));
@@ -200,7 +201,9 @@ function startRun(bot, { instant = false } = {}) {
   const hint = $('#hint');
   hint.textContent = bot ? 'Положи телефон на пол и посмотри с 0,7 и 1,5 м' : 'Смахни влево или вправо';
   hint.classList.add('on');
-  setTimeout(() => hint.classList.remove('on'), bot ? 5000 : 2500);
+  // A new run restarts the timer, so the previous run's timer cannot hide this hint early.
+  clearTimeout(hintTimer);
+  hintTimer = setTimeout(() => hint.classList.remove('on'), bot ? 5000 : 2500);
   show('hud');
   perf.startRun();
   keepAwake(true);
