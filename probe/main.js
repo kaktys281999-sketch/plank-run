@@ -36,7 +36,8 @@ let world;
 let assets;
 let run;
 let hero = null;
-let keeper;
+let keeper = null;
+let keeperReady = null;
 let heroToken = 0;
 let mode = 'loading';
 let turn = null;
@@ -214,7 +215,7 @@ async function finishRun() {
   const stats = perf.stopRun();
   const camera = cam.snapshot();
   keepAwake(false);
-  await fade(true);
+  await Promise.all([fade(true), keeperReady]);
   enterArena();
   renderResult(stats, camera);
   show('result');
@@ -230,7 +231,7 @@ function enterArena() {
   hero.root.rotation.y = ARENA_HERO.rot;
   world.blob.position.set(ARENA_HERO.x, world.blob.position.y, ARENA_HERO.z);
   hero.loop('Cheering', 0.1);
-  keeper.loop('Skeletons_Idle', 0);
+  keeper?.loop('Skeletons_Idle', 0);
   tauntIn = 3;
   $('#rest').textContent = 'Отдых';
 }
@@ -293,12 +294,12 @@ function step(dt) {
   if (mode === 'arena' && !resting) {
     tauntIn -= dt;
     if (tauntIn <= 0) {
-      keeper.once('Skeletons_Taunt', { fade: 0.2 });
+      keeper?.once('Skeletons_Taunt', { fade: 0.2 });
       tauntIn = 5 + rng() * 3;
     }
   }
   hero?.update(dt);
-  if (world.arenaGroup.visible) keeper.update(dt);
+  if (world.arenaGroup.visible) keeper?.update(dt);
   world.update(dt);
 }
 
@@ -442,6 +443,7 @@ async function prepareShot() {
     // A star caught mid-pop is a half-transparent smudge in a still frame; the prompts get none.
     for (const s of run.stars) if (s.taken) run.free(s);
   } else if (SHOT === 'arena') {
+    await keeperReady;
     startRun(true);
     simulate(RUN_SECONDS - 0.5);
     mode = 'finish';
@@ -475,16 +477,19 @@ async function boot() {
     $('#load-fill').style.width = `${Math.round((loaded / total) * 100)}%`;
   };
   assets = new Assets(manager);
-  const [starTexture] = await Promise.all([assets.loadStarTexture(), assets.loadForest(), assets.loadClips()]);
+  // The chosen hero downloads together with the forest; nothing waits for anything it does not need.
+  const [starTexture] = await Promise.all([assets.loadStarTexture(), assets.loadForest(), assets.loadClips(), assets.loadCharacter(heroFile())]);
   world.buildForest(assets);
   world.buildArena(assets);
   run = new Run(world, assets, starTexture, rng);
-  const keeperRoot = await assets.loadCharacter(KEEPER_FILE);
-  keeper = new Actor(keeperRoot, assets.clips);
-  keeperRoot.position.set(ARENA_KEEPER.x, 0, ARENA_KEEPER.z);
-  keeperRoot.rotation.y = ARENA_KEEPER.rot;
-  keeperRoot.scale.setScalar(ARENA_KEEPER.scale);
-  world.arenaGroup.add(keeperRoot);
+  // The keeper only appears at the finish, so it loads after the first frame instead of before it.
+  keeperReady = assets.loadCharacter(KEEPER_FILE).then((root) => {
+    keeper = new Actor(root, assets.clips);
+    root.position.set(ARENA_KEEPER.x, 0, ARENA_KEEPER.z);
+    root.rotation.y = ARENA_KEEPER.rot;
+    root.scale.setScalar(ARENA_KEEPER.scale);
+    world.arenaGroup.add(root);
+  }).catch((err) => console.error('keeper did not load', err));
   mode = 'pick';
   await setHero();
   applySettings();
