@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<script>
+  // The GitHub Pages copy forwards to the permanent address with the same path (PLAN D25).
+  if (location.hostname.endsWith('.github.io')) location.replace('https://plank.erg-team.ru' + location.pathname.replace(/^\/plank-run/, '') + location.search + location.hash);
+</script>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#5CA2E0">
+<title>Проба облика Plank Run</title>
+<link rel="stylesheet" href="probe.css">
+<script type="importmap">
+{
+  "imports": {
+    "three": "../vendor/three/0.186.1/three.module.js",
+    "three/addons/": "../vendor/three/0.186.1/addons/"
+  }
+}
+</script>
+<script type="module" src="main.js"></script>
+</head>
+<body>
+<canvas id="scene"></canvas>
+<div id="dim" class="dim"></div>
+
+<section id="loading" class="screen loading">
+  <p id="load-text">Загружаю лес и героев</p>
+  <div class="loadbar"><i id="load-fill"></i></div>
+</section>
+
+<section id="pick" class="screen pick" hidden>
+  <div class="banner"><span>Выбери героя</span></div>
+  <button id="prev" class="arrow prev" aria-label="Предыдущий герой">‹</button>
+  <button id="next" class="arrow next" aria-label="Следующий герой">›</button>
+  <div class="sheet panel">
+    <h1 id="hero-name" class="hero-name"></h1>
+    <div id="hero-chips" class="chips"></div>
+    <div id="outfit-chips" class="chips" hidden></div>
+    <div class="actions">
+      <button id="go-self" class="btn gold">Бежать самому</button>
+      <button id="go-bot" class="btn cream">Бот бежит сам</button>
+    </div>
+  </div>
+</section>
+
+<section id="hud" class="screen hud" hidden>
+  <div class="hud-top">
+    <div class="counter"><img src="../assets/ui/kenney-ui-adventure/minimap_icon_star_yellow.svg" alt=""><b id="star-count">0</b></div>
+    <div class="timebar" aria-hidden="true"><i id="time-fill"></i></div>
+  </div>
+  <p id="hint" class="hint"></p>
+</section>
+
+<section id="result" class="screen result" hidden>
+  <div class="banner"><span>Финиш</span></div>
+  <div class="sheet panel">
+    <dl id="stats" class="stats"></dl>
+    <div class="actions">
+      <button id="again" class="btn gold">Ещё забег</button>
+      <div class="row2">
+        <button id="to-pick" class="btn cream">Другой герой</button>
+        <button id="rest" class="btn cream">Отдых</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<button id="perf" class="perf">к/с</button>
+<video id="cam" class="cam" playsinline muted hidden></video>
+
+<section id="measure" class="measure panel" hidden>
+  <h2>Замер</h2>
+  <div class="opt"><span>Камера сидя</span><button id="cam-toggle" class="seg-one">Включить</button></div>
+  <p id="cam-note" class="note">Сядь перед телефоном, чтобы лицо было в кадре. Это замер, а не игра.</p>
+  <div class="opt"><span>Тени</span><div id="seg-shadows" class="segs"><button data-v="on">Вкл</button><button data-v="off">Выкл</button></div></div>
+  <div class="opt"><span>Чёткость</span><div id="seg-dpr" class="segs"><button data-v="1">1×</button><button data-v="1.5">1,5×</button><button data-v="2">2×</button></div></div>
+  <dl id="live" class="stats"></dl>
+  <button id="measure-close" class="btn cream">Готово</button>
+</section>
+
+<div id="fade" class="fade"></div>
+</body>
+</html>

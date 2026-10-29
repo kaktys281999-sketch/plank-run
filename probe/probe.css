@@ -1,0 +1,331 @@
+/* Look probe. Colours are roles over Kenney UI Pack Adventure fills (CC0), see probe/palette.js
+   for the 3D side. Panels and the banner are the pack's own SVGs; buttons, bars and chips are
+   interface shapes, which code may draw (PLAN D34). */
+
+:root {
+  --surface: #fff1d2;      /* panel_brown.svg, cream */
+  --wood: #b47b41;         /* panel_brown.svg, wood */
+  --ink: #6d4b27;          /* panel_brown.svg, outline; text on cream */
+  --accent: #ffb600;       /* minimap_icon_star_yellow.svg */
+  --success: #72b84e;      /* progress_green.svg */
+  --ribbon-dark: #8e3f38;  /* banner_classic_curtain.svg */
+  --sky: #5ca2e0;          /* panel_grey_blue.svg */
+  --shade: rgba(81, 95, 107, 0.55); /* button_grey.svg #515F6B, rest dimming */
+  --font: ui-rounded, "SF Pro Rounded", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --safe-top: max(12px, env(safe-area-inset-top));
+  --safe-bottom: max(12px, env(safe-area-inset-bottom));
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+
+html, body {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+  overscroll-behavior: none;
+  background: var(--sky);
+  color: var(--ink);
+  font-family: var(--font);
+  -webkit-tap-highlight-color: transparent;
+  -webkit-user-select: none;
+  user-select: none;
+  /* No double-tap zoom on iPhone while tapping chips and buttons. */
+  touch-action: manipulation;
+}
+
+#scene {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  touch-action: none;
+}
+
+button { font: inherit; color: inherit; cursor: pointer; }
+
+.screen {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  pointer-events: none;
+}
+.screen > * { pointer-events: auto; }
+
+/* ---------- pack pieces ---------- */
+
+.panel {
+  border-style: solid;
+  border-width: 14px;
+  border-image: url(../assets/ui/kenney-ui-adventure/panel_brown.svg) 10 fill / 14px / 0 stretch;
+}
+
+.banner {
+  position: absolute;
+  top: calc(var(--safe-top) + 48px);
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(86vw, 340px);
+  aspect-ratio: 4 / 1;
+  background: url(../assets/ui/kenney-ui-adventure/banner_classic_curtain.svg) center / 100% 100% no-repeat;
+  display: grid;
+  place-items: center;
+  /* Lifts the text onto the ribbon band; a percentage here would follow the window width. */
+  padding-bottom: 16px;
+  pointer-events: none;
+}
+.banner span {
+  color: var(--surface);
+  font-size: clamp(20px, 6.4vw, 26px);
+  font-weight: 900;
+  letter-spacing: 0.01em;
+  text-shadow: 0 2px 0 var(--ribbon-dark);
+}
+
+/* ---------- buttons ---------- */
+
+.btn {
+  display: block;
+  width: 100%;
+  min-height: 56px;
+  padding: 10px 16px;
+  border: 3px solid var(--ink);
+  border-radius: 18px;
+  background: var(--surface);
+  box-shadow: 0 5px 0 var(--ink);
+  font-size: 20px;
+  font-weight: 900;
+  transition: transform 0.06s, box-shadow 0.06s;
+}
+.btn:active { transform: translateY(3px); box-shadow: 0 2px 0 var(--ink); }
+.btn.gold { background: var(--accent); }
+
+.arrow {
+  position: absolute;
+  top: 31%;
+  width: 58px;
+  height: 58px;
+  border: 0;
+  background: url(../assets/ui/kenney-ui-adventure/round_brown.svg) center / 100% 100% no-repeat;
+  font-size: 38px;
+  font-weight: 900;
+  line-height: 1;
+  padding-bottom: 6px;
+}
+.arrow.prev { left: 10px; }
+.arrow.next { right: 10px; }
+.arrow:active { transform: scale(0.94); }
+
+.chips { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin: 0 0 12px; }
+.chip {
+  min-height: 44px;
+  padding: 6px 14px;
+  border: 3px solid var(--ink);
+  border-radius: 999px;
+  background: transparent;
+  font-size: 16px;
+  font-weight: 800;
+}
+.chip.on { background: var(--accent); }
+
+/* ---------- sheets ---------- */
+
+.sheet {
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  bottom: var(--safe-bottom);
+  max-width: 460px;
+  margin: 0 auto;
+  padding: 2px 4px 8px;
+}
+.hero-name {
+  margin: 0 0 8px;
+  text-align: center;
+  font-size: 30px;
+  font-weight: 900;
+}
+.actions { display: grid; gap: 12px; }
+.row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.row2 .btn { font-size: 16px; padding: 8px 6px; }
+
+.stats {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 6px 12px;
+  margin: 2px 2px 14px;
+}
+.stats dt { font-size: 15px; font-weight: 700; white-space: nowrap; }
+.stats dd { margin: 0; text-align: right; font-size: 17px; font-weight: 900; }
+
+/* ---------- loading ---------- */
+
+.loading {
+  display: grid;
+  place-content: center;
+  gap: 14px;
+  text-align: center;
+  background: var(--sky);
+  pointer-events: auto;
+}
+.loading p {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 900;
+  color: var(--surface);
+  text-shadow: 0 2px 0 var(--ink);
+}
+.loadbar, .timebar {
+  height: 18px;
+  border: 3px solid var(--ink);
+  border-radius: 12px;
+  background: var(--surface);
+  overflow: hidden;
+}
+.loadbar { width: min(70vw, 280px); margin: 0 auto; }
+.loadbar i, .timebar i {
+  display: block;
+  height: 100%;
+  width: 0;
+  background: var(--success);
+  transition: width 0.2s;
+}
+
+/* ---------- run ---------- */
+
+.hud { pointer-events: auto; touch-action: none; }
+.hud-top {
+  position: absolute;
+  top: var(--safe-top);
+  left: 10px;
+  right: 92px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.counter {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px 4px 8px;
+  border: 3px solid var(--ink);
+  border-radius: 999px;
+  background: var(--surface);
+  box-shadow: 0 3px 0 var(--ink);
+}
+.counter img { width: 28px; height: 28px; }
+.counter b { font-size: 24px; font-weight: 900; min-width: 1.4em; }
+.timebar { flex: 1; }
+.timebar i { transition: none; }
+
+.hint {
+  position: absolute;
+  left: 16px;
+  right: 16px;
+  top: 22%;
+  margin: 0;
+  text-align: center;
+  font-size: clamp(20px, 6vw, 26px);
+  font-weight: 900;
+  line-height: 1.2;
+  color: var(--surface);
+  text-shadow:
+    0 3px 0 var(--ink), 3px 0 0 var(--ink), -3px 0 0 var(--ink), 0 -3px 0 var(--ink),
+    2px 2px 0 var(--ink), -2px 2px 0 var(--ink), 2px -2px 0 var(--ink), -2px -2px 0 var(--ink);
+  opacity: 0;
+  transition: opacity 0.4s;
+  pointer-events: none;
+}
+.hint.on { opacity: 1; }
+
+/* ---------- measure ---------- */
+
+.perf {
+  position: fixed;
+  top: var(--safe-top);
+  right: 10px;
+  z-index: 20;
+  min-width: 72px;
+  min-height: 44px;
+  padding: 7px 10px;
+  border: 3px solid var(--ink);
+  border-radius: 999px;
+  background: var(--surface);
+  font-size: 15px;
+  font-weight: 900;
+}
+
+/* Under the ribbon on the left, so it never covers the title or the frame counter. */
+.cam {
+  position: fixed;
+  top: calc(var(--safe-top) + 150px);
+  left: 10px;
+  z-index: 20;
+  width: 72px;
+  height: 72px;
+  border: 3px solid var(--ink);
+  border-radius: 50%;
+  object-fit: cover;
+  transform: scaleX(-1);
+  background: var(--ink);
+}
+
+.measure {
+  position: fixed;
+  left: 10px;
+  right: 10px;
+  bottom: var(--safe-bottom);
+  z-index: 30;
+  max-width: 440px;
+  max-height: calc(100% - 90px);
+  margin: 0 auto;
+  overflow: auto;
+  padding: 0 4px 6px;
+}
+.measure h2 { margin: 2px 0 10px; font-size: 22px; font-weight: 900; text-align: center; }
+.opt { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 0 0 10px; font-size: 17px; font-weight: 800; }
+.segs { display: flex; gap: 6px; }
+.segs button, .seg-one {
+  min-width: 52px;
+  min-height: 44px;
+  padding: 6px 10px;
+  border: 3px solid var(--ink);
+  border-radius: 12px;
+  background: transparent;
+  font-size: 15px;
+  font-weight: 800;
+}
+.segs button.on { background: var(--accent); }
+.seg-one { background: var(--accent); }
+.note { margin: -4px 0 12px; font-size: 14px; font-weight: 700; line-height: 1.35; }
+
+/* ---------- overlays ---------- */
+
+.fade {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  background: var(--surface);
+  opacity: 0;
+  transition: opacity 0.3s;
+  pointer-events: none;
+}
+.fade.on { opacity: 1; }
+
+.dim {
+  position: fixed;
+  inset: 0;
+  z-index: 5;
+  background: var(--shade);
+  opacity: 0;
+  transition: opacity 0.6s;
+  pointer-events: none;
+}
+.dim.on { opacity: 1; }
+
+/* Clean frames for the backdrop prompts: the scene only. */
+body.shot .screen,
+body.shot .perf,
+body.shot .cam,
+body.shot .measure { display: none !important; }
