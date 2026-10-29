@@ -149,11 +149,12 @@ function renderHistory() {
   const history = loadHistory();
   $('#history-card').hidden = history.length === 0;
   if (!history.length) return;
-  const best = Math.max(...history.map((h) => h.held));
+  // No "best hold" cell: praising hold length breaks D2. Targets are capped at 45 s, so hitting one is safe to count.
+  const goals = history.filter((h) => h.target > 0 && h.held >= h.target).length;
   const bestScore = Math.max(...history.map((h) => h.score));
   const total = history.reduce((a, h) => a + h.held, 0);
   $('#bests').innerHTML = '';
-  for (const [v, k] of [[fmtTime(best), 'лучшая планка'], [bestScore, 'рекорд очков'], [history.length, 'подходов'], [fmtTime(total), 'всего в планке']]) {
+  for (const [v, k] of [[goals, 'целей выполнено'], [bestScore, 'рекорд очков'], [history.length, 'подходов'], [fmtTime(total), 'всего в планке']]) {
     const div = document.createElement('div');
     div.innerHTML = '<span class="v"></span><span class="k"></span>';
     div.querySelector('.v').textContent = v;
@@ -534,7 +535,8 @@ function finish(reason) {
   const s = session;
   if (!s || s.phase === 'over') return;
   s.phase = 'over';
-  const previousBest = Math.max(0, ...loadHistory().map((h) => h.held));
+  // Records count points within the same game, never seconds held (D2).
+  const previousBest = Math.max(0, ...loadHistory().filter((h) => h.game === settings.game).map((h) => h.score ?? 0));
   const result = {
     date: Date.now(),
     held: Math.round(s.held * 10) / 10,
@@ -560,9 +562,9 @@ function showResults(r, previousBest, demo) {
     ? 'Демо-режим: результат не сохраняется'
     : reasonText(r.reason);
   $('#res-time').textContent = fmtTime(r.held);
-  const record = !demo && r.held > previousBest && previousBest > 0;
+  const record = !demo && r.score > previousBest && previousBest > 0;
   $('#res-sub').textContent = record
-    ? 'Новый рекорд!'
+    ? 'Новый рекорд очков!'
     : r.held >= r.target ? `Цель ${fmtTime(r.target)} выполнена!` : `Цель ${fmtTime(r.target)}: не хватило ${Math.ceil(r.target - r.held)} с`;
   const grid = $('#res-grid');
   grid.innerHTML = '';
