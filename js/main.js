@@ -13,6 +13,9 @@ const $ = (sel) => document.querySelector(sel);
 
 const END_AFTER = 4;  // seconds of broken form before the set ends
 const COUNTDOWN = 3;
+// D2 by the clock: a set ends 45 s after the countdown, pauses included. `held` grows
+// only with good form, so without this short breaks could stretch a set past 45 s.
+const SET_LIMIT = 45;
 const SAFETY_VERSION = 1;
 
 // Form issue -> voice line id (texts and clips: js/voice-lines.js, assets/voice/).
@@ -221,7 +224,7 @@ async function start(demo) {
   pose = null;
   session = {
     demo, axis,
-    phase: null, phaseStart: 0,
+    phase: null, phaseStart: 0, holdStart: null,
     held: 0, broken: 0, breaks: 0,
     lastMilestone: 0, lastVoice: 0,
     calibProgress: 0,
@@ -258,6 +261,8 @@ async function start(demo) {
 function setPhase(phase) {
   session.phase = phase;
   session.phaseStart = performance.now() / 1000;
+  // The SET_LIMIT clock starts once the countdown is over, whether it ran out or form broke.
+  if (session.holdStart === null && (phase === 'play' || phase === 'paused')) session.holdStart = session.phaseStart;
   $('#play').classList.toggle('calibrating', phase === 'calibrate');
   if (phase === 'calibrate') {
     $('#cam').classList.remove('hidden');
@@ -324,6 +329,7 @@ function loop(now, owner) {
     issue = pose?.issue ?? 'lost';
   }
   game.setInput(input);
+  if (clockLimit(t)) return;
 
   const inPhase = t - s.phaseStart;
   switch (s.phase) {
@@ -428,6 +434,17 @@ function milestones() {
     say(left <= 5 ? 'five_left' : left <= 10 ? 'ten_left' : 'breathe', { minGap: 5, interrupt: true });
   }
   return false;
+}
+
+// SET_LIMIT works in every phase, pauses and recalibration included. The set ends as calmly
+// as at the target: no "fell short", no record of time. Returns true when the session has finished.
+function clockLimit(t) {
+  const s = session;
+  if (s.holdStart === null || t - s.holdStart < SET_LIMIT) return false;
+  sound.win();
+  say('p_rest', { interrupt: true });
+  finish('limit');
+  return true;
 }
 
 // ---------------- HUD / overlays ----------------
@@ -563,9 +580,7 @@ function showResults(r, previousBest, demo) {
     : reasonText(r.reason);
   $('#res-time').textContent = fmtTime(r.held);
   const record = !demo && r.score > previousBest && previousBest > 0;
-  $('#res-sub').textContent = record
-    ? 'Новый рекорд очков!'
-    : r.held >= r.target ? `Цель ${fmtTime(r.target)} выполнена!` : `Цель ${fmtTime(r.target)}: не хватило ${Math.ceil(r.target - r.held)} с`;
+  $('#res-sub').textContent = subText(r, record);
   const grid = $('#res-grid');
   grid.innerHTML = '';
   const cells = [...r.summary, [`${Math.round(r.formPct * 100)}%`, 'времени с хорошей техникой'], [r.breaks, 'срывов техники']];
@@ -579,8 +594,17 @@ function showResults(r, previousBest, demo) {
   $('#res-tip').textContent = tipFor(r);
 }
 
+function subText(r, record) {
+  if (record) return 'Новый рекорд очков!';
+  if (r.held >= r.target) return `Цель ${fmtTime(r.target)} выполнена!`;
+  // The clock ended the set: it is simply over, nothing "fell short".
+  if (r.reason === 'limit') return `Подход длится не дольше ${SET_LIMIT} с, паузы тоже в счёт`;
+  return `Цель ${fmtTime(r.target)}: не хватило ${Math.ceil(r.target - r.held)} с`;
+}
+
 function reasonText(reason) {
   if (reason === 'target') return 'Цель выполнена — отдыхай';
+  if (reason === 'limit') return `Прошло ${SET_LIMIT} с, отдыхай`;
   if (reason === 'form') return `Подход завершён: техника нарушена дольше ${END_AFTER} с`;
   return 'Подход завершён';
 }

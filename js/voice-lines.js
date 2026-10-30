@@ -53,9 +53,9 @@ export const VOICE_LINES = {
 
 export const VOICE_LINE_IDS = Object.keys(VOICE_LINES);
 
-// What a game session loads: no need to fetch the 20 protocol prompts for it.
+// What a game session loads: of the 20 protocol prompts only p_rest, which ends a set at the clock limit.
 export const GAME_LINE_IDS = [
   'breathe', 'ten_left', 'five_left', 'goal', 'great_hold', 'get_in_plank_front', 'get_in_plank_side',
   'lift_hips', 'lower_hips', 'straighten_legs', 'cant_see', 'look_screen', 'back_to_plank',
-  'back_to_place', 'press_floor', 'come_closer', 'jar_full',
+  'back_to_place', 'press_floor', 'come_closer', 'jar_full', 'p_rest',
 ];
