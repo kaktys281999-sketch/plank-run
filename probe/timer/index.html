@@ -1,0 +1,326 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<script>
+  // The GitHub Pages copy forwards to the permanent address with the same path (PLAN D25).
+  if (location.hostname.endsWith('.github.io')) location.replace('https://plank.erg-team.ru' + location.pathname.replace(/^\/plank-run/, '') + location.search + location.hash);
+</script>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#5CA2E0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Таймер">
+<title>Проба таймера Plank Run</title>
+<meta property="og:title" content="Проба таймера Plank Run">
+<meta property="og:description" content="Отсчёт, подход 20 секунд, голос и отдых на своём телефоне. Без камеры, страница ничего не отправляет.">
+<link rel="stylesheet" href="timer.css">
+<script type="module" src="main.js"></script>
+</head>
+<body>
+
+<!-- ============ INTRO ============ -->
+<section id="intro" class="screen page" hidden>
+  <div class="banner"><h1>Проба таймера</h1></div>
+  <div class="panel card">
+    <p class="lead">Проверяем таймер подхода на твоём телефоне. Это не тренировка, подход всего 20 секунд.</p>
+    <p class="label">Что проверить</p>
+    <ol class="list">
+      <li>Читаются ли цифры из рук, с пола и с полки.</li>
+      <li>Не гаснет ли экран.</li>
+      <li>Слышен ли голос, когда сбоку включён «Без звука».</li>
+      <li>Нравится ли петля «отсчёт, держи, отдых».</li>
+    </ol>
+    <p class="note">Займёт 10-15 минут. В конце открой «Замер и ответы», скопируй текст и пришли его в чат. Камера не нужна, страница ничего никуда не отправляет.</p>
+    <p id="fast-note" class="note warn" hidden>Ускоренный режим для проверки страницы. Для замера открой адрес без «?fast».</p>
+    <div class="actions">
+      <button type="button" id="go" class="btn gold">Начать</button>
+      <button type="button" class="btn ghost" data-open="measure">Замер и ответы</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SAFETY (same gate and stored outcome as the prototype) ============ -->
+<section id="safety" class="screen page" hidden>
+  <div class="panel card" id="safety-form">
+    <h2>Перед первым подходом</h2>
+    <p class="disclaimer">Plank Run это игра, а не медицинский сервис. Удержание позы повышает давление, поэтому дыши ровно и не задерживай дыхание. При боли или головокружении сразу остановись.</p>
+    <p class="label">Ответь честно. Ответы никуда не отправляются, на телефоне остаётся только итог «можно» или «нельзя».</p>
+    <ol class="questions">
+      <li>
+        <span>Бывает ли у тебя боль, давление или стеснение в груди?</span>
+        <div class="seg"><label><input type="radio" name="q1" value="yes"><span>Да</span></label><label><input type="radio" name="q1" value="no"><span>Нет</span></label></div>
+      </li>
+      <li>
+        <span>Бывает ли одышка в покое или от небольшой нагрузки, перебои в сердце?</span>
+        <div class="seg"><label><input type="radio" name="q2" value="yes"><span>Да</span></label><label><input type="radio" name="q2" value="no"><span>Нет</span></label></div>
+      </li>
+      <li>
+        <span>Была ли за последний год потеря сознания или падение от головокружения?</span>
+        <div class="seg"><label><input type="radio" name="q3" value="yes"><span>Да</span></label><label><input type="radio" name="q3" value="no"><span>Нет</span></label></div>
+      </li>
+      <li>
+        <span>Давление в покое по последним измерениям 160/90 и выше, или ты его не знаешь?</span>
+        <div class="seg"><label><input type="radio" name="q4" value="yes"><span>Да</span></label><label><input type="radio" name="q4" value="no"><span>Нет</span></label></div>
+      </li>
+    </ol>
+    <label class="toggle"><input type="checkbox" id="safety-accept"><span>Понимаю, при боли или плохом самочувствии остановлюсь сразу</span></label>
+    <div class="actions">
+      <button type="button" id="safety-continue" class="btn gold" disabled>Продолжить</button>
+      <button type="button" id="safety-back" class="btn ghost">Назад</button>
+    </div>
+  </div>
+  <div class="panel card" id="safety-stop" hidden>
+    <h2>Сначала к врачу</h2>
+    <p>Хотя бы на один вопрос ответ «да». Удержание позы ненадолго повышает давление и нагружает сердце, поэтому сначала обсуди такую нагрузку с врачом.</p>
+    <p>Пробу можно пройти без упражнения, просто смотри и слушай.</p>
+    <div class="actions">
+      <button type="button" id="safety-watch" class="btn gold">Без упражнения</button>
+      <button type="button" id="safety-redo" class="btn ghost">Изменить ответы</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ BLOCKED FOR A DAY ============ -->
+<section id="blocked" class="screen page" hidden>
+  <div class="panel card">
+    <h2>Подходы пока закрыты</h2>
+    <p>После «Болит» подходы закрыты до завтра, после «Плохо себя чувствую» на сутки. <span id="blocked-left"></span></p>
+    <p>Пробу можно пройти без упражнения, просто смотри и слушай.</p>
+    <div class="actions">
+      <button type="button" id="blocked-watch" class="btn gold">Без упражнения</button>
+      <button type="button" class="btn ghost" data-open="measure">Замер и ответы</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SETUP ============ -->
+<section id="setup" class="screen page" hidden>
+  <div class="panel card">
+    <h2>Настрой подход</h2>
+    <p id="watch-note" class="note warn" hidden>Без упражнения. Вставать в позу не нужно, просто смотри и слушай.</p>
+
+    <p class="label">Упражнение</p>
+    <div id="ex-chips" class="chips"></div>
+    <p id="stop-hint" class="hint stop-hint"></p>
+
+    <p class="label">Где телефон</p>
+    <div id="place-chips" class="chips"></div>
+    <p id="place-hint" class="hint"></p>
+
+    <p class="label">Раскладка</p>
+    <div id="layout-chips" class="chips"></div>
+    <p id="orient-hint" class="hint" hidden>Поставь телефон боком, тогда цифры будут крупнее.</p>
+
+    <div id="dim-warning" class="warn-card" hidden>
+      <strong>Экран может погаснуть.</strong> На этой версии iOS приложение с экрана «Домой» не держит экран включённым. Держи телефон в руках или открой пробу во вкладке Safari.
+    </div>
+
+    <p class="label">Звук</p>
+    <div id="mode-chips" class="chips">
+      <button type="button" class="chip on" data-mode="playback">Тренер слышен всегда</button>
+      <button type="button" class="chip" data-mode="ambient">Слушаю свою музыку</button>
+    </div>
+    <p class="hint">В первом режиме голос слышен и при «Без звука», а музыка другого приложения встаёт на паузу. Во втором музыка играет дальше, а при «Без звука» тренер молчит.</p>
+
+    <div class="soundcheck">
+      <button type="button" id="sound-test" class="btn">Проверить звук</button>
+      <div id="sound-ask" class="sound-ask" hidden>
+        <p class="label">Слышно сигнал?</p>
+        <div class="row2">
+          <button type="button" class="btn" data-heard="yes">Слышу</button>
+          <button type="button" class="btn" data-heard="no">Не слышу</button>
+        </div>
+      </div>
+      <p id="sound-help" class="hint" hidden>Проверь переключатель «Без звука» сбоку и громкость, потом нажми «Проверить звук» ещё раз. В режиме «Слушаю свою музыку» при «Без звука» тренера не слышно.</p>
+    </div>
+
+    <div class="actions">
+      <button type="button" id="begin" class="btn gold" disabled>Начинаю</button>
+      <button type="button" class="btn ghost" data-open="measure">Замер и ответы</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SET ============ -->
+<section id="set" class="screen set" data-layout="close" data-state="prep" hidden>
+  <header class="set-top">
+    <p id="set-title" class="set-title"></p>
+    <button type="button" id="set-pain" class="pain-chip">Болит</button>
+  </header>
+  <p id="watch-banner" class="watch-banner" hidden>Без упражнения, смотри и слушай</p>
+  <div class="field">
+    <div class="dial">
+      <svg class="ring" viewBox="0 0 100 100" aria-hidden="true">
+        <circle class="ring-bg" cx="50" cy="50" r="44"></circle>
+        <circle id="ring" class="ring-fg" cx="50" cy="50" r="44"></circle>
+      </svg>
+      <div id="digit" class="digit">10</div>
+      <div id="done-mark" class="done-mark" hidden>
+        <img src="../../assets/ui/kenney-ui-adventure/minimap_icon_star_yellow.svg" alt="">
+      </div>
+    </div>
+    <p id="state-word" class="state-word">Готовься</p>
+    <p id="cue-line" class="cue-line"></p>
+    <p id="subtitle" class="subtitle" aria-live="polite"></p>
+  </div>
+  <div class="set-bottom">
+    <button type="button" id="skip-prep" class="btn gold">Начинаю</button>
+    <button type="button" id="stop" class="btn stop" hidden>Стоп</button>
+  </div>
+  <div id="far-controls" class="far-controls" hidden>
+    <button type="button" id="far-pain" class="btn">Болит</button>
+    <button type="button" id="far-stop" class="btn stop">Стоп</button>
+  </div>
+</section>
+
+<!-- ============ INTERRUPTED ============ -->
+<section id="interrupted" class="screen dark" hidden>
+  <div class="center">
+    <h2>Подход прерван</h2>
+    <div id="int-digit" class="digit mid">10</div>
+    <p class="hint light">Экран выключался или было открыто другое приложение. Время подхода шло дальше.</p>
+    <div class="actions">
+      <button type="button" id="int-resume" class="btn gold">Продолжить</button>
+      <button type="button" id="int-end" class="btn">Закончить подход</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ REST ============ -->
+<section id="rest" class="screen dark rest" hidden>
+  <div id="mark-card" class="panel card mark-card">
+    <h2>До конца получилось?</h2>
+    <div class="row3">
+      <button type="button" class="btn" data-mark="yes">Да</button>
+      <button type="button" class="btn" data-mark="gap">С перерывом</button>
+      <button type="button" class="btn" data-mark="no">Нет</button>
+    </div>
+    <div class="row2 small">
+      <button type="button" class="btn ghost" data-wellbeing="pain">Болит</button>
+      <button type="button" class="btn ghost" data-wellbeing="unwell">Плохо себя чувствую</button>
+    </div>
+  </div>
+  <div id="marked" class="marked" hidden>
+    <span id="marked-text"></span>
+    <button type="button" id="mark-change" class="link">Изменить</button>
+  </div>
+  <div class="rest-mid">
+    <p id="await-text" class="await-text" hidden>Отметь подход</p>
+    <div id="rest-digit" class="digit">60</div>
+    <p id="rest-word" class="state-word light">Отдых</p>
+    <p id="rest-next" class="rest-next"></p>
+    <p id="rest-note" class="hint light"></p>
+  </div>
+  <div class="rest-actions">
+    <button type="button" id="rest-go" class="btn gold" hidden>Начинаю</button>
+    <div class="row2">
+      <button type="button" id="rest-more" class="btn">+30 с</button>
+      <button type="button" id="rest-finish" class="btn">Закончить</button>
+    </div>
+    <button type="button" id="rest-change" class="btn">Сменить упражнение</button>
+  </div>
+</section>
+
+<!-- ============ WHY STOPPED ============ -->
+<section id="why" class="screen page" hidden>
+  <div class="panel card">
+    <h2>Что остановило?</h2>
+    <div class="actions">
+      <button type="button" class="btn" data-reason="tired">Усталость</button>
+      <button type="button" class="btn" data-reason="awkward">Неудобно</button>
+      <button type="button" class="btn" data-wellbeing="pain">Болит</button>
+      <button type="button" class="btn" data-wellbeing="unwell">Плохо себя чувствую</button>
+    </div>
+    <p class="hint">Остановиться можно всегда.</p>
+  </div>
+</section>
+
+<!-- ============ PAIN ============ -->
+<section id="pain" class="screen page" hidden>
+  <div class="panel card">
+    <h2>Болит</h2>
+    <p>Подходы на сегодня заканчиваем, до завтра они закрыты. Если боль острая или не проходит, покажись врачу.</p>
+    <div class="actions">
+      <button type="button" class="btn gold" data-open="measure">Замер и ответы</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ UNWELL ============ -->
+<section id="unwell" class="screen page" hidden>
+  <div class="panel card">
+    <h2>Плохо себя чувствую</h2>
+    <p>Если есть хоть что-то из списка, сразу звони в экстренную помощь.</p>
+    <ul class="list">
+      <li>Боль или давление в груди</li>
+      <li>Перебои в сердце</li>
+      <li>Необычная одышка</li>
+      <li>Головокружение</li>
+      <li>Сильная внезапная головная боль</li>
+      <li>Онемение или боль, отдающая в руку или ногу</li>
+    </ul>
+    <p class="strong">Россия 112 или 103. Узбекистан 103. Казахстан 112 или 103. В другой стране номер экстренной помощи этой страны.</p>
+    <p>Подходы закрыты на сутки.</p>
+    <div class="actions">
+      <button type="button" class="btn gold" data-open="measure">Понятно</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ MEASURE ============ -->
+<section id="measure" class="screen page" hidden>
+  <div class="panel card">
+    <h2>Замер и ответы</h2>
+    <p class="note">Ответь на то, что получилось проверить, остальное оставь. Потом нажми «Скопировать» и пришли текст в чат.</p>
+
+    <label class="field-label" for="phone">Модель телефона и версия системы</label>
+    <input id="phone" class="input" type="text" autocomplete="off" placeholder="например, iPhone 15, iOS 26.1">
+
+    <div id="questions"></div>
+
+    <p class="label">Заряд, если смотришь</p>
+    <div class="row3 inputs">
+      <label><span>До, %</span><input class="input" id="batteryBefore" inputmode="numeric"></label>
+      <label><span>После, %</span><input class="input" id="batteryAfter" inputmode="numeric"></label>
+      <label><span>Минут</span><input class="input" id="batteryMinutes" inputmode="numeric"></label>
+    </div>
+
+    <p class="label">Ещё проверки</p>
+    <div class="actions">
+      <button type="button" id="ics-open" class="btn">Открыть файл календаря</button>
+      <button type="button" id="ics-download" class="btn">Скачать файл календаря</button>
+      <button type="button" id="screentest-go" class="btn">Экран на 20 минут</button>
+    </div>
+    <p class="hint">Файл календаря ставит напоминание по понедельникам, средам и пятницам в 19 часов. Его можно сразу удалить из календаря.</p>
+
+    <label class="field-label" for="comment">Что ещё бросилось в глаза</label>
+    <textarea id="comment" class="input" rows="3"></textarea>
+
+    <p class="label">Текст замера</p>
+    <textarea id="report" class="input report" rows="8" readonly></textarea>
+    <div class="actions">
+      <button type="button" id="copy" class="btn gold">Скопировать</button>
+      <button type="button" id="share" class="btn" hidden>Поделиться</button>
+      <p id="copy-status" class="hint" aria-live="polite"></p>
+      <button type="button" id="measure-back" class="btn ghost">Вернуться к пробе</button>
+      <button type="button" id="measure-reset" class="btn ghost">Начать замер заново</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SCREEN TEST ============ -->
+<section id="screentest" class="screen set" data-layout="far" data-state="hold" hidden>
+  <div class="field">
+    <div id="st-digit" class="digit">20</div>
+    <p class="state-word">минут</p>
+    <p class="hint">Положи телефон и не трогай. Экран не должен погаснуть. Запиши заряд до и после в замере.</p>
+  </div>
+  <div class="set-bottom">
+    <button type="button" id="st-end" class="btn">Закончить</button>
+  </div>
+</section>
+
+</body>
+</html>
